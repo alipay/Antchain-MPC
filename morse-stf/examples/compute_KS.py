@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+   Ant Group Copyright (c) 2004-2020 All Rights Reserved.
+"""
 from sklearn import metrics
 import pandas as pd
 import numpy as np

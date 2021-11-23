@@ -1,3 +1,6 @@
+"""
+   Ant Group Copyright (c) 2004-2020 All Rights Reserved.
+"""
 import os
 from stensorflow.engine.start_server import start_local_server
 start_local_server(os.path.join(os.environ.get("stf_home", ".."), "conf", "config.json"))

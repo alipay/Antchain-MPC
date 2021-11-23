@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # coding=utf-8
+"""
+   Ant Group Copyright (c) 2004-2020 All Rights Reserved.
+"""
 from stensorflow.global_var import StfConfig
 from stensorflow.basic.basic_class.base import PrivateTensorBase, SharedPairBase, SharedTensorBase
 from typing import Union
