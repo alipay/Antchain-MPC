@@ -1,3 +1,5 @@
+//   Ant Group Copyright (c) 2004-2020 All Rights Reserved.
+
 #include "tensorflow/core/framework/op.h"
 #include "tensorflow/core/framework/shape_inference.h"
 #include "./inc/rbg.h"

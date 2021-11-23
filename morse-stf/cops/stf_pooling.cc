@@ -1,3 +1,6 @@
+//   Ant Group Copyright (c) 2004-2020 All Rights Reserved.
+// Copyright 2016 The TensorFlow Authors. All Rights Reserved.
+
 #define EIGEN_USE_THREADS
 #include <vector>
 #include "tensorflow/core/framework/shape_inference.h"
