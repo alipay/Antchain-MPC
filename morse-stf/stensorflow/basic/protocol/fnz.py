@@ -8,7 +8,8 @@
    Author : Qizhi Zhang
    Email: qizhi.zqz@antgroup.com
    Create Time : 2020-06-04 19:13
-   Description : Find the First Non-Zero bit:  https://arxiv.org/pdf/2007.03975.pdf   Algorithm 6
+   Description : Find the First Non-Zero bit:  https://eprint.iacr.org/2021/857
+
 """
 import tensorflow as tf
 from stensorflow.basic.basic_class.base import SharedTensorBase, SharedPairBase

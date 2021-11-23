@@ -8,7 +8,7 @@
    Author : Qizhi Zhang
    Email: qizhi.zqz@antgroup.com
    Create Time : 2020-06-08 19:35
-   Description : modular transform: https://arxiv.org/pdf/2007.03975.pdf   Algorithm 5
+   Description : modular transform: https://eprint.iacr.org/2021/857
 """
 
 from stensorflow.basic.basic_class.base import SharedPairBase, SharedTensorBase

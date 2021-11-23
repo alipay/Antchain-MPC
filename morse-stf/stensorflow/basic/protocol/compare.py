@@ -8,7 +8,7 @@
    Author : qizhi.zqz
    Email: qizhi.zqz@alibaba-inc.com
    Create Time : 2020-05-14 11:44
-   Description : compare : https://arxiv.org/pdf/2007.03975.pdf   Algorithm 7
+   Description : compare : https://eprint.iacr.org/2021/857
 """
 
 from stensorflow.basic.protocol.fnz import fnz_v3 as fnz

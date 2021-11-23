@@ -8,7 +8,7 @@
    Author : Qizhi Zhang
    Email: qizhi.zqz@antgroup.com
    Create Time : 2020-06-12 14:43
-   Description : (t, x) -> (-1)^tx :  https://arxiv.org/pdf/2007.03975.pdf    Algorithm 1 and Algorithm 2
+   Description : (t, x) -> (-1)^tx : https://eprint.iacr.org/2021/857
 """
 
 from stensorflow.basic.basic_class.pair import SharedPairBase
