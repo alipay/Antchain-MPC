@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 """
-   Alipay.com Inc.
+   Ant Group
    Copyright (c) 2004-2020 All Rights Reserved.
    ------------------------------------------------------
    File Name : sigmoid
