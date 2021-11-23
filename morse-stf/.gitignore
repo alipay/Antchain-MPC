@@ -3,10 +3,6 @@
 .idea/
 db/
 logs/
-cops/_stf_test_macos.so
-cops/stf_test.cc
-cops/test_io.py
-dataset/*.csv
 tests/
 redisdb/
 *.pyc
@@ -23,5 +19,4 @@ cops/inc/
 cops/src/
 dist/
 *.egg-info/
-serialize/*
 self_test/
