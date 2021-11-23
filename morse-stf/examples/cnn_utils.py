@@ -1,4 +1,6 @@
-# 公共函数
+"""
+   Ant Group Copyright (c) 2004-2020 All Rights Reserved.
+"""
 from sklearn.metrics import accuracy_score
 import tensorflow as tf
 import numpy as np

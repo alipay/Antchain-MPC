@@ -1,3 +1,6 @@
+"""
+   Ant Group Copyright (c) 2004-2020 All Rights Reserved.
+"""
 import os
 from stensorflow.engine.start_server import start_local_server, start_client
 start_local_server(config_file="../conf/config.json")

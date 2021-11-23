@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 # coding=utf-8
+"""
+   Ant Group Copyright (c) 2004-2020 All Rights Reserved.
+"""
+
 import tensorflow as tf
 from tensorflow.python.util.compat import collections_abc
 from stensorflow.basic.basic_class.base import SharedTensorBase
@@ -7,6 +11,7 @@ from stensorflow.basic.basic_class.private import PrivateTensor, PrivateTensorBa
 from stensorflow.basic.basic_class.pair import SharedVariablePair, SharedPair,SharedPairBase
 from typing import Union
 from stensorflow.global_var import StfConfig
+
 
 PModel = StfConfig.pool_module
 
