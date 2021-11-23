@@ -1,3 +1,6 @@
+//   Ant Group Copyright (c) 2004-2020 All Rights Reserved.
+// Copyright 2016 The TensorFlow Authors. All Rights Reserved.
+
 #define USE_EIGEN_TENSOR
 #define EIGEN_USE_THREADS
 #include "tensorflow/core/kernels/conv_ops.h"
