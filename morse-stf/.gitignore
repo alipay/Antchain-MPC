@@ -20,3 +20,4 @@ cops/src/
 dist/
 *.egg-info/
 self_test/
+Dockerfile*
