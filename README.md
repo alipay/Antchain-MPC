@@ -6,7 +6,6 @@ Morse-STF: A tool for machine learning using MPC.
 
 Others: Comming soon.
 
-and etc.
 
 ## Morse-STF
 
