@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 # coding=utf-8
+"""
+   Ant Group Copyright (c) 2021
+   All Rights Reserved.
+"""
 from stensorflow.ml.nn.networks.NN import NN
 from stensorflow.ml.nn.layers.input import Input
 from stensorflow.ml.nn.layers.relu import *

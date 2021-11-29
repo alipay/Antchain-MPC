@@ -17,7 +17,7 @@ from stensorflow.ml.nn.layers.layer import Layer
 from stensorflow.ml.nn.layers.input import Input
 from stensorflow.ml.nn.layers.relu import ReLU
 from stensorflow.ml.nn.layers.conv2d import Conv2d
-from stensorflow.ml.nn.layers.pooling import AveragePooling2D
+from stensorflow.ml.nn.layers.pooling import AveragePooling2D, MaxPooling2D
 from stensorflow.basic.basic_class.pair import SharedVariablePair
 from stensorflow.ml.nn.layers.loss import CrossEntropyLossWithSoftmax
 from stensorflow.ml.nn.layers.flatten import Flatten
@@ -41,7 +41,9 @@ class NetworkC(NN):
         layer = ReLU(output_dim=layer.output_dim, fathers=[layer])
         self.addLayer(layer)
         # Average pool
-        layer = AveragePooling2D(output_dim=None, fathers=[layer], pool_size=(2, 2))
+        # layer = AveragePooling2D(output_dim=None, fathers=[layer], pool_size=(2, 2))
+        # Max pooling
+        layer = MaxPooling2D(output_dim=None, fathers=[layer], pool_size=(2, 2))
         self.addLayer(layer)
 
         # 20 input channels, 50 output channels and another 5×5 filter
@@ -53,7 +55,9 @@ class NetworkC(NN):
         layer = ReLU(output_dim=layer.output_dim, fathers=[layer])
         self.addLayer(layer)
         # Average pool
-        layer = AveragePooling2D(output_dim=None, fathers=[layer], pool_size=(2, 2))
+        # layer = AveragePooling2D(output_dim=None, fathers=[layer], pool_size=(2, 2))
+        # Max pooling
+        layer = MaxPooling2D(output_dim=None, fathers=[layer], pool_size=(2, 2))
         self.addLayer(layer)
 
         # flatten data, only consider data_format = "NWHC"
