@@ -14,7 +14,7 @@
 from stensorflow.ml.nn.layers.layer import Layer
 from stensorflow.basic.basic_class.private import PrivateTensor, PrivateTensorBase
 from stensorflow.basic.basic_class.pair import SharedVariablePair, SharedPair
-from stensorflow.basic.operator.relu import relu, drelu_binary, relu_pull_back, relu_local, drelu_local
+from stensorflow.basic.operator.relu import relu, relu_pull_back, relu_local, drelu_local
 from typing import Union, List, Dict
 
 
@@ -25,13 +25,11 @@ class ReLU(Layer):
         if fathers[0].output_dim != output_dim:
             raise Exception("must have fathers[0].output_dim == output_dim")
         super(ReLU, self).__init__(output_dim=output_dim, fathers=fathers)
-        self.drelu_b = None
 
     def func(self, w: List[SharedVariablePair], x: List[Union[PrivateTensor, SharedPair]]):
         if len(x) != 1:
             raise Exception("must have len(x) == 1")
-        self.drelu_b = drelu_binary(x[0])
-        return relu(x[0], drelu_b=self.drelu_b)
+        return relu(x[0])
 
     def pull_back(self, w: List[SharedPair], x: List[Union[PrivateTensor, SharedPair]], y: SharedPair,
                   ploss_py: SharedPair) \
@@ -39,7 +37,7 @@ class ReLU(Layer):
         if len(x) != 1:
             raise Exception("must have len(x)==1")
         # ploss_px = {self.fathers[0]: selectshare(is_positive(x[0]), ploss_py)}
-        ploss_px = {self.fathers[0]: relu_pull_back(x[0], ploss_py, self.drelu_b)}
+        ploss_px = {self.fathers[0]: relu_pull_back(x[0], ploss_py)}
         return [], ploss_px
 
 
