@@ -33,11 +33,11 @@ matchColNum = 1
 featureNumL = 5
 featureNumR = 5
 record_num = 8429
-epoch = 1   # 15
+epoch = 10   # 15
 batch_size = 128
 
 num_features = featureNumL + featureNumR
-dense_dims = [num_features, 32, 32, 1]       # the neural network structure is 32, 32, 1
+dense_dims = [num_features, 7, 7, 1]       # the neural network structure is 32, 32, 1
 l2_regularization = 0.0
 clip_value = 5.0
 
@@ -75,15 +75,6 @@ model = DNN(feature=xL_train, label=y_train, dense_dims=dense_dims, feature_anot
 model.compile()
 
 # -------------start a tensorflow session, and initialize all variables -----------------
-# session_config = tf.compat.v1.ConfigProto(
-#       # log_device_placement=True,
-#       device_count={"CPU": 12},
-#       inter_op_parallelism_threads=1,
-#       intra_op_parallelism_threads=1,
-#       #allow_soft_placement=True
-#       )
-#sess = tf.compat.v1.Session(StfConfig.target, config=session_config)
-
 sess = tf.compat.v1.Session(StfConfig.target)
 init_op = tf.compat.v1.initialize_all_variables()
 sess.run(init_op)

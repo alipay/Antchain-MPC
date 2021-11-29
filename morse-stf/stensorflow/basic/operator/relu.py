@@ -65,9 +65,12 @@ def drelu_local(x: PrivateTensor):
     return z
 
 
-def relu(x: Union[SharedPair, PrivateTensor]):
+def relu(x: Union[SharedPair, PrivateTensor], drelu_b=None):
     if isinstance(x, SharedPair):
-        s = drelu_binary(x)
+        if drelu_b is not None:
+            s = drelu_b
+        else:
+            s = drelu_binary(x)
         y = select_share(s, x)
         return SharedPair.from_SharedPairBase(y)
     elif isinstance(x, PrivateTensor):
@@ -76,8 +79,11 @@ def relu(x: Union[SharedPair, PrivateTensor]):
         raise StfTypeException("x", "SharedPair or PrivateTensor", type(x))
 
 
-def relu_pull_back(x: Union[SharedPair, PrivateTensor], ploss_py):
-    if isinstance(x, SharedPair):
+def relu_pull_back(x: Union[SharedPair, PrivateTensor], ploss_py, drelu_b=None):
+    if drelu_b is not None:
+        ploss_px = select_share(drelu_b, ploss_py)
+        return SharedPair.from_SharedPairBase(ploss_px)
+    elif isinstance(x, SharedPair):
         s = drelu_binary(x)
         ploss_px = select_share(s, ploss_py)
         return SharedPair.from_SharedPairBase(ploss_px)
@@ -85,3 +91,4 @@ def relu_pull_back(x: Union[SharedPair, PrivateTensor], ploss_py):
         return drelu_local(x) * ploss_py
     else:
         raise StfTypeException("x", "SharedPair or PrivateTensor", type(x))
+
