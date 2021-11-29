@@ -9,6 +9,8 @@ from tensorflow.python.util.compat import collections_abc
 from stensorflow.basic.basic_class.base import SharedTensorBase
 from stensorflow.basic.basic_class.private import PrivateTensor, PrivateTensorBase
 from stensorflow.basic.basic_class.pair import SharedVariablePair, SharedPair,SharedPairBase
+from stensorflow.basic.operator.relu import drelu_binary
+from stensorflow.basic.operator.selectshare import select_share
 from typing import Union
 from stensorflow.global_var import StfConfig
 
@@ -124,6 +126,101 @@ def sum_pool2d_grad(input_shape,
     else:
         raise TypeError("Expected PrivateTensorBase or SharedPairBase for 'out_backprop' argument to 'average' Op, not %r." % out_backprop)
 
+
+
+
+
+def max_pool_div2(x: SharedPair,
+               axis, return_index=False):
+    """
+    :param x:  A SharedPair of shape [d1,d2,...,di,...dn]
+    :param axis:  the i
+    :param return_index:  bool
+    :return:  if return_index=False
+                 A SharedPair of shape [d1,d2,...,di/2,...dn]
+            else:
+                a tuple of A SharedPair of shape [d1,d2,...,di/2,...dn] and the
+                    SharedPair of shape  [d1,d2,...,2,...dn] of module==2
+    """
+    xshape = x.shape
+    xshape = xshape[0:axis] + [2, xshape[axis]//2] + xshape[axis+1:]
+    x = x.reshape(xshape)
+    x0, x1 = x.split(size_splits=[1, 1], axis=axis)
+    x0 = x0.squeeze(axis=axis)
+    x1 = x1.squeeze(axis=axis)
+    # print("x0=", x0)
+    # print("x1=", x1)
+    s = drelu_binary(x0-x1)
+    y = select_share(s, x0, x1)
+    if return_index:
+        return y, s
+    else:
+        return y
+
+
+def max_pool_div2_back(ploss_py: SharedPair, axis, s: SharedPair):
+    """
+    (ploss_py,0) if s==0
+    (0, ploss_py) if s==1
+
+    :param ploss_py: SharedPair of shape [d1,...,di,...dn]
+    :param axis:  i
+    :param s:  SharedPair of shape [d1,...,2,...dn]
+    :return:  SharedPair of shape [d1,...,2di,...dn]
+    """
+    if s.xL.module != 2:
+        raise Exception("must have s.module==2")
+    if ploss_py.shape[:axis] != s.shape[:axis]:
+        raise Exception("must have ploss_py.shape[:axis]==s.shape[:axis]")
+    if ploss_py.shape[axis+1:] != s.shape[axis+1:]:
+        raise Exception("must have ploss_py.shape[axis+1:]==s.shape[axis+1:]")
+    # print("s=", s)
+    # print("ploss_py=", ploss_py)
+    sploss_py = select_share(s, ploss_py)
+    ploss_px = (ploss_py - sploss_py).concat(sploss_py, axis=axis)
+    return ploss_px
+
+
+
+
+def max_pool2d(x: Union[PrivateTensor, SharedPair],
+               ksize, return_s=False):
+    if len(x.shape) != len(ksize):
+        raise Exception("must have len(x.shape) == len(ksize), but x.shape={}, ksize={}".format(x.shape, ksize))
+    if return_s:
+        index_list = []
+        for axis in range(len(ksize)):
+            size_in_axis = ksize[axis]
+            while size_in_axis > 1:
+                x, index = max_pool_div2(x, axis, return_index=True)
+                size_in_axis //= 2
+                index_list.append(index)
+        return x, index_list
+    else:
+        for axis in range(len(ksize)):
+            size_in_axis = ksize[axis]
+            while size_in_axis > 1:
+                x = max_pool_div2(x, axis)
+                size_in_axis //= 2
+        return x
+
+
+def max_pool2d_back(x: Union[PrivateTensor, SharedPair], ksize, ploss_py: SharedPair, index_list=None):
+    # print("x=", x)
+    # print("ksize=", ksize)
+    # print("ploss_py=", ploss_py)
+    # print("index_list=", index_list)
+    if index_list is None:
+        y, index_list = max_pool2d(x, ksize, return_s=True)
+    i = len(index_list)-1
+    ploss_px = ploss_py
+    for axis in range(len(ksize)-1, -1, -1):
+        size_in_axis = ksize[axis]
+        while size_in_axis > 1:
+            ploss_px = max_pool_div2_back(ploss_px, axis=axis, s=index_list[i])
+            i -= 1
+            size_in_axis //= 2
+    return ploss_px
 
 
 
