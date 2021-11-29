@@ -33,7 +33,7 @@ featureNumL = 291
 featureNumR = 0
 record_num = 37530
 
-epoch = 1
+epoch = 5
 batch_size = 128
 learning_rate = 0.01
 clip_value = 5.0
