@@ -23,7 +23,8 @@ import tensorflow as tf
 
 
 def drelu_binary_const(x: SharedPair):
-    return is_positive(x)
+    y = is_positive(x)
+    return SharedPair.from_SharedPairBase(y)
 
 
 def drelu_binary_log(x: SharedPair):
@@ -33,7 +34,10 @@ def drelu_binary_log(x: SharedPair):
 
 def drelu_binary_linear(x: SharedPair):
     t = msb(x)
-    return t.ones_like() - t
+    # print("t=", t)
+    s = t.ones_like() - t
+    # print("s=", s)
+    return s
 
 
 def drelu_binary(x: SharedPair):

@@ -307,7 +307,7 @@ class MaxPooling2D(Layer):
         """
         if len(x) != 1:
             raise Exception("must have len(x)==1")
-        res = max_pool2d_back(x[0], self.ksize, ploss_py=ploss_py, index_list=self.index_list)
+        res = max_pool2d_back(ploss_py=ploss_py, ksize=self.ksize, index_list=self.index_list)
         ploss_px = {self.fathers[0]: res}
         return [], ploss_px
 
