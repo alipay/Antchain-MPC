@@ -36,6 +36,14 @@ class SharedPair(SharedPairBase):
             self.ownerL.to_string(), self.ownerR.to_string(), self.fixedpoint, self.xL.module, self.xL.shape, self.xL,
             self.xR)
 
+    def __getitem__(self, index):
+        xL = self.xL[index]
+        xR = self.xR[index]
+        z = SharedPair(ownerL=self.ownerL, ownerR=self.ownerR, xL=xL, xR=xR,
+                       fixedpoint=self.fixedpoint, op_map=self.op_map)
+        return z
+
+
     @classmethod
     def from_SharedPairBase(cls, x: SharedPairBase, op_map={}):
         return SharedPair(ownerL=x.ownerL, ownerR=x.ownerR, xL=x.xL, xR=x.xR, fixedpoint=x.fixedpoint, op_map=op_map)
@@ -167,6 +175,20 @@ class SharedPair(SharedPairBase):
             xR = self.xR.expand_dims(axis=axis)
         return SharedPair(ownerL=self.ownerL, ownerR=self.ownerR, xL=xL, xR=xR, fixedpoint=self.fixedpoint,
                           op_map=self.op_map)
+
+    def reshape(self, shape):
+        """
+        See tf.reshape.
+        :param shape:
+        :return:
+        """
+        with tf.device(self.ownerL):
+            xL = self.xL.reshape(shape)
+        with tf.device(self.ownerR):
+            xR = self.xR.reshape(shape)
+        return SharedPair(ownerL=self.ownerL, ownerR=self.ownerR, xL=xL, xR=xR,
+                          fixedpoint=self.fixedpoint, op_map=self.op_map)
+
 
     def __add__(self, other):
         # return super(PrivateTensor, self).__add__(other)

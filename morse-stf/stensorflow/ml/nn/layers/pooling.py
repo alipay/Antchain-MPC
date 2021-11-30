@@ -1,10 +1,23 @@
 #!/usr/bin/env python
 # coding=utf-8
+"""
+   Ant Group Copyright (c) 2021
+   Copyright 2016 The TensorFlow Authors
+   All Rights Reserved.
+"""
 from stensorflow.ml.nn.layers.layer import Layer
 from typing import Union, List
+from stensorflow.basic.basic_class.private import PrivateTensor
+from stensorflow.basic.basic_class.pair import SharedVariablePair, SharedPair
 from tensorflow.python.keras.utils import conv_utils
-from stensorflow.basic.operator.poolingop import *
+from stensorflow.basic.operator.poolingop import avg_pool2d, sum_pool2d_grad, max_pool2d, max_pool2d_back
+import tensorflow as tf
+from stensorflow.global_var import StfConfig
 
+
+
+
+PModel = StfConfig.pool_module
 
 class AveragePooling2D(Layer):
     """
@@ -234,6 +247,72 @@ class AveragePooling2DLocal(Layer):
         else:
             return [self.input_shape[0], rows, cols]
 
+
+
+class MaxPooling2D(Layer):
+    """
+    Average pooling operation for spatial data.
+     Argument:
+        output_dim:
+        fathers:
+        pool_size:
+            An integer or tuple/list of 2 integers: (pool_height, pool_width) specifying the size of the pooling window.
+            Can be a single integer to specify the same value for all spatial dimensions.
+        strides:
+            An integer or tuple/list of 2 integers, specifying the strides of the pooling operation.
+            Can be a single integer to specify the same value for all spatial dimensions.
+        padding:
+            A string. The padding method, only support `"VALID"`
+        data_format:
+            default format "NHWC", the data is stored in the order of: [batch, height, width, channels].
+    """
+    def __init__(self, output_dim,
+                 fathers: List[Layer],
+                 pool_size=(2, 2)):
+        if len(fathers) != 1:
+            raise Exception("must have len(fathers) == 1 ")
+        self.ksize = [1, pool_size[0], pool_size[1], 1]
+        # 保存传入数据的shape
+        self.input_shape = fathers[0].output_dim
+        if not output_dim:
+            output_dim = self.compute_shape()
+        super(MaxPooling2D, self).__init__(output_dim=output_dim, fathers=fathers)
+        self.pool_size = pool_size
+        self.index_list = None
+
+    def func(self, w: List[SharedVariablePair], x: List[SharedPair]):
+        """
+        Forward propagation
+        :param w: None
+        :param x: inputs， PrivateTensor or SharedPair
+        :return: Has the same type of inputs
+        """
+        if len(x) != 1:
+            raise Exception("must have len(x) == 1")
+        y, self.index_list = max_pool2d(x[0], ksize=self.ksize, return_s=True)
+        return y
+
+    def pull_back(self,
+                  w: List[SharedPair],
+                  x: List[Union[PrivateTensor, SharedPair]],
+                  y: SharedPair,
+                  ploss_py: SharedPair):
+        """
+        Back propagation
+        :param w: None
+        :param x: inputs
+        :param y:
+        :param ploss_py:
+        :return:
+        """
+        if len(x) != 1:
+            raise Exception("must have len(x)==1")
+        res = max_pool2d_back(ploss_py=ploss_py, ksize=self.ksize, index_list=self.index_list)
+        ploss_px = {self.fathers[0]: res}
+        return [], ploss_px
+
+    def compute_shape(self):
+        return [self.input_shape[0]//self.ksize[1], self.input_shape[1]//self.ksize[2], self.input_shape[2]]
 
 
 
