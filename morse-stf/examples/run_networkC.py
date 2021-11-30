@@ -109,7 +109,7 @@ def stf_cnn_test(train_x, train_y, test_x, test_y,keras_weight=None):
     # random.random_init(sess)
     print("start predict")
     model.predict_to_file(sess, x_test, StfConfig.predict_to_file, pred_batch_num=pred_batch_num,
-                          model_file_machine='R', record_num_ceil_mod_batch_size=batch_size, with_sigmoid=False)
+                        with_sigmoid=False)
     model.save_model(save_file_path="../output/complex_CNN.npz", sess=sess, model_file_machine='R')
 
 
