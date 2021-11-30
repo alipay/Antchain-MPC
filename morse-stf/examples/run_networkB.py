@@ -13,7 +13,7 @@ from stensorflow.global_var import StfConfig
 from cnn_utils import convert_datasets, load_data, calculate_score
 
 
-def average_cnn_baseline(train_x, train_y, test_x, test_y, train = True):
+def average_cnn_baseline(train_x, train_y, test_x, test_y, train=True):
     """
     network B using Keras
     :return:
@@ -57,8 +57,52 @@ def average_cnn_baseline(train_x, train_y, test_x, test_y, train = True):
         print("keras test result: " + str(test_loss))
         keras_model.save("../output/complex_epoch.h5")
 
+def max_cnn_baseline(train_x, train_y, test_x, test_y, train=True):
+    """
+    network B using Keras
+    :return:
+    """
+    if train:
+        model = tf.keras.models.Sequential([
+            # First Layer
+            tf.keras.layers.Conv2D(16, (5, 5), activation='relu', input_shape=(28, 28, 1), use_bias=False),
+            tf.keras.layers.MaxPool2D(2, 2),
+            tf.keras.layers.Conv2D(16, (5, 5), activation='relu', use_bias=False),
+            tf.keras.layers.MaxPool2D(2, 2),
+            tf.keras.layers.Flatten(),
+            # Third layer
+            tf.keras.layers.Dense(100, activation='relu'),
+            # Final Layer
+            tf.keras.layers.Dense(10, name="Dense"),
+            tf.keras.layers.Activation('softmax')
+        ])
+        sgd = tf.keras.optimizers.SGD(lr=0.01)
+        model.compile(optimizer=sgd, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+        model.summary()
+        print("start train model")
+        start_time = time.time()
+        model.fit(train_x, train_y, epochs=10, batch_size=128)
+        end_time = time.time()
+        print("train time=", end_time - start_time)
+        # print(model.get_weights())
+        # test result
+        print("test result")
+        # evaluate
+        test_loss = model.evaluate(test_x, test_y)
+        print("test result: " + str(test_loss))
+        # model.save("../output/complex_mnist_model.h5")
+    else:
+        print("train 1 epoch using model load")
+        keras_model = tf.keras.models.load_model("../output/complex_mnist_model.h5")
+        train_x = train_x[:128]
+        train_y = train_y[:128]
+        keras_model.fit(train_x, train_y, epochs=1, batch_size=128)
+        test_loss = keras_model.evaluate(test_x, test_y)
+        print("keras test result: " + str(test_loss))
+        keras_model.save("../output/complex_epoch.h5")
 
-def stf_cnn_test(train_x, train_y, test_x, test_y,keras_weight=None):
+
+def stf_cnn_test(train_x, train_y, test_x, test_y, keras_weight=None):
     """
     NETWORK B using STF
     :param train_x: figure for training
@@ -110,7 +154,8 @@ if __name__ == "__main__":
     # exit()
     # load data
     train_x, train_y, test_x, test_y = load_data(normal=True, small=True)
-    # average_cnn_baseline(train_x, train_y, test_x, test_y, train=True)
+    average_cnn_baseline(train_x, train_y, test_x, test_y, train=True)
+    # max_cnn_baseline(train_x, train_y, test_x, test_y, train=True)
     # exit()
     # print("loding model...")
     # keras_model = tf.keras.models.load_model("../output/complex_mnist_model.h5")
@@ -119,6 +164,7 @@ if __name__ == "__main__":
     # print("keras test result: " + str(test_loss))
     # exit()
     stf_cnn_test(train_x, train_y, test_x, test_y, keras_weight=None)
+    print("predict_to_file=", StfConfig.predict_to_file)
     calculate_score(StfConfig.predict_to_file)
     # compare_forward(keras_model_path="../output/complex_mnist_model.h5",
     #                 stf_predict_path="../output/complex_mnist_predict.txt",
