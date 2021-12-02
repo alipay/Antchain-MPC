@@ -521,8 +521,8 @@ def compute_precision_mnist():
 
 if __name__=='__main__':
     #compute_KS_elec_gbdtcode()
-    compute_KS_ym5w()
-    #compute_KS_xd()
+    #compute_KS_ym5w()
+    compute_KS_xd()
     #compute_KS_gaode3w()
     #compute_KS_gaode20w()
     #compute_KS_gaode20w_DNN()
