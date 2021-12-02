@@ -19,7 +19,7 @@ from typing import Union, List, Dict
 
 
 
-class ReLU_bak(Layer):
+class ReLU(Layer):
     def __init__(self, output_dim: int, fathers: List[Layer]):
         if len(fathers) != 1:
             raise Exception("must have len(fathers) == 1 ")
@@ -44,7 +44,7 @@ class ReLU_bak(Layer):
 
 
 
-class ReLU(Layer):
+class ReLU_bak(Layer):
     def __init__(self, output_dim: int, fathers: List[Layer]):
         if len(fathers) != 1:
             raise Exception("must have len(fathers) == 1 ")

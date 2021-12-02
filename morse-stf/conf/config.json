@@ -8,7 +8,7 @@
     "stf_home_workerL": "/Users/qizhi.zqz/projects/morse-stf/morse-stf",
     "stf_home_workerR": "/Users/qizhi.zqz/projects/morse-stf/morse-stf",
     "stf_home_RS": "/Users/qizhi.zqz/projects/morse-stf/morse-stf",
-    "prf_flag": false,
+    "prf_flag": true,
     "compress_flag": true,
     "default_fixed_point": 14,
     "ml": {
