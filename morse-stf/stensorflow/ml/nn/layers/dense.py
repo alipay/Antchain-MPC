@@ -22,7 +22,7 @@ import pandas as pd
 from stensorflow.exception.exception import StfNoneException, StfCondException
 
 
-class Dense_bak(Layer):
+class Dense(Layer):
     """
     Dense Layer
     """
@@ -109,7 +109,7 @@ class Dense_bak(Layer):
         self.w = w
 
 
-class Dense(Layer):
+class Dense_bak(Layer):
     """
     Dense Layer
     """
