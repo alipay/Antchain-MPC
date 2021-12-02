@@ -26,7 +26,6 @@ class ReLU_bak(Layer):
         if fathers[0].output_dim != output_dim:
             raise Exception("must have fathers[0].output_dim == output_dim")
         super(ReLU, self).__init__(output_dim=output_dim, fathers=fathers)
-        self.drelu_b = None
 
     def func(self, w: List[SharedVariablePair], x: List[Union[PrivateTensor, SharedPair]]):
         if len(x) != 1:

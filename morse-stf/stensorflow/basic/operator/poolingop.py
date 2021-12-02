@@ -138,7 +138,7 @@ def max_pool_div2(x: SharedPair,
                  A SharedPair of shape [d1,d2,...,di/2,...dn]
             else:
                 a tuple of A SharedPair of shape [d1,d2,...,di/2,...dn] and the
-                    SharedPair of shape  [d1,d2,...,2,...dn] of module==2
+                    SharedPair of shape  [d1,d2,...,1,...dn] of module==2
     """
     xshape = x.shape
     xshape = xshape[0:axis] + [xshape[axis] // 2, 2] + xshape[axis + 1:]
@@ -165,7 +165,7 @@ def max_pool_div2_back(ploss_py: SharedPair, axis, s: SharedPair):
 
     :param ploss_py: SharedPair of shape [d1,...,di,...dn]
     :param axis:  i
-    :param s:  SharedPair of shape [d1,...,2,...dn]
+    :param s:  SharedPair of shape [d1,...,1,...dn]
     :return:  SharedPair of shape [d1,...,2di,...dn]
     """
     if s.xL.module != 2:
