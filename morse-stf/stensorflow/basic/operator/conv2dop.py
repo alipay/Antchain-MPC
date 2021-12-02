@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # coding=utf-8
 """
-   Ant Group Copyright (c) 2004-2020 All Rights Reserved.
+   Ant Group Copyright (c) 2004-2021 All Rights Reserved.
 """
 from stensorflow.global_var import StfConfig
 from stensorflow.basic.basic_class.base import PrivateTensorBase, SharedPairBase, SharedTensorBase
 from typing import Union
-
+from stensorflow.basic.protocol.bilinear_triangle import BiliinearTriangle
 from stensorflow.basic.protocol.bilinear_map import BM_PrivateTensor_SharedPair, BM_PrivateTensor_PrivateTensor, \
     BM_SharedPair_SharedPair, BM_SharedPair_PrivateTensor
 
@@ -161,3 +161,38 @@ def conv2d_backprop_filter(input: Union[PrivateTensorBase, SharedPairBase],
     else:
         raise Exception("type exception for type(x)={}, type(y)={}".format(type(input), type(out_backprop)))
     return result.dup_with_precision(fixed_point)
+
+
+class Conv2dTriangle(BiliinearTriangle):
+    def __init__(self, input_sizes, filter_sizes,
+                   strides, padding,
+                   data_format, dilations):
+        def func_conv2d(x, y):
+            return model.int64_conv2d(input=x, filter=y, strides=strides, padding=padding,
+                                      data_format=data_format, dilations=dilations)
+
+        def f_xy(x, y):
+            return SharedTensorBase(func_conv2d(x.inner_value, y.inner_value))
+
+        def func_back_input(f, ploss_pout):
+            return model.int64_conv2d_backprop_input(input_sizes=input_sizes, filter=f,
+                                                     out_backprop=ploss_pout, strides=strides,
+                                                     padding=padding, data_format=data_format,
+                                                     dilations=dilations)
+
+        def f_yz(f, ploss_pout):
+            return SharedTensorBase(func_back_input(f.inner_value, ploss_pout.inner_value))
+
+        def func_back_filter(x, ploss_pout):
+            return model.int64_conv2d_backprop_filter(input=x,
+                                                      filter_sizes=filter_sizes,
+                                                      out_backprop=ploss_pout,
+                                                      strides=strides,
+                                                      padding=padding,
+                                                      data_format=data_format,
+                                                      dilations=dilations)
+
+        def f_zx(ploss_pout, x):
+            return SharedTensorBase(func_back_filter(x.inner_value, ploss_pout.inner_value))
+
+        super(Conv2dTriangle, self).__init__(f_xy, f_yz, f_zx)

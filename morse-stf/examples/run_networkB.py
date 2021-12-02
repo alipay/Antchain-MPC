@@ -154,7 +154,7 @@ if __name__ == "__main__":
     # exit()
     # load data
     train_x, train_y, test_x, test_y = load_data(normal=True, small=True)
-    average_cnn_baseline(train_x, train_y, test_x, test_y, train=True)
+    #average_cnn_baseline(train_x, train_y, test_x, test_y, train=True)
     # max_cnn_baseline(train_x, train_y, test_x, test_y, train=True)
     # exit()
     # print("loding model...")
