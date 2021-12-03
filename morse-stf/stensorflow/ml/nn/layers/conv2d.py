@@ -26,7 +26,7 @@ def initializers(kernel_shape):
     return ans
 
 
-class Conv2d(Layer):
+class Conv2d_bak(Layer):
     """
     Implement the conv2d layer of the secure computing version
     This layer creates a convolution kernel that is convolved with the layer input to produce a tensor of outputs.
@@ -221,7 +221,7 @@ class Conv2d(Layer):
 
 
 
-class Conv2d_bak(Layer):
+class Conv2d(Layer):
     """
     Implement the conv2d layer of the secure computing version
     This layer creates a convolution kernel that is convolved with the layer input to produce a tensor of outputs.
