@@ -18,6 +18,32 @@ from stensorflow.basic.operator.relu import relu, drelu_binary, relu_pull_back, 
 from typing import Union, List, Dict
 
 
+
+class ReLU_bak(Layer):
+    def __init__(self, output_dim: int, fathers: List[Layer]):
+        if len(fathers) != 1:
+            raise Exception("must have len(fathers) == 1 ")
+        if fathers[0].output_dim != output_dim:
+            raise Exception("must have fathers[0].output_dim == output_dim")
+        super(ReLU, self).__init__(output_dim=output_dim, fathers=fathers)
+
+    def func(self, w: List[SharedVariablePair], x: List[Union[PrivateTensor, SharedPair]]):
+        if len(x) != 1:
+            raise Exception("must have len(x) == 1")
+        return relu(x[0])
+
+    def pull_back(self, w: List[SharedPair], x: List[Union[PrivateTensor, SharedPair]], y: SharedPair,
+                  ploss_py: SharedPair) \
+            -> (List[SharedPair], Dict[Layer, SharedPair]):
+        if len(x) != 1:
+            raise Exception("must have len(x)==1")
+        # ploss_px = {self.fathers[0]: selectshare(is_positive(x[0]), ploss_py)}
+        ploss_px = {self.fathers[0]: relu_pull_back(x[0], ploss_py)}
+        return [], ploss_px
+
+
+
+
 class ReLU(Layer):
     def __init__(self, output_dim: int, fathers: List[Layer]):
         if len(fathers) != 1:
