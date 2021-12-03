@@ -64,7 +64,7 @@ def BM_PrivateTensor_PrivateTensor(x: PrivateTensorBase, y: PrivateTensorBase, f
 
 def BM_PrivateTensor_SharedPair(x: PrivateTensorBase, y: SharedPairBase, f, prf_flag=None,
                                 x_adjoint=None, y_adjoint=None, u0=None, u1=None) -> SharedPairBase:
-    # f: (SharedTensorBase, SharedTensorBase)->SharedTensorBase
+    # f: (PrivateTensorBase, SharedTensorBase)->SharedTensorBase
 
     if prf_flag is None:
         prf_flag = StfConfig.prf_flag

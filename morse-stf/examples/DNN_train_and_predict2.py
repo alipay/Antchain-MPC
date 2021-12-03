@@ -37,7 +37,7 @@ epoch = 10   # 15
 batch_size = 128
 
 num_features = featureNumL + featureNumR
-dense_dims = [num_features, 7, 7, 1]       # the neural network structure is 32, 32, 1
+dense_dims = [num_features, 32, 32, 1]       # the neural network structure is 32, 32, 1
 l2_regularization = 0.0
 clip_value = 5.0
 
