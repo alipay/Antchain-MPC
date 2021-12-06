@@ -17,6 +17,7 @@ from stensorflow.exception.exception import StfTypeException
 from stensorflow.basic.operator.relu import relu
 from stensorflow.basic.operator.sigmoid import sin2pi
 import numpy as np
+from stensorflow.global_var import StfConfig
 from stensorflow.basic.basic_class.private import PrivateTensor
 from typing import Union
 
@@ -41,10 +42,10 @@ def softmax_bak(x: Union[SharedPair, PrivateTensor]):
 
 def softmax(x: Union[SharedPair, PrivateTensor]):
     if isinstance(x, SharedPair):
-        k = 16
         y = np.ones_like(x) / x.shape[-1]
-        for _ in range(k):
-            y = y + (x - (y * x).reduce_sum(axis=-1, keepdims=True)) * y / k
+        for _ in range(StfConfig.softmax_iter_num):
+            # formula of Qizhi Zhang
+            y = y + (x - (y * x).reduce_sum(axis=-1, keepdims=True)) * y / StfConfig.softmax_iter_num
         return y
     elif isinstance(x, PrivateTensor):
         with tf.device(x.owner):
