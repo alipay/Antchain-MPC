@@ -77,6 +77,14 @@ class SharedPair(SharedPairBase):
                        op_map=self.op_map)
         return x
 
+    def zeros_like(self):
+        y = SharedPairBase.zeros_like(self)
+        return SharedPair.from_SharedPairBase(y, self.op_map)
+
+    def ones_like(self):
+        y = SharedPairBase.ones_like(self)
+        return SharedPair.from_SharedPairBase(y, self.op_map)
+
     def dup_with_precision(self, new_fixedpoint):
         result = SharedPairBase.dup_with_precision(self, new_fixedpoint)
         return self.from_SharedPairBase(result, self.op_map)

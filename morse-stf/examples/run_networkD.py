@@ -101,7 +101,7 @@ def stf_cnn_test(train_x, train_y, test_x, test_y,keras_weight=None):
     print("success compile")
     print("start train model")
     start_time = time.time()
-    model.train_sgd(learning_rate=learning_rate, batch_num=train_batch_num, l2_regularization=0.0, sess=sess)
+    model.train_sgd(learning_rate=learning_rate, batch_num=train_batch_num, l2_regularization=0, sess=sess)
     end_time = time.time()
     print("train time=", end_time - start_time)
     # random.random_init(sess)
