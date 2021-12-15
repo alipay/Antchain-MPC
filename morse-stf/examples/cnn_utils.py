@@ -4,6 +4,7 @@
 from sklearn.metrics import accuracy_score
 import tensorflow as tf
 import numpy as np
+from sklearn.utils import shuffle
 import pandas as pd
 from stensorflow.basic.basic_class.private import PrivateTensor,PrivateTensorBase
 #from keras.models import Model
@@ -12,6 +13,7 @@ from stensorflow.basic.basic_class.private import PrivateTensor,PrivateTensorBas
 def build_mnist(path):
     mnist = tf.keras.datasets.fashion_mnist
     (training_images, training_labels), (test_images, test_labels) = mnist.load_data()
+    training_images, training_labels = shuffle(training_images, training_labels)
     training_images = training_images.reshape((60000, 28*28), order='C')
     test_images = test_images.reshape((10000, 28 * 28), order='C')
     # 将数据转化为DataFrame格式，方便存储
@@ -33,14 +35,19 @@ def load_data(normal=False, small=True):
     :param small: 是否裁剪部分数据
     :return:
     """
-    mnist = tf.keras.datasets.fashion_mnist
+    # mnist = tf.keras.datasets.fashion_mnist
+    mnist = tf.keras.datasets.mnist
     (training_images, training_labels), (test_images, test_labels) = mnist.load_data()
     # input channel = 1
+    training_images, training_labels = shuffle(training_images, training_labels)
     training_images = training_images.reshape(60000, 28, 28, 1)
     test_images = test_images.reshape(10000, 28, 28, 1)
     if normal:
         training_images = training_images / 255.0
         test_images = test_images / 255.0
+        training_images = (training_images-0.1307)/0.3081
+        test_images = (test_images-0.1307)/0.3081
+
     else:
         # 转化数据类型
         training_images = training_images.astype(np.int64)
@@ -122,7 +129,8 @@ def calculate_score(file):
             # print(r)
             result.append(r.index(max(r)))
     # True label
-    mnist = tf.keras.datasets.fashion_mnist
+    # mnist = tf.keras.datasets.fashion_mnist
+    mnist = tf.keras.datasets.mnist
     (training_images, training_labels), (test_images, test_labels) = mnist.load_data()
     true_label = []
     for i in range(len(result)):

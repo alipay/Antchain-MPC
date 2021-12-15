@@ -22,8 +22,8 @@ from stensorflow.ml.nn.networks.NETWORKC import NetworkC
 from stensorflow.ml.nn.networks.CNN_with_SL import LocalNetworkC
 from cnn_utils import convert_datasets, load_data, calculate_score
 
-
-def average_cnn_baseline(train_x, train_y, test_x, test_y, train=True):
+epoch = 50
+def cnn_baseline(train_x, train_y, test_x, test_y, train=True, pooling='max'):
     """
     network C using Keras
     :return:
@@ -32,9 +32,9 @@ def average_cnn_baseline(train_x, train_y, test_x, test_y, train=True):
         model = tf.keras.models.Sequential([
             # First Layer
             tf.keras.layers.Conv2D(20, (5, 5), activation='relu', input_shape=(28, 28, 1), use_bias=False),
-            tf.keras.layers.AvgPool2D(2, 2),
+            tf.keras.layers.MaxPooling2D(2,2) if pooling=='max' else tf.keras.layers.AvgPool2D(2, 2),
             tf.keras.layers.Conv2D(50, (5, 5), activation='relu', use_bias=False),
-            tf.keras.layers.AvgPool2D(2, 2),
+            tf.keras.layers.MaxPooling2D(2,2) if pooling=='max' else tf.keras.layers.AvgPool2D(2, 2),
             tf.keras.layers.Flatten(),
             # Third layer
             tf.keras.layers.Dense(500, activation='relu'),
@@ -47,7 +47,7 @@ def average_cnn_baseline(train_x, train_y, test_x, test_y, train=True):
         model.summary()
         print("start train model")
         start_time = time.time()
-        model.fit(train_x, train_y, epochs=10, batch_size=128)
+        model.fit(train_x, train_y, epochs=epoch, batch_size=128)
         end_time = time.time()
         print("train time=", end_time - start_time)
         # print(model.get_weights())
@@ -116,7 +116,7 @@ def stf_cnn_test(train_x, train_y, test_x, test_y,keras_weight=None):
 def stf_cnnlocal_test(train_x, train_y, test_x, test_y,keras_weight=None):
 
     sess = tf.compat.v1.Session(StfConfig.target)
-    epochs = 10
+    epochs = epoch
     batch_size = 128
     learning_rate = 0.01
     record_num = train_x.shape[0]
@@ -155,14 +155,14 @@ if __name__ == "__main__":
     # LeNet_network()
     # exit()
     train_x, train_y, test_x, test_y = load_data(normal=True, small=True)
-    #average_cnn_baseline(train_x, train_y, test_x, test_y, train=True)
+    cnn_baseline(train_x, train_y, test_x, test_y, train=True, pooling='max')
     # exit()
     # keras_model = tf.keras.models.load_model("../output/complex_mnist_model.h5")
     # keras_weight = keras_model.get_weights()
     # test_loss = keras_model.evaluate(test_x, test_y)
     # print("keras test result: " + str(test_loss))
     # exit()
-    stf_cnn_test(train_x, train_y, test_x, test_y, keras_weight=None)
+    #stf_cnn_test(train_x, train_y, test_x, test_y, keras_weight=None)
     # stf_cnnlocal_test(train_x, train_y, test_x, test_y, keras_weight=None)
     calculate_score(StfConfig.predict_to_file)
     # compare_forward(keras_model_path="../output/complex_mnist_model.h5",

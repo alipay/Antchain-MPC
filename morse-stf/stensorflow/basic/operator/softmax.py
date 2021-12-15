@@ -42,10 +42,12 @@ def softmax_bak(x: Union[SharedPair, PrivateTensor]):
 
 def softmax(x: Union[SharedPair, PrivateTensor]):
     if isinstance(x, SharedPair):
-        y = np.ones_like(x) / x.shape[-1]
+        y = x.ones_like() / x.shape[-1]
         for _ in range(StfConfig.softmax_iter_num):
             # formula of Qizhi Zhang
-            y = y + (x - (y * x).reduce_sum(axis=-1, keepdims=True)) * y / StfConfig.softmax_iter_num
+            # y = y + (x - (y * x).reduce_sum(axis=-1, keepdims=True)) * y / StfConfig.softmax_iter_num
+            y = y + (x - (y.expend_dims(axis=[-2]) @ x.expend_dims(axis=-1)).squeeze(axis=-1)) * y / StfConfig.softmax_iter_num
+
         return y
     elif isinstance(x, PrivateTensor):
         with tf.device(x.owner):
