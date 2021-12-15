@@ -13,7 +13,8 @@ from stensorflow.basic.operator.relu import drelu_binary
 from stensorflow.basic.operator.selectshare import select_share
 from typing import Union
 from stensorflow.global_var import StfConfig
-
+from stensorflow.basic.operator.sigmoid import sin2pi
+import numpy as np
 PModel = StfConfig.pool_module
 
 
