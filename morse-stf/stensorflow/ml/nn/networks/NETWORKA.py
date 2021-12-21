@@ -16,7 +16,6 @@ class NETWORKA(NN):
     def __init__(self, feature, label):
         super(NETWORKA, self).__init__()
         # input layer, init data；
-        # 这里将dim设置位输入的wight,后续不使用；仅仅是为了应用原有的模板
         layer = Input(dim=28*28, x=feature)
         self.addLayer(layer)
         # 全连接层

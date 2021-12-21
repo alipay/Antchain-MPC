@@ -11,24 +11,37 @@ from stensorflow.global_var import StfConfig
 from stensorflow.basic.basic_class.private import PrivateTensor
 from cnn_utils import dense_to_onehot, calculate_score
 from stensorflow.random.random import random_init
+from sklearn.utils import shuffle
 start_local_server(config_file="../conf/config.json")
 # start_client(config_file="../conf/config.json", job_name="workerR")
 
-def load_dense_data():
+
+
+epochs = 1
+batch_size = 128
+learning_rate = 0.01
+momentum = 0.9
+l2_regularzation =1E-6
+def load_data(normal=True, small=True):
     """
     load mnist data
     :return:
     """
-    mnist = tf.keras.datasets.fashion_mnist
+    mnist = tf.keras.datasets.mnist
     (training_images, training_labels), (test_images, test_labels) = mnist.load_data()
     training_images = training_images.reshape((60000, 28*28), order='C')
     test_images = test_images.reshape((10000, 28*28), order='C')
-    training_images = training_images / 255.0
-    test_images = test_images / 255.0
-    return training_images[:6400], training_labels[:6400], test_images[:896], test_labels[:896]
+    if normal:
+        training_images = training_images / 255.0
+        test_images = test_images / 255.0
+        training_images = (training_images-0.1307)/0.3081
+        test_images = (test_images-0.1307)/0.3081
+    if small:
+        return training_images[:6400], training_labels[:6400], test_images[:896], test_labels[:896]
+    else:
+        return training_images, training_labels, test_images, test_labels
 
-
-def convert_dense_datasets(train_x, train_y, test_x, test_y,
+def convert_datasets(train_x, train_y, test_x, test_y,
                      epoch=1, batch_size=10):
     """
     :return: batched data
@@ -71,10 +84,10 @@ def keras_network_baseline(train_x, train_y, test_x, test_y):
         tf.keras.layers.Activation('softmax')
 
     ])
-    sgd = tf.keras.optimizers.SGD(lr=0.001)
+    sgd = tf.keras.optimizers.SGD(lr=learning_rate, momentum=momentum)
     model.compile(optimizer=sgd, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
     model.summary()
-    model.fit(train_x, train_y, epochs=10, batch_size=128)
+    model.fit(train_x, train_y, epochs=epochs, batch_size=batch_size)
     print("test result")
     # evaluate
     test_loss = model.evaluate(test_x, test_y)
@@ -100,19 +113,17 @@ def stf_networkA_test(train_x, train_y, test_x, test_y, keras_weight=None):
     :return:
     """
     sess = tf.compat.v1.Session(StfConfig.target)
-    Epochs = 10
-    batch_size = 128
-    learning_rate = 0.01
+
     record_num = train_x.shape[0]
     batch_num_per_epoch = record_num // batch_size
-    train_batch_num = Epochs * batch_num_per_epoch
+    train_batch_num = epochs * batch_num_per_epoch
     # train_batch_num = 10
     print("train_batch_num: " + str(train_batch_num))
     pred_batch_num = test_x.shape[0] // batch_size
 
-    x_train, y_train, x_test, y_test = convert_dense_datasets(train_x=train_x, train_y=train_y,
+    x_train, y_train, x_test, y_test = convert_datasets(train_x=train_x, train_y=train_y,
                                                               test_x=test_x, test_y=test_y,
-                                                              epoch=Epochs, batch_size=batch_size)
+                                                              epoch=epochs, batch_size=batch_size)
     # build the model
     model = NETWORKA(feature=x_train, label=y_train)
     if keras_weight:
@@ -125,7 +136,9 @@ def stf_networkA_test(train_x, train_y, test_x, test_y, keras_weight=None):
     print("start train model")
     start_time = time.time()
     # random_init(sess)
-    model.train_sgd(learning_rate=learning_rate, batch_num=train_batch_num, l2_regularization=0.0, sess=sess)
+    model.train_sgd(learning_rate=learning_rate, batch_num=train_batch_num,
+                    l2_regularization=l2_regularzation,
+                    sess=sess, momentum=momentum)
     end_time = time.time()
     print("train time=", end_time - start_time)
     # model.save_model(save_file_path="../output/STF_CNN.npz", sess=sess, model_file_machine='R')
@@ -137,10 +150,10 @@ def stf_networkA_test(train_x, train_y, test_x, test_y, keras_weight=None):
 
 
 if __name__ == "__main__":
-    train_x, train_y, test_x, test_y = load_dense_data()
+    train_x, train_y, test_x, test_y = load_data(normal=True, small=False)
     print(train_x, train_y, test_x, test_y)
     # train
-    #keras_network_baseline(train_x, train_y, test_x, test_y)
+    keras_network_baseline(train_x, train_y, test_x, test_y)
     # exit()
     # print("reading Keras model...")
     #keras_model = tf.keras.models.load_model("../output/dnn_mnist_model.h5")
@@ -151,5 +164,7 @@ if __name__ == "__main__":
     # test
     #test_loss = keras_model.evaluate(test_x, test_y)
     #print("keras test result: " + str(test_loss))
+    StfConfig.default_fixed_point = 16
+    StfConfig.softmax_iter_num = 40
     stf_networkA_test(train_x, train_y, test_x, test_y)
     calculate_score(StfConfig.predict_to_file)
