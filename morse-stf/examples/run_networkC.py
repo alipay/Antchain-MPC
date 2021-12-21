@@ -155,7 +155,7 @@ if __name__ == "__main__":
     # LeNet_network()
     # exit()
     StfConfig.softmax_iter_num = 48
-    train_x, train_y, test_x, test_y = load_data(normal=True, small=False)
+    train_x, train_y, test_x, test_y = load_data(normal=True, small=True)
     cnn_baseline(train_x, train_y, test_x, test_y, train=True, pooling=pooling)
     # exit()
     # keras_model = tf.keras.models.load_model("../output/complex_mnist_model.h5")
