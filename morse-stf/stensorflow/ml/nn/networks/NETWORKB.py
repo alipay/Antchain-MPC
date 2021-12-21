@@ -32,7 +32,7 @@ from stensorflow.random import random
 
 
 class NetworkB(NN):
-    def __init__(self, feature, label):
+    def __init__(self, feature, label, pooling='max'):
         super(NetworkB, self).__init__()
         # input layer, init data；
         layer = Input(dim=28, x=feature)
@@ -45,8 +45,11 @@ class NetworkB(NN):
         layer = ReLU(output_dim=layer.output_dim, fathers=[layer])
         self.addLayer(layer)
         # Average pool
-        layer = AveragePooling2D(output_dim=None, fathers=[layer], pool_size=(2, 2))
-        # layer = MaxPooling2D(output_dim=None, fathers=[layer], pool_size=(2, 2))
+        if pooling == 'max':
+            layer = MaxPooling2D(output_dim=None, fathers=[layer], pool_size=(2, 2))
+        else:
+            layer = AveragePooling2D(output_dim=None, fathers=[layer], pool_size=(2, 2))
+
         self.addLayer(layer)
         # 16 input channels, 16 output channels and another 5×5 filter
         layer = Conv2d(output_dim=None, fathers=[layer], filters=16,
@@ -57,8 +60,11 @@ class NetworkB(NN):
         layer = ReLU(output_dim=layer.output_dim, fathers=[layer])
         self.addLayer(layer)
         # Average pool
-        layer = AveragePooling2D(output_dim=None, fathers=[layer], pool_size=(2, 2))
-        # layer = MaxPooling2D(output_dim=None, fathers=[layer], pool_size=(2, 2))
+        if pooling == 'max':
+            layer = MaxPooling2D(output_dim=None, fathers=[layer], pool_size=(2, 2))
+        else:
+            layer = AveragePooling2D(output_dim=None, fathers=[layer], pool_size=(2, 2))
+
         self.addLayer(layer)
         # flatten data, only consider data_format = "NWHC"
         layer = Flatten(output_dim=None, fathers=[layer])

@@ -30,7 +30,7 @@ class Input(Layer):
                 raise Exception("must have x.shape[1] == dim")
         else:
             if x.shape[1:] != dim:
-                raise Exception("must have x.shape[1:] == dim")
+                raise Exception("must have x.shape[1:] == dim, but x.shape[1:]={}".format(x.shape[1:]))
         super(Input, self).__init__(output_dim=dim, fathers=[])
         self.y = x
         # self.ploss_px = {None: x.zeros_like().transpose()}
