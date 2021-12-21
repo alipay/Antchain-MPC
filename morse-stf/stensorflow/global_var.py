@@ -92,20 +92,17 @@ class StfConfig:
 
 
 
-        if job_name:
-            sess_worker = job_name
+        if job_name=="workerL":
+            sess_worker = "workerL"
         else:
             sess_worker = "workerR"
-        #sess_worker = config_dict.get("sess_worker")
+
         if sess_worker == "workerL":
             sess_ip_port = workerL_ip_port
         elif sess_worker == "workerR":
             sess_ip_port = workerR_ip_port
-        elif sess_worker == "RS":
-            sess_ip_port = RS_ip_port
         else:
             raise Exception("must have sess_worker==workerL or sess_worker==workerR "
-                            "or sess_worker==RS, "
                             "but sess_worker={}".format(sess_worker))
         StfConfig.target = "grpc://" + sess_ip_port
 
