@@ -20,7 +20,7 @@ import tensorflow as tf
 from stensorflow.ml.nn.networks.NETWORKD import NetworkD
 from cnn_utils import convert_datasets, load_data, calculate_score
 
-epoch = 5
+epoch = 1
 batch_size = 128
 learning_rate = 0.01
 momentum = 0.9
@@ -122,7 +122,7 @@ def stf_cnn_test(train_x, train_y, test_x, test_y,keras_weight=None):
 
 if __name__ == "__main__":
 
-    #StfConfig.default_fixed_point = 16
+    StfConfig.default_fixed_point = 48
     train_x, train_y, test_x, test_y = load_data(normal=True, small=True)
 
     cnn_baseline(train_x, train_y, test_x, test_y, train=True)

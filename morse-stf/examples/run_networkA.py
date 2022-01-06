@@ -150,7 +150,7 @@ def stf_networkA_test(train_x, train_y, test_x, test_y, keras_weight=None):
 
 
 if __name__ == "__main__":
-    train_x, train_y, test_x, test_y = load_data(normal=True, small=False)
+    train_x, train_y, test_x, test_y = load_data(normal=True, small=True)
     print(train_x, train_y, test_x, test_y)
     # train
     keras_network_baseline(train_x, train_y, test_x, test_y)
@@ -165,6 +165,6 @@ if __name__ == "__main__":
     #test_loss = keras_model.evaluate(test_x, test_y)
     #print("keras test result: " + str(test_loss))
     StfConfig.default_fixed_point = 16
-    StfConfig.softmax_iter_num = 40
+    # StfConfig.softmax_iter_num = 48
     stf_networkA_test(train_x, train_y, test_x, test_y)
     calculate_score(StfConfig.predict_to_file)

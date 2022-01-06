@@ -170,7 +170,7 @@ if __name__ == "__main__":
     # exit()
     # load data
     StfConfig.default_fixed_point = 16
-    StfConfig.softmax_iter_num = 40
+    # StfConfig.softmax_iter_num = 40
     train_x, train_y, test_x, test_y = load_data(normal=True, small=True)
     cnn_baseline(train_x, train_y, test_x, test_y, train=True, pooling=pooling)
     # exit()
