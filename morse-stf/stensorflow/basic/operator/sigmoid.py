@@ -119,6 +119,90 @@ def sin2pi_bak(x: SharedPair, T: int = 1, k: Union[int, tf.Tensor] = None) -> Sh
         result = (zL * zR).reduce_sum(axis=[-1]).dup_with_precision(new_fixedpoint=StfConfig.default_fixed_point)
     return result
 
+def sin2pi(x: SharedPair, T: int = 1, k: Union[int, tf.Tensor] = None) -> SharedPair:
+    # sin(2kpix/T)
+    # print("x.xL.shape=", x.xL.shape)
+    # print("x.xR.shape=", x.xR.shape)
+    n = int(np.log2(T))
+
+    if 1 << n != T:
+        raise Exception("T must be a power of 2")
+
+    if k is None:
+        k = 1
+
+    if isinstance(k, int):
+        pass
+    elif isinstance(k, tf.Tensor):
+        if k.dtype in [tf.dtypes.int8, tf.dtypes.int16, tf.dtypes.int32, tf.dtypes.int64]:
+            pass
+    else:
+        raise Exception("the type of k is error")
+
+    if StfConfig.parties == 3:
+        with tf.device(StfConfig.RS[0]):
+            prf_flag = StfConfig.prf_flag
+            if prf_flag:
+                seed_xL = get_seed()
+                seed_xR = get_seed()
+                seed_sin = get_seed()
+                seed_cos = get_seed()
+            else:
+                seed_xL = None
+                seed_xR = None
+                seed_sin = None
+                seed_cos = None
+            xL_adjoint = x.xL.random_uniform_adjoint(seed_xL)
+            xR_adjoint = x.xR.random_uniform_adjoint(seed_xR)
+
+            _sin2pi_adjoint = sin2pi_share(xL_adjoint+xR_adjoint, x.fixedpoint + n, k)
+            _sin2pi_adjoint = tf.cast(_sin2pi_adjoint * (1 << x.fixedpoint), 'int64')
+            _cos2pi_adjoint = cos2pi_share(xL_adjoint+xR_adjoint, x.fixedpoint + n, k)
+            _cos2pi_adjoint = tf.cast(_cos2pi_adjoint * (1 << x.fixedpoint), 'int64')
+
+            sin2pi_adjointL = SharedTensor(shape=_sin2pi_adjoint.shape.as_list()).random_uniform_adjoint(seed_sin)
+            sin2pi_adjointR = SharedTensor(inner_value=_sin2pi_adjoint) - sin2pi_adjointL
+
+            cos2pi_adjointR = SharedTensor(shape=_cos2pi_adjoint.shape.as_list()).random_uniform_adjoint(seed_cos)
+            cos2pi_adjointL = SharedTensor(inner_value=_cos2pi_adjoint) - cos2pi_adjointR
+
+        with tf.device(x.ownerL):
+            if prf_flag:
+                xL_adjoint = x.xL.random_uniform_adjoint(seed_xL)
+            delta_xL = (x.xL - xL_adjoint) % (1 << n+x.fixedpoint)
+            print("dela_xL=", delta_xL)
+        with tf.device(x.ownerR):
+            if prf_flag:
+                xR_adjoint = x.xR.random_uniform_adjoint(seed_xR)
+            delta_xR = (x.xR - xR_adjoint) % (1 << n+x.fixedpoint)
+
+        with tf.device(x.ownerL):
+            if prf_flag:
+                sin2pi_adjointL = sin2pi_adjointL.random_uniform_adjoint(seed_sin)
+            yL = sin2pi_share(delta_xL + delta_xR, x.fixedpoint+n, k) * (1<<x.fixedpoint) * cos2pi_adjointL + \
+                 cos2pi_share(delta_xL + delta_xR, x.fixedpoint+n, k) * (1<<x.fixedpoint) * sin2pi_adjointL
+
+        with tf.device(x.ownerR):
+            if prf_flag:
+                cos2pi_adjointR = cos2pi_adjointR.random_uniform_adjoint(seed_cos)
+            yR = cos2pi_share(delta_xL + delta_xR, x.fixedpoint+n, k) * (1<<x.fixedpoint) * sin2pi_adjointR + \
+                 sin2pi_share(delta_xL + delta_xR, x.fixedpoint+n, k) * (1<<x.fixedpoint) * cos2pi_adjointR
+
+        result = SharedPair(ownerL=x.ownerL, ownerR=x.ownerR, xL=yL, xR=yR, fixedpoint=2*x.fixedpoint)
+        result = result.dup_with_precision(x.fixedpoint)
+    else:
+        with tf.device(x.ownerL):
+            yL = tf.stack([sin2pi_share(x.xL, x.fixedpoint + n, k), cos2pi_share(x.xL, x.fixedpoint + n, k)], axis=-1)
+            zL = PrivateTensor(owner=x.ownerL)
+            zL.load_from_tf_tensor(yL)
+        with tf.device(x.ownerR):
+            yR = tf.stack([cos2pi_share(x.xR, x.fixedpoint + n, k), sin2pi_share(x.xR, x.fixedpoint + n, k)], axis=-1)
+            zR = PrivateTensor(owner=x.ownerR)
+            zR.load_from_tf_tensor(yR)
+
+        result = (zL * zR).reduce_sum(axis=[-1]).dup_with_precision(new_fixedpoint=StfConfig.default_fixed_point)
+    return result
+
 
 def sin2pi(x: SharedPair, T: int = 1, k: Union[int, tf.Tensor] = None) -> SharedPair:
     # sin(2kpix/T)
