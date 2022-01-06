@@ -19,14 +19,14 @@ class NETWORKA(NN):
         layer = Input(dim=28*28, x=feature)
         self.addLayer(layer)
         # 全连接层
-        # a 28*28 × 100 linear layer
+        # a 28*28 × 128 linear layer
         layer = Dense(output_dim=128, fathers=[layer])
         self.addLayer(layer)
         # Relu Layer
         layer = ReLU(output_dim=128, fathers=[layer])
         self.addLayer(layer)
         # 全连接层
-        # a 28*28 × 128 linear layer
+        # a 128 × 128 linear layer
         layer = Dense(output_dim=128, fathers=[layer])
         self.addLayer(layer)
         # Relu Layer

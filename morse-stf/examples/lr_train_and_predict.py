@@ -25,8 +25,8 @@ this model.
 The features are in the party L, the label is in the party R.
 """
 
-#start_local_server(config_file="../conf/config_ym.json")
-start_local_server(config_file="../conf/config_ym_parties2.json")
+start_local_server(config_file="../conf/config_ym.json")
+# start_local_server(config_file="../conf/config_ym_parties2.json")
 #start_client(config_file="../conf/config_ym.json", job_name="workerR")
 
 matchColNum = 2
