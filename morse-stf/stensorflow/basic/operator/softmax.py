@@ -42,6 +42,8 @@ def softmax_bak(x: Union[SharedPair, PrivateTensor]):
 
 def softmax(x: Union[SharedPair, PrivateTensor]):
     if isinstance(x, SharedPair):
+        x = x - x.reduce_sum(axis=-1, keepdims=True)
+        x = StfConfig.softmax_iter_num/2/np.pi * sin2pi(x, T=StfConfig.softmax_iter_num)
         y = x.ones_like() / x.shape[-1]
         for _ in range(StfConfig.softmax_iter_num):
             # formula of Qizhi Zhang
