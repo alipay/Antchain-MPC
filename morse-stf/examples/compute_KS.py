@@ -264,7 +264,7 @@ def compute_KS_xd():
     file_path = "../dataset/xindai_xy_test.csv"
     #file_path = '/Users/guanshun/PycharmProjects/morse-stf/stf_keeper/xindai_xy_shuffle.csv'
 
-    predict_path = '/Users/qizhi.zqz/projects/morse-stf/morse-stf/output/predict'
+    predict_path = '/Users/qizhi.zqz/projects/Antchain-MPC/morse-stf/output/predict'
     #predict_path = '/Users/qizhi.zqz/projects/morse-stf/morse-stf/stf_keeper/tfe/qqq/predict'
 
     y = pd.read_csv(file_path, index_col=["id"])

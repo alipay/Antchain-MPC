@@ -171,7 +171,7 @@ def sin2pi(x: SharedPair, T: int = 1, k: Union[int, tf.Tensor] = None) -> Shared
             if prf_flag:
                 xL_adjoint = x.xL.random_uniform_adjoint(seed_xL)
             delta_xL = (x.xL - xL_adjoint) % (1 << n+x.fixedpoint)
-            print("dela_xL=", delta_xL)
+            #print("delta_xL=", delta_xL)
         with tf.device(x.ownerR):
             if prf_flag:
                 xR_adjoint = x.xR.random_uniform_adjoint(seed_xR)
