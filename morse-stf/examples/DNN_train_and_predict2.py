@@ -16,7 +16,7 @@ import tensorflow as tf
 from stensorflow.random.random import random_init
 from stensorflow.basic.basic_class.private import PrivateTensor
 from stensorflow.global_var import StfConfig
-from stensorflow.engine.start_server import start_local_server
+from stensorflow.engine.start_server import start_local_server, start_client
 import time
 
 """

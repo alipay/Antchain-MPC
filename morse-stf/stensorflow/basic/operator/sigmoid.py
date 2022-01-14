@@ -127,7 +127,7 @@ def sin2pi(x: SharedPair, T: int = 1, k: Union[int, tf.Tensor] = None) -> Shared
     n = int(np.log2(T))
 
     if 1 << n != T:
-        raise Exception("T must be a power of 2")
+        raise Exception("T must be a power of 2, but is {}".format(T))
 
     if k is None:
         k = 1
