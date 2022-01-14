@@ -52,7 +52,7 @@ class StfConfig:
     coll_name_vars_homo = "var_for_homo"  # collection name for vars for homo
     drelu = "log"
     invert_iter_num = 32
-    softmax_iter_num = 32
+    softmax_iter_num = 16
     parties = 3
     pre_produce_flag = None
     offline_model = None
@@ -92,17 +92,17 @@ class StfConfig:
 
 
 
-        if job_name:
-            sess_worker = job_name
+        if job_name=="workerL":
+            sess_worker = "workerL"
         else:
             sess_worker = "workerR"
-        #sess_worker = config_dict.get("sess_worker")
+
         if sess_worker == "workerL":
             sess_ip_port = workerL_ip_port
         elif sess_worker == "workerR":
             sess_ip_port = workerR_ip_port
         else:
-            raise Exception("must have sess_worker==workerL or sess_worker==workerR, "
+            raise Exception("must have sess_worker==workerL or sess_worker==workerR "
                             "but sess_worker={}".format(sess_worker))
         StfConfig.target = "grpc://" + sess_ip_port
 

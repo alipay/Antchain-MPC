@@ -99,5 +99,6 @@ id = xRy_test.load_from_file_withid(path=StfConfig.pred_file_onR,
 xR_test, y_test = xRy_test.split(size_splits=[-1, 1], axis=1)
 
 # --------------predict --------------
-model.predict(id, xL_test, xR_test, pred_batch_num, sess)
+print("StfConfig.predict_to_file=", StfConfig.predict_to_file)
+model.predict(id, xL_test, xR_test, pred_batch_num, sess, predict_file=StfConfig.predict_to_file)
 sess.close()
