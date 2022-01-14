@@ -110,6 +110,12 @@ class SharedTensorBase:
         z = SharedTensorBase(inner_value=inner_value, module=self.module)
         return z
 
+    def __mod__(self, other):
+        if not isinstance(other, int):
+            raise StfTypeException("other", "int", type(other))
+        z = SharedTensorBase(inner_value=self.inner_value%other, module=other)
+        return z
+
     def random_uniform_adjoint(self, seed=None):
         """
 
