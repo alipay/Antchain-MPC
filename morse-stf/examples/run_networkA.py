@@ -164,7 +164,5 @@ if __name__ == "__main__":
     # test
     #test_loss = keras_model.evaluate(test_x, test_y)
     #print("keras test result: " + str(test_loss))
-    StfConfig.default_fixed_point = 14
-    StfConfig.softmax_iter_num = 16
     stf_networkA_test(train_x, train_y, test_x, test_y)
     calculate_score(StfConfig.predict_to_file)
