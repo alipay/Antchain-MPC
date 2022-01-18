@@ -10,7 +10,7 @@ from stensorflow.basic.protocol.bilinear_triangle import BiliinearTriangle
 from stensorflow.basic.protocol.bilinear_map import BM_PrivateTensor_SharedPair, BM_PrivateTensor_PrivateTensor, \
     BM_SharedPair_SharedPair, BM_SharedPair_PrivateTensor
 
-model = StfConfig.conv_module
+
 
 
 def conv2d(input: Union[PrivateTensorBase, SharedPairBase],
@@ -25,6 +25,7 @@ def conv2d(input: Union[PrivateTensorBase, SharedPairBase],
     """
     See tf.conv2d
     """
+    model = StfConfig.conv_module
     if fixed_point is None:
         fixed_point = max(input.fixedpoint, filter.fixedpoint)
     if prf_flag is None:
@@ -72,6 +73,7 @@ def conv2d_backprop_input(input_sizes,
     """
     See  tf.conv2d_backprop_input
     """
+    model = StfConfig.conv_module
     if fixed_point is None:
         fixed_point = max(filter.fixedpoint, out_backprop.fixedpoint)
     if prf_flag is None:
@@ -122,6 +124,7 @@ def conv2d_backprop_filter(input: Union[PrivateTensorBase, SharedPairBase],
     """
     See conv2d_backprop_filter
     """
+    model = StfConfig.conv_module
     if fixed_point is None:
         fixed_point = max(input.fixedpoint, out_backprop.fixedpoint)
     if prf_flag is None:
@@ -167,6 +170,7 @@ class Conv2dTriangle(BiliinearTriangle):
     def __init__(self, input_sizes, filter_sizes,
                    strides, padding,
                    data_format, dilations):
+        model = StfConfig.conv_module
         def func_conv2d(x, y):
             return model.int64_conv2d(input=x, filter=y, strides=strides, padding=padding,
                                       data_format=data_format, dilations=dilations)
