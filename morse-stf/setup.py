@@ -22,7 +22,7 @@ class MorseSTFInstall(install):
 # TODO: we need a license here
 setuptools.setup(
     name="morse-stf",
-    version="0.1.20",
+    version="0.1.26",
     author="Morse-STF Team",
     author_email="morse-stf@service.alipay.com",
     description="Morse Secure TensorFlow",

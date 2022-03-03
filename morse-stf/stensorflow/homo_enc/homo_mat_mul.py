@@ -11,7 +11,6 @@
    Description : description what the main function of this file
 """
 
-
 from stensorflow.basic.basic_class.base import PrivateTensorBase, SharedPairBase, SharedTensorBase
 from stensorflow.exception.exception import StfValueException, StfEqualException, StfCondException
 import tensorflow as tf
@@ -22,17 +21,19 @@ from stensorflow.basic.protocol.bilinear_map import BM_PrivateTensor_SharedPair,
     BM_SharedPair_SharedPair, BM_SharedPair_PrivateTensor
 from stensorflow.homo_enc.homo_enc import gene_key, enc, mat_mul_vec_to_share, dec
 
+
 def matmulvec_homo(mat: Union[PrivateTensorBase, SharedPairBase], x: Union[PrivateTensorBase, SharedPairBase],
-                fixed_point=None) -> SharedPairBase:
+                   fixed_point=None) -> SharedPairBase:
     mat_is_private = isinstance(mat, PrivateTensorBase)
     x_is_private = isinstance(x, PrivateTensorBase)
 
     if mat_is_private and not x_is_private:
-        return matmulvec_privat_pair(mat,x, fixed_point)
+        return matmulvec_privat_pair(mat, x, fixed_point)
     elif mat_is_private and x_is_private:
         return matmulvec_privat_private(mat, x, fixed_point)
     else:
         raise NotImplementedError
+
 
 def matmulvec_privat_private(mat: PrivateTensorBase, x: PrivateTensorBase, fixed_point=None) -> SharedPairBase:
     if isinstance(mat, PrivateTensorBase) and isinstance(x, PrivateTensorBase):
@@ -51,11 +52,11 @@ def matmulvec_privat_private(mat: PrivateTensorBase, x: PrivateTensorBase, fixed
         cipher_vec_x = enc(pk, x.inner_value)
     with tf.device(mat.owner):
         plaintext_out_mat, cipher_out_vec = mat_mul_vec_to_share(pk, gk, mat.inner_value,
-                                                                             cipher_vec_x)
-        plaintext_out_mat = tf.reshape(plaintext_out_mat, [mat.shape[0]])
+                                                                 cipher_vec_x)
+        plaintext_out_mat = tf.reshape(plaintext_out_mat, [row_num])
     with tf.device(x.owner):
         plaintext_out_vec = dec(sk, [row_num], cipher_out_vec)
-        plaintext_out_vec = tf.reshape(plaintext_out_vec, [mat.shape[0]])
+        plaintext_out_vec = tf.reshape(plaintext_out_vec, [row_num])
 
     with tf.device(mat.owner):
         xL = SharedTensorBase(inner_value=plaintext_out_mat)
@@ -74,7 +75,7 @@ def matmulvec_privat_pair(mat: PrivateTensorBase, x: SharedPairBase, fixed_point
         pass
     else:
         raise NotImplementedError
-    if mat.shape[1]!=x.shape[0]:
+    if mat.shape[1] != x.shape[0]:
         raise StfEqualException("mat.shape[1]", "x.shape[0]", mat.shape[1], x.shape[0])
     row_num = mat.shape[0]
     if x.ownerL == mat.owner:
@@ -84,7 +85,7 @@ def matmulvec_privat_pair(mat: PrivateTensorBase, x: SharedPairBase, fixed_point
         vec_owner = x.ownerL
         vec_x = x.xL.inner_value
     else:
-        raise StfValueException("mat.owner", "x.ownerL or x.ownerR",  mat.owner)
+        raise StfValueException("mat.owner", "x.ownerL or x.ownerR", mat.owner)
 
     with tf.device(vec_owner):
         homo_module = StfConfig.homo_module
@@ -101,7 +102,7 @@ def matmulvec_privat_pair(mat: PrivateTensorBase, x: SharedPairBase, fixed_point
         with tf.device(x.ownerL):
             mx_local = tf.matmul(mat.inner_value, x.xL.inner_value)
             mx_local = tf.reshape(mx_local, plaintext_out_mat.shape)
-            xL = SharedTensorBase(inner_value=plaintext_out_mat+mx_local)
+            xL = SharedTensorBase(inner_value=plaintext_out_mat + mx_local)
         with tf.device(x.ownerR):
             xR = SharedTensorBase(inner_value=plaintext_out_vec)
     elif x.ownerR == mat.owner:
@@ -110,18 +111,19 @@ def matmulvec_privat_pair(mat: PrivateTensorBase, x: SharedPairBase, fixed_point
         with tf.device(x.ownerR):
             mx_local = tf.matmul(mat.inner_value, x.xR.inner_value)
             mx_local = tf.reshape(mx_local, plaintext_out_mat.shape)
-            xR =SharedTensorBase(inner_value=plaintext_out_mat+mx_local)
+            xR = SharedTensorBase(inner_value=plaintext_out_mat + mx_local)
     else:
-        raise StfValueException("mat.owner", "x.ownerL or x.ownerR",  mat.owner)
-    r = SharedPairBase(ownerL=x.ownerL,ownerR=x.ownerR, xL=xL, xR=xR,
-                       fixedpoint=mat.fixedpoint+x.fixedpoint)
+        raise StfValueException("mat.owner", "x.ownerL or x.ownerR", mat.owner)
+    r = SharedPairBase(ownerL=x.ownerL, ownerR=x.ownerR, xL=xL, xR=xR,
+                       fixedpoint=mat.fixedpoint + x.fixedpoint)
     if fixed_point is None:
         return r
     else:
         return r.dup_with_precision(new_fixedpoint=fixed_point)
 
 
-def matmul_homo_dim2(x: Union[PrivateTensorBase, SharedPairBase], y: Union[PrivateTensorBase, SharedPairBase], fixed_point=None) -> SharedPairBase:
+def matmul_homo_dim2(x: Union[PrivateTensorBase, SharedPairBase], y: Union[PrivateTensorBase, SharedPairBase],
+                     fixed_point=None) -> SharedPairBase:
     if len(x.shape) != 2:
         raise StfValueException("len(x.shape)", 2, len(x.shape))
     if len(y.shape) != 2:
@@ -142,7 +144,8 @@ def matmul_homo_dim2(x: Union[PrivateTensorBase, SharedPairBase], y: Union[Priva
     return z
 
 
-def matmul_homo(x: Union[PrivateTensorBase, SharedPairBase], y: Union[PrivateTensorBase, SharedPairBase], fixed_point=None) -> SharedPairBase:
+def matmul_homo(x: Union[PrivateTensorBase, SharedPairBase], y: Union[PrivateTensorBase, SharedPairBase],
+                fixed_point=None) -> SharedPairBase:
     if len(x.shape) == 2 and len(y.shape) == 2:
         return matmul_homo_dim2(x, y, fixed_point)
     else:
@@ -163,8 +166,9 @@ def matmul_homo(x: Union[PrivateTensorBase, SharedPairBase], y: Union[PrivateTen
         for (xi, yi) in zip(split_x, split_y):
             list_reshape_z.append(matmul_homo_dim2(xi.squeeze(axis=0), yi.squeeze(axis=0), fixed_point=fixed_point))
         reshape_z = stack(list_reshape_z, axis=0)
-        z = reshape_z.reshape(x.shape[:-2]+[m, p])
+        z = reshape_z.reshape(x.shape[:-2] + [m, p])
         return z
+
 
 def matmul_homo_offline(x: Union[PrivateTensorBase, SharedPairBase], y: Union[PrivateTensorBase, SharedPairBase]):
     # print("matmul_homo_offline")
@@ -190,13 +194,15 @@ def matmul_homo_offline(x: Union[PrivateTensorBase, SharedPairBase], y: Union[Pr
         for (xi, yi) in zip(split_x, split_y):
             list_reshape_z.append(matmul_homo_dim2(xi.squeeze(axis=0), yi.squeeze(axis=0)))
         reshape_z = stack(list_reshape_z, axis=0)
-        z = reshape_z.reshape(x.shape[:-2]+[m, p])
+        z = reshape_z.reshape(x.shape[:-2] + [m, p])
     z.serialize()
     return z
 
 
 def matmul_homo_online(x: Union[PrivateTensorBase, SharedPairBase], y: Union[PrivateTensorBase, SharedPairBase],
-                       x_adjoint: Union[PrivateTensorBase, SharedPairBase], y_adjoint: Union[PrivateTensorBase, SharedPairBase],  z_adjoint: Union[PrivateTensorBase, SharedPairBase], fixed_point=None):
+                       x_adjoint: Union[PrivateTensorBase, SharedPairBase],
+                       y_adjoint: Union[PrivateTensorBase, SharedPairBase],
+                       z_adjoint: Union[PrivateTensorBase, SharedPairBase], fixed_point=None):
     x_is_private = isinstance(x, PrivateTensorBase)
     x_is_shared = isinstance(x, SharedPairBase)
     y_is_private = isinstance(y, PrivateTensorBase)
@@ -205,7 +211,8 @@ def matmul_homo_online(x: Union[PrivateTensorBase, SharedPairBase], y: Union[Pri
     if x_is_private and y_is_private:
         assert isinstance(x_adjoint, PrivateTensorBase) and isinstance(y_adjoint, PrivateTensorBase)
         z = BM_PrivateTensor_PrivateTensor(x, y, lambda _x, _y: SharedTensorBase.__matmul__(_x, _y),
-                                           prf_flag=False, x_adjoint=x_adjoint.to_SharedTensor(), y_adjoint=y_adjoint.to_SharedTensor(),
+                                           prf_flag=False, x_adjoint=x_adjoint.to_SharedTensor(),
+                                           y_adjoint=y_adjoint.to_SharedTensor(),
                                            u0=z_adjoint.xL, u1=z_adjoint.xR)
     elif x_is_private and y_is_shared:
         assert isinstance(x_adjoint, PrivateTensorBase) and isinstance(y_adjoint, PrivateTensorBase)

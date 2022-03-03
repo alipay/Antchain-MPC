@@ -126,7 +126,7 @@ def sin2pi(x: SharedPair, T: int = 1, k: Union[int, tf.Tensor] = None) -> Shared
     n = int(np.log2(T))
 
     if 1 << n != T:
-        raise Exception("T must be a power of 2")
+        raise Exception("T must be a power of 2, but is {}".format(T))
 
     if k is None:
         k = 1
@@ -170,7 +170,7 @@ def sin2pi(x: SharedPair, T: int = 1, k: Union[int, tf.Tensor] = None) -> Shared
             if prf_flag:
                 xL_adjoint = x.xL.random_uniform_adjoint(seed_xL)
             delta_xL = (x.xL - xL_adjoint) % (1 << n+x.fixedpoint)
-            print("dela_xL=", delta_xL)
+            #print("delta_xL=", delta_xL)
         with tf.device(x.ownerR):
             if prf_flag:
                 xR_adjoint = x.xR.random_uniform_adjoint(seed_xR)
@@ -287,15 +287,6 @@ def sin2pi(x: SharedPair, T: int = 1, k: Union[int, tf.Tensor] = None) -> Shared
 
         result = (zL * zR).reduce_sum(axis=[-1]).dup_with_precision(new_fixedpoint=StfConfig.default_fixed_point)
     return result
-
-
-
-
-
-
-
-
-
 
 
 def sigmoid_sin(x: SharedPair, M=16):

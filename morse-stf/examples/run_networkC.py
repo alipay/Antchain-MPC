@@ -22,7 +22,7 @@ from stensorflow.ml.nn.networks.NETWORKC import NetworkC
 from stensorflow.ml.nn.networks.CNN_with_SL import LocalNetworkC
 from cnn_utils import convert_datasets, load_data, calculate_score
 
-epochs = 5
+epochs = 1
 batch_size = 128
 learning_rate = 0.01
 momentum = 0.9
@@ -154,7 +154,6 @@ if __name__ == "__main__":
     # budild_mnist("../dataset/")
     # LeNet_network()
     # exit()
-    StfConfig.softmax_iter_num = 48
     train_x, train_y, test_x, test_y = load_data(normal=True, small=True)
     cnn_baseline(train_x, train_y, test_x, test_y, train=True, pooling=pooling)
     # exit()

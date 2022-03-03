@@ -13,6 +13,7 @@
 from stensorflow.global_var import StfConfig
 import tensorflow as tf
 
+
 def homo_init(sess=None):
     init_coll = tf.compat.v1.get_collection(StfConfig.coll_name_vars_homo)
     init_homo_op = tf.compat.v1.initialize_variables(init_coll)
@@ -29,34 +30,37 @@ def gene_key():
     sk, pk, gk = homo_module.gen_key(gene_key_zero)
     return sk, pk, gk
 
+
 def enc(pk, x):
     homo_module = StfConfig.homo_module
     return homo_module.enc(pk, x)
 
+
 def mat_mul_vec_to_share(pk, gk, mat, cipher_vec):
     homo_module = StfConfig.homo_module
     return homo_module.mat_mul_vec_to_share(pk, gk, mat, cipher_vec)
+
 
 def dec(sk, size, cipher_vec):
     homo_module = StfConfig.homo_module
     z = homo_module.dec(sk, size, cipher_vec)
     return tf.reshape(z, size)
 
+
 def vec_mul_vec(pk, plain_vec, cipher_vec):
     homo_module = StfConfig.homo_module
     return homo_module.vec_mul_vec(pk, plain_vec, cipher_vec)
-
 
 
 def cipher_to_share(size, pk, cipher):
     homo_module = StfConfig.homo_module
     cipher_out, share_out = homo_module.cipher_to_share(size, pk, cipher)
     share_out = tf.reshape(share_out, [size])
-    return (cipher_out, share_out)
+    return cipher_out, share_out
 
 
 def vec_mul_vec_to_share(pk, plain_vec, cipher_vec):
     cipher_out = vec_mul_vec(pk, plain_vec, cipher_vec)
-    size = tf.cast(tf.shape(plain_vec)[0],"int64")
+    size = tf.cast(tf.shape(plain_vec)[0], "int64")
     z = cipher_to_share(size, pk, cipher_out)
     return z
