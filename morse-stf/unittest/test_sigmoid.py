@@ -45,6 +45,32 @@ def sigmoid_sin_v2_numpy(x, M=256):
     print("2. fake=", fake)
     return fake
 
+def sigmoid_poly(x):
+    """A Chebyshev polynomial approximation of the sigmoid function."""
+
+    w0 = 0.5
+    w1 = 0.2159198015
+    w3 = -0.0082176259
+    w5 = 0.0001825597
+    w7 = -0.0000018848
+    w9 = 0.0000000072
+
+    x1 = x
+    x2 = (x1 * x)
+    x3 = (x2 * x)
+    x5 = (x2 * x3)
+    x7 = (x2 * x5)
+    x9 = (x2 * x7)
+
+    y1 = w1 * x1
+    y3 = w3 * x3
+    y5 = w5 * x5
+    y7 = w7 * x7
+    y9 = w9 * x9
+
+    z = y9 + y7 + y5 + y3 + y1 + w0
+
+    return z
 
 
 def sigmoid_sin_v3_numpy(x, M):
@@ -93,10 +119,13 @@ class MyTestCase(unittest.TestCase):
         x = np.linspace(-M, M, 256, endpoint=True)
         trues = 1 / (1 + np.exp(-x))
         falses = sigmoid_sin_v3_numpy(x, M)
+        #falses = sigmoid_poly(x)
         import matplotlib.pyplot as plt
 
         plt.plot(x, trues)
         plt.plot(x, falses)
+        plt.xticks(fontsize=16)
+        plt.yticks(fontsize=16)
         plt.show()
 
 
