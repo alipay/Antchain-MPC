@@ -700,7 +700,7 @@ class PrivateTensorBase:
             if self.module is not None:
                 self.inner_value %= self.module
             if self.shape is not None:
-                if self.shape != self.inner_value.shape:
+                if self.shape != self.inner_value.shape.as_list():
                     raise StfEqualException("self.shape", "self.inner_value.shape",
                                             self.shape, self.inner_value.shape)
 

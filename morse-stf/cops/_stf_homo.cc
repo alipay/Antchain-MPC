@@ -9,20 +9,6 @@
 
 using namespace tensorflow;
 
-//#define PlainModuleBits 64
-//#define PolyModule 4096
-//#define GaloisKeySize 22
-//#define CoefModuleBits 183 //6 * 20 + 3 * 21;
-//#define CrypLen 93696 //PolyModule * CoefModuleBits / 8;
-
-//REGISTER_OP("GenKey")
-//    .Input("x: int64")
-//    .Output("y: int64")
-//    .SetShapeFn([](::tensorflow::shape_inference::InferenceContext* c) {
-//      c->set_output(0, c->input(0));
-//      //c->set_output(0, c->input(1));
-//      return tensorflow::Status::OK();
-//    });
 REGISTER_OP("GenKey")
     .Input("seed: int32")
     .Output("sk: uint8")
@@ -119,11 +105,7 @@ private:
         Tensor* sk = NULL;
         Tensor* pk = NULL;
         Tensor* gk = NULL;
-//        context->allocate_output(0, this->sk_shape, &sk);
-//        context->allocate_output(1, this->pk_shape, &pk);
-//        auto Status = context->allocate_output(2, this->gk_shape, &gk);
 
-        //OP_REQUIRES_OK(context, Status);
         OP_REQUIRES_OK(context, context->allocate_output(0, sk_shape,
                                                          &sk));
         OP_REQUIRES_OK(context, context->allocate_output(1, pk_shape,
@@ -168,8 +150,7 @@ class EncOP : public OpKernel {
     memcpy(v_pk.data(), pk.data(), pk_size);
     memcpy(v_plain.data(), plain.data(), plain_size*sizeof(uint64));
 
-    morse::mv_encrypt_vector(v_pk, v_plain,
-                      v_cipher);
+    morse::mv_encrypt_vector(v_pk, v_plain, v_cipher);
 
 
     ////std::cout<<"v_pk size="<<v_pk.size()<<"byte"<<std::endl;
@@ -184,8 +165,8 @@ class EncOP : public OpKernel {
     // Create an output tensor
     Tensor* cipher = NULL;
 
-    OP_REQUIRES_OK(context, context->allocate_output(0, cipher_shape,
-                                                     &cipher));
+    OP_REQUIRES_OK(context, context->allocate_output(0, cipher_shape, &cipher));
+
     memcpy(cipher->data(), v_cipher.data(), v_cipher.size());
 
   }

@@ -122,7 +122,8 @@ def stf_cnn_test(train_x, train_y, test_x, test_y,keras_weight=None):
 
 if __name__ == "__main__":
 
-    StfConfig.default_fixed_point = 48
+
+    StfConfig.default_fixed_point = 16
     train_x, train_y, test_x, test_y = load_data(normal=True, small=True)
 
     cnn_baseline(train_x, train_y, test_x, test_y, train=True)
