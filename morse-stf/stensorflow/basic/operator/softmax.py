@@ -27,7 +27,8 @@ def softmax_bak(x: Union[SharedPair, PrivateTensor]):
         y = relu(x) # + x.ones_like()
         z = y.reduce_sum(axis=1, keepdims=True)
         # return ~ (sin2pi(z, T=2**41)*(2**40/np.pi)) * y
-        return ~sin2pi(z, T=2 ** 14) * y / (2 ** 13 / np.pi)
+        # return ~sin2pi(z, T=2 ** 14) * y / (2 ** 13 / np.pi)
+        return y / z
     elif isinstance(x, PrivateTensor):
         with tf.device(x.owner):
             y = tf.nn.softmax(x.to_tf_tensor())
