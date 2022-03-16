@@ -15,10 +15,15 @@ from stensorflow.ml.nn.layers.layer import Layer
 from stensorflow.basic.operator.softmax import softmax
 from stensorflow.basic.operator.sigmoid import sigmoid_local, sigmoid_sin as sigmoid
 from stensorflow.basic.basic_class.pair import SharedPair
+import tensorflow as tf
+
+
+
 
 class Loss(Layer):
     BinaryCrossEntropyLossWithSigmoid = 0
     CrossEntropyLossWithSoftmax = 1
+    MSE = 2
 
     def __init__(self, fathers):
         super(Loss, self).__init__(output_dim=[1], fathers=fathers)
@@ -147,3 +152,27 @@ class CrossEntropyLossWithSoftmaxLocal(Loss):
     def backward(self):
         self.ploss_pw = []
         self.ploss_px = {self.fathers[0]: self.y - self.label, self.fathers[1]: -self.score}
+
+
+
+class MSE(Loss):
+    def __init__(self, layer_score, layer_label):
+
+        fathers = [layer_score, layer_label]
+        super(MSE, self).__init__(fathers=fathers)
+
+    def forward(self):
+        for father in self.fathers:
+            if isinstance(father, Layer):
+                father.forward()
+            else:
+                raise Exception("father must be a layer")
+        self.x = list(map(lambda father: father.y, self.fathers))
+
+        self.score = self.x[0]
+        self.label = self.x[1]
+        self.y = self.score
+
+    def backward(self):
+        self.ploss_pw = []
+        self.ploss_px = {self.fathers[0]: self.score - self.label, self.fathers[1]: self.label - self.score}
