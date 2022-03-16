@@ -18,7 +18,8 @@ from stensorflow.basic.basic_class.private import PrivateTensor
 from stensorflow.basic.basic_class.pair import SharedPair
 from stensorflow.ml.nn.layers.input import Input
 from stensorflow.ml.nn.layers.dense import Dense
-from stensorflow.ml.nn.layers.loss import Loss, BinaryCrossEntropyLossWithSigmoid, CrossEntropyLossWithSoftmax
+from stensorflow.ml.nn.layers.loss import Loss, BinaryCrossEntropyLossWithSigmoid, \
+    CrossEntropyLossWithSoftmax, MSE
 from stensorflow.ml.nn.layers.relu import ReLU
 from stensorflow.random.random import random_init
 
@@ -81,6 +82,9 @@ class DNN(NN):
         elif loss == "CrossEntropyLossWithSoftmax" or loss == Loss.CrossEntropyLossWithSoftmax:
             layer_loss = CrossEntropyLossWithSoftmax(layer_score=layer, layer_label=layer_label)
             self.addLayer(ly=layer_loss)
+        elif loss == "MSE" or loss == Loss.MSE:
+            layer_loss = MSE(layer_score=layer, layer_label=layer_label)
+            self.addLayer(ly=layer_loss)
         else:
             raise Exception("unsupposed loss")
 
@@ -112,6 +116,7 @@ class DNN(NN):
     def predict_to_file(self, sess, x, predict_file_name,
                         batch_num, idx, model_file_machine="R", record_num_ceil_mod_batch_size=0,
                         x_another=None, with_sigmoid=True):
+        print("predict_file_name=", predict_file_name)
         y_pred = self.predict(x=x, x_another=x_another, out_prob=with_sigmoid)
 
         id_y_pred = y_pred.to_tf_str(owner=model_file_machine, id_col=idx)

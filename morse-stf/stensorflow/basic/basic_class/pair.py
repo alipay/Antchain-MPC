@@ -154,11 +154,12 @@ class SharedPair(SharedPairBase):
 
     def reduce_mean(self, axis, keepdims=False):
         with tf.device(self.ownerL):
-            xL = self.xL.reduce_mean(axis=axis, keepdims=keepdims)
+            xL = self.xL.reduce_sum(axis=axis, keepdims=keepdims)
         with tf.device(self.ownerR):
-            xR = self.xR.reduce_mean(axis=axis, keepdims=keepdims)
-        return SharedPair(ownerL=self.ownerL, ownerR=self.ownerR, xL=xL, xR=xR,
+            xR = self.xR.reduce_sum(axis=axis, keepdims=keepdims)
+        z = SharedPair(ownerL=self.ownerL, ownerR=self.ownerR, xL=xL, xR=xR,
                           fixedpoint=self.fixedpoint, op_map=self.op_map)
+        return z / self.shape[-1]
 
     def reduce_sum(self, axis, keepdims=False):
         with tf.device(self.ownerL):
