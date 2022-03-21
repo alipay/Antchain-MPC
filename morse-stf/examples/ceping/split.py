@@ -17,7 +17,7 @@ file_x = "/Users/qizhi.zqz/Downloads/epsilon_normalized_test_x"
 file_y = "/Users/qizhi.zqz/Downloads/epsilon_normalized_test_y"
 
 with open(file, "r") as f, open(file_x, "w") as fx, open(file_y, "w") as fy:
-    for _ in range(10):
+    for _ in range(1000):
         aline = f.readline()
         aline = aline.split(" ")
         if aline[0] == "1":
