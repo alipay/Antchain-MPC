@@ -19,6 +19,7 @@ from stensorflow.exception.exception import StfEqualWarning, StfCondException, S
 import numpy as np
 from stensorflow.random.random import gen_rint64, gen_rint64_from_seed
 from typing import Union
+from stensorflow.basic.sparse.read_libsvm import load_libsvm_x
 import random
 import os
 import string
@@ -752,7 +753,16 @@ class PrivateTensorBase:
             data = tf.strings.to_number(data, out_type='float64')
             data = clip(data)
             if map_fn is not None:
-                data = data.map(map_func=map_fn)
+                data = map_fn(data)
+        self.load_from_tf_tensor(data)
+
+
+    def load_from_libsvm_x(self, path: str, feature_num, batch_size, field_delim=" ", skip_row_num=1, skip_col_num=0,
+                       repeat=1, clip_value=None, scale=1.0, map_fn=None, output_col_num=None, buffer_size=0, sparse_flag=False):
+        with tf.device(self.owner):
+            data = load_libsvm_x(filenames=path, batch_size=batch_size, feature_num=feature_num, field_delim=field_delim,
+                                skip_row_num=skip_row_num, skip_col_num=skip_col_num,repeat=repeat,clip_value=clip_value,
+                                scale=scale,map_fn=map_fn, output_col_num=output_col_num, buffer_size=buffer_size, sparse_flag=sparse_flag)
         self.load_from_tf_tensor(data)
 
     def __getitem__(self, item):

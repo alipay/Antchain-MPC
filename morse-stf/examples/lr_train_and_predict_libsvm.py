@@ -4,10 +4,10 @@
    Ant Group
    Copyright (c) 2004-2021 All Rights Reserved.
    ------------------------------------------------------
-   File Name : lr_train_and_predict.py
+   File Name : lr_train_and_predict_libsvm.py
    Author : Qizhi Zhang
    Email: qizhi.zqz@antgroup.com
-   Create Time : 2021/5/21 上午10:13
+   Create Time : 2022/3/22 上午10:13
    Description : description what the main function of this file
 """
 from stensorflow.engine.start_server import start_local_server, start_client
@@ -20,45 +20,50 @@ import random
 import time
 random.seed(0)
 """
-A Example of training a LR model on a dataset of feature number 291 and predict using 
+A Example of training a LR model on a dataset of format libsvm and predict using 
 this model.
 The features are in the party L, the label is in the party R.
 """
 
-start_local_server(config_file="../conf/config_ym.json")
+start_local_server(config_file="../conf/config_a1a.json")
 # start_local_server(config_file="../conf/config_ym_parties2.json")
 #start_client(config_file="../conf/config_ym.json", job_name="workerR")
 
-matchColNum = 2
-featureNumX = 291
-featureNumY = 0
-record_num = 37530
 
-epoch = 5
+matchColNum = 0
+featureNumX = 123
+featureNumY = 0
+record_num = 1605
+
+epoch = 10
 batch_size = 128
 learning_rate = 0.01
 clip_value = 5.0
 train_batch_num = epoch * record_num // batch_size + 1
 
-pred_record_num = 12510
+pred_record_num = 30956
 pred_batch_num = pred_record_num // batch_size + 1
 
 # -------------define a private tensor x_train of party L and a private tensor y_train on the party R
 x_train = PrivateTensor(owner='L')
 y_train = PrivateTensor(owner='R')
 
-format_x = [["a"]] * matchColNum + [[0.2]] * featureNumX
-format_y = [["a"]] * matchColNum + [[0.3]] * featureNumY + [[1.0]]
+# format_x = [["a"]] * matchColNum + [[0.2]] * featureNumX
+format_y = [[1.0]]
 
 
 # -----------------  load data from files -------------------
-x_train.load_from_file(path=StfConfig.train_file_onL,
-                        record_defaults=format_x, batch_size=batch_size, repeat=epoch + 2, skip_col_num=matchColNum,
-                        clip_value=clip_value)
+# x_train.load_from_file(path=StfConfig.train_file_onL,
+#                         record_defaults=format_x, batch_size=batch_size, repeat=epoch + 2, skip_col_num=matchColNum,
+#                         clip_value=clip_value)
+
+x_train.load_from_libsvm_x(path=StfConfig.train_file_onL, feature_num=featureNumX, batch_size=batch_size,
+                           field_delim=" ", skip_row_num=0, skip_col_num=0, repeat=epoch + 2,
+                           clip_value=clip_value, scale=1.0, sparse_flag=False)
 
 y_train.load_from_file(path=StfConfig.train_file_onR,
                          record_defaults=format_y, batch_size=batch_size, repeat=epoch + 2, skip_col_num=matchColNum,
-                         clip_value=clip_value)
+                         clip_value=clip_value, map_fn=tf.nn.relu)
 
 print("StfConfig.parties=", StfConfig.parties)
 # ----------- build a LR model ---------------
@@ -85,9 +90,14 @@ model.save(model_file_path="./")
 x_test = PrivateTensor(owner='L')
 y_test = PrivateTensor(owner='R')
 
-x_test.load_from_file(path=StfConfig.pred_file_onL,
-                       record_defaults=format_x, batch_size=batch_size, repeat=2, skip_col_num=matchColNum,
-                       clip_value=clip_value)
+
+x_test.load_from_libsvm_x(path=StfConfig.pred_file_onL, feature_num=featureNumX, batch_size=batch_size,
+                           field_delim=" ", skip_row_num=0, skip_col_num=0, repeat=epoch + 2,
+                           clip_value=clip_value, scale=1.0, sparse_flag=False)
+#
+# x_test.load_from_file(path=StfConfig.pred_file_onL,
+#                        record_defaults=format_x, batch_size=batch_size, repeat=2, skip_col_num=matchColNum,
+#                        clip_value=clip_value)
 id = y_test.load_from_file_withid(path=StfConfig.pred_file_onR,
                                     record_defaults=format_y, batch_size=batch_size, repeat=2,
                                     id_col_num=matchColNum, clip_value=clip_value)
