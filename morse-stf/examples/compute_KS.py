@@ -519,10 +519,49 @@ def compute_precision_mnist():
     pred = np.argmax(pred, axis=1)
     print(np.mean(pred==label))
 
+
+def compute_KS_a1a():
+    file_path = "../dataset/a1a_y.t"
+    # file_path = '/Users/guanshun/PycharmProjects/morse-stf/stf_keeper/xindai_xy_shuffle.csv'
+
+    predict_path = '/Users/qizhi.zqz/projects/Antchain-MPC/morse-stf/output/predict'
+    # predict_path = '/Users/qizhi.zqz/projects/morse-stf/morse-stf/stf_keeper/tfe/qqq/predict'
+
+    #y = pd.read_csv(file_path, index_col=["id"])
+    y = pd.read_csv(file_path, header=None, names="y")
+
+    #y_hat = pd.read_csv(predict_path, header=None, names=["id", "predict"], index_col=["id"])
+    y_hat = pd.read_csv(predict_path, header=None, names=["predict"])
+
+    # plt.hist(1/(1+np.exp(-y_hat)))
+    plt.hist(y_hat)
+    plt.show()
+
+    df = y.join(y_hat).dropna(axis=0)
+    #df=pd.concat([y, y_hat], axis=1)
+    #
+    y = df.loc[:, 'y']
+    #
+    y_hat = df.loc[:, 'predict']
+
+    y = np.array(y)
+    y_hat = np.array(y_hat)
+
+    fpr, tpr, thresholds = metrics.roc_curve(y, y_hat)
+
+    # KS=get_KS(y, y_hat)
+    KS = max(tpr - fpr)
+
+    AUC = metrics.auc(fpr, tpr)
+    print("KS=", KS)
+    print("AUC=", AUC)
+
+
 if __name__=='__main__':
     #compute_KS_elec_gbdtcode()
     #compute_KS_ym5w()
-    compute_KS_xd()
+    #compute_KS_xd()
+    compute_KS_a1a()
     #compute_KS_gaode3w()
     #compute_KS_gaode20w()
     #compute_KS_gaode20w_DNN()

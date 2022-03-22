@@ -6,9 +6,9 @@
         "workerL": "0.0.0.0:8886",
         "workerR": "0.0.0.0:8887"
     },
-    "stf_home": "/Users/qizhi.zqz/projects/morse-stf/morse-stf",
-    "stf_home_workerL": "/Users/qizhi.zqz/projects/morse-stf/morse-stf",
-    "stf_home_workerR": "/Users/qizhi.zqz/projects/morse-stf/morse-stf",
+    "stf_home": "/Users/qizhi.zqz/projects/Antchain-MPC/morse-stf",
+    "stf_home_workerL": "/Users/qizhi.zqz/projects/Antchain-MPC/morse-stf",
+    "stf_home_workerR": "/Users/qizhi.zqz/projects/Antchain-MPC/morse-stf",
     "sess_worker": "workerR",
     "prf_flag": true,
     "compress_flag": true,
