@@ -30,12 +30,12 @@ start_local_server(config_file="../conf/config_epsilon.json")
 #start_client(config_file="../conf/config_ym.json", job_name="workerR")
 
 matchColNum = 0
-featureNumX = 2000
+featureNumX = 3000
 featureNumY = 0
 record_num = 10
 
 epoch = 100
-batch_size = 32
+batch_size = 2
 learning_rate = 0.01
 clip_value = 5.0
 train_batch_num = epoch * record_num // batch_size + 1
@@ -54,11 +54,11 @@ format_y = [["a"]] * matchColNum + [[0.3]] * featureNumY + [[1.0]]
 # -----------------  load data from files -------------------
 x_train.load_from_file(path=StfConfig.train_file_onL,
                         record_defaults=format_x, batch_size=batch_size, repeat=epoch + 2, skip_col_num=matchColNum,
-                        clip_value=clip_value)
+                        clip_value=clip_value, skip_row_num=0)
 
 y_train.load_from_file(path=StfConfig.train_file_onR,
                          record_defaults=format_y, batch_size=batch_size, repeat=epoch + 2, skip_col_num=matchColNum,
-                         clip_value=clip_value)
+                         clip_value=clip_value, skip_row_num=0)
 
 print("StfConfig.parties=", StfConfig.parties)
 # ----------- build a LR model ---------------
@@ -79,7 +79,8 @@ start_time = time.time()
 model.fit(sess=sess, x=x_train, y=y_train, num_batches=train_batch_num)
 
 print("train time=", time.time()-start_time)
-model.save(model_file_path="./")
+save_op = model.save(model_file_path="./")
+sess.run(save_op)
 
 # ------------define the private tensors for test dataset ----------------
 x_test = PrivateTensor(owner='L')
@@ -87,10 +88,10 @@ y_test = PrivateTensor(owner='R')
 
 x_test.load_from_file(path=StfConfig.pred_file_onL,
                        record_defaults=format_x, batch_size=batch_size, repeat=2, skip_col_num=matchColNum,
-                       clip_value=clip_value)
+                       clip_value=clip_value, skip_row_num=0)
 id = y_test.load_from_file_withid(path=StfConfig.pred_file_onR,
                                     record_defaults=format_y, batch_size=batch_size, repeat=2,
-                                    id_col_num=matchColNum, clip_value=clip_value)
+                                    id_col_num=matchColNum, clip_value=clip_value, skip_row_num=0)
 
 
 # --------------predict --------------
