@@ -583,7 +583,13 @@ class SharedTensorBase:
         z = tf.strings.substr(z, 0, self.serialize_len)
         self.inner_value = tf.reshape(tf.io.parse_tensor(z, 'int64'), shape)
 
-
+    def load_from_fixed_length_file(self, path, header_bytes, footer_bytes):
+        dataset1 = tf.compat.v1.data.FixedLengthRecordDataset(
+            filenames=[path],
+            record_bytes=8 * np.prod(self.shape), header_bytes=header_bytes, footer_bytes=footer_bytes)
+        z = dataset1.make_one_shot_iterator().get_next()
+        zf = tf.io.decode_raw(z, "int64", little_endian=False)
+        self.inner_value = tf.reshape(zf, self.shape)
 
 
 def get_device(owner):
@@ -754,6 +760,10 @@ class PrivateTensorBase:
             if map_fn is not None:
                 data = data.map(map_func=map_fn)
         self.load_from_tf_tensor(data)
+
+
+
+
 
     def __getitem__(self, item):
         with tf.device(self.owner):
@@ -1295,6 +1305,7 @@ class SharedPairBase:
             x = self.to_private(owner)
             return x.to_tf_tensor()
 
+
     def ones_like(self):
         """
         See tf.ones_like
@@ -1467,6 +1478,12 @@ class SharedPairBase:
             self.xL.unserialize(StfConfig.stf_home_workerL)
         with tf.device(StfConfig.workerR[0]):
             self.xR.unserialize(StfConfig.stf_home_workerR)
+
+    def load_from_fixed_length_file(self, pathL, pathR, header_bytes, footer_bytes):
+        with tf.device(StfConfig.workerL[0]):
+            self.xL.load_from_fixed_length_file(pathL, header_bytes, footer_bytes)
+        with tf.device(StfConfig.workerR[0]):
+            self.xR.load_from_fixed_length_file(pathR, header_bytes, footer_bytes)
 
     def random_uniform_adjoint(self, seed=None):
         with tf.device(self.ownerL):
