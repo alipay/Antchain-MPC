@@ -20,6 +20,11 @@ print(params_ext1000)
 file = "/Users/qizhi.zqz/Documents/dataset/epsilon_normalized.t"
 file_x = "/Users/qizhi.zqz/Documents/dataset/epsilon_normalized_test_x"
 file_y = "/Users/qizhi.zqz/Documents/dataset/epsilon_normalized_test_y"
+file_xx = "/Users/qizhi.zqz/Documents/dataset/epsilon_normalized_test_xx"
+file_xy = "/Users/qizhi.zqz/Documents/dataset/epsilon_normalized_test_xy"
+file_x30 = "/Users/qizhi.zqz/Documents/dataset/epsilon_normalized_test_x30"
+file_x31 = "/Users/qizhi.zqz/Documents/dataset/epsilon_normalized_test_x31"
+file_x32y = "/Users/qizhi.zqz/Documents/dataset/epsilon_normalized_test_x32y"
 
 def get_dataset():
 
@@ -93,7 +98,90 @@ def get_dataset2():
             fx.write(features)
             fy.write(label)
 
+def split2():
+    """
+    split to 2 part
+    :return:
+    """
+    with open(file_x) as fx, open(file_y) as fy, open(file_xx, "w") as fxx, open(file_xy, "w") as fxy:
+        aline_xx = ",".join(("x{i}".format(i=i) for i in range(1500)))+"\n"
+        aline_xy = ",".join(("x{i}".format(i=i) for i in range(1500, 3000)))+",y\n"
+        fxx.write(aline_xx)
+        fxy.write(aline_xy)
+        while True:
+            aline_x = fx.readline()
+            if aline_x is None:
+                break
+            if len(aline_x) <= 2:
+                break
+            aline_y = fy.readline()
+            if aline_y is None:
+                break
+            if len(aline_y) == 0:
+                break
+
+            aline_x = aline_x.strip()
+            aline_y = aline_y.strip()
+
+
+            aline_x = aline_x.split(",")
+
+            aline_xx = aline_x[0:1500]
+            aline_xy = aline_x[1500:3000]+[aline_y]
+
+            aline_xx = ",".join(aline_xx)+"\n"
+            aline_xy = ",".join(aline_xy)+"\n"
+            fxx.write(aline_xx)
+            fxy.write(aline_xy)
+
+def split3():
+    """
+    split to 3 part
+    :return:
+    """
+    with open(file_x) as fx, open(file_y) as fy, open(file_x30, "w") as fx30, \
+            open(file_x31, "w") as fx31, open(file_x32y, "w") as fx32y:
+
+        aline_x30 = ",".join(("x{i}".format(i=i) for i in range(1000)))+"\n"
+        aline_x31 = ",".join(("x{i}".format(i=i) for i in range(1000, 2000)))+"\n"
+        aline_x32y = ",".join(("x{i}".format(i=i) for i in range(2000, 3000)))+",y\n"
+        fx30.write(aline_x30)
+        fx31.write(aline_x31)
+        fx32y.write(aline_x32y)
+        while True:
+            aline_x = fx.readline()
+            if aline_x is None:
+                break
+            if len(aline_x) <= 2:
+                break
+            aline_y = fy.readline()
+            if aline_y is None:
+                break
+            if len(aline_y) == 0:
+                break
+
+            aline_x = aline_x.strip()
+            aline_y = aline_y.strip()
+
+
+            aline_x = aline_x.split(",")
+
+            aline_x30 = aline_x[0:1000]
+            aline_x31 = aline_x[1000:2000]
+            aline_x32y = aline_x[2000:3000]+[aline_y]
+
+            aline_x30 = ",".join(aline_x30)+"\n"
+            aline_x31 = ",".join(aline_x31) + "\n"
+            aline_x32y = ",".join(aline_x32y) + "\n"
+
+            fx30.write(aline_x30)
+            fx31.write(aline_x31)
+            fx32y.write(aline_x32y)
+
+
 
 
 if __name__ == '__main__':
-    get_dataset2()
+    #get_dataset2()
+    split2()
+    # split3()
