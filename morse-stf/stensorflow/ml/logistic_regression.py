@@ -18,7 +18,7 @@ from stensorflow.exception.exception import StfValueException
 from stensorflow.random.random import random_init
 from stensorflow.homo_enc.homo_enc import homo_init
 from stensorflow.basic.basic_class.base import get_device
-from stensorflow.basic.basic_class.private import PrivateTensor
+from stensorflow.basic.basic_class.private import PrivateTensor, PrivateVariable
 import numpy as np
 from stensorflow.global_var import StfConfig
 import os
@@ -236,8 +236,8 @@ class LogisticRegression:
 
     def load(self, model_file_path, model_file_machine="R"):
 
-        self.w = stf.PrivateVariable(owner=model_file_machine)
-        self.b = stf.PrivateVariable(owner=model_file_machine)
+        self.w = PrivateVariable(owner=model_file_machine)
+        self.b = PrivateVariable(owner=model_file_machine)
 
         self.w.load_first_line_from_file(os.path.join(model_file_path, "param_0"), col_num=self.num_features)
         self.w = self.w.reshape([self.num_features, 1])
