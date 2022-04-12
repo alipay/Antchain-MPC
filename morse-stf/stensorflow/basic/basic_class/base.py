@@ -584,7 +584,20 @@ class SharedTensorBase:
         z = tf.strings.substr(z, 0, self.serialize_len)
         self.inner_value = tf.reshape(tf.io.parse_tensor(z, 'int64'), shape)
 
-
+    def load_from_fixed_length_file(self, path, header_bytes, footer_bytes, repeat, fields_num=None, batch_size=None):
+        if self.shape is None:
+            self.shape = [batch_size, fields_num]
+        elif fields_num is None and batch_size is None:
+            pass
+        else:
+            if self.shape != [batch_size, fields_num]:
+                raise Exception("must have self.shape == [batch_size, fields_num]")
+        dataset1 = tf.compat.v1.data.FixedLengthRecordDataset(
+            filenames=[path],
+            record_bytes=8 * np.prod(self.shape), header_bytes=header_bytes, footer_bytes=footer_bytes)
+        z = dataset1.repeat(repeat).make_one_shot_iterator().get_next()
+        zf = tf.io.decode_raw(z, "int64", little_endian=False)
+        self.inner_value = tf.reshape(zf, self.shape)
 
 
 def get_device(owner):
@@ -764,6 +777,10 @@ class PrivateTensorBase:
                                 skip_row_num=skip_row_num, skip_col_num=skip_col_num,repeat=repeat,clip_value=clip_value,
                                 scale=scale,map_fn=map_fn, output_col_num=output_col_num, buffer_size=buffer_size, sparse_flag=sparse_flag)
         self.load_from_tf_tensor(data)
+
+
+
+
 
     def __getitem__(self, item):
         with tf.device(self.owner):
@@ -1305,6 +1322,7 @@ class SharedPairBase:
             x = self.to_private(owner)
             return x.to_tf_tensor()
 
+
     def ones_like(self):
         """
         See tf.ones_like
@@ -1477,6 +1495,16 @@ class SharedPairBase:
             self.xL.unserialize(StfConfig.stf_home_workerL)
         with tf.device(StfConfig.workerR[0]):
             self.xR.unserialize(StfConfig.stf_home_workerR)
+
+    def load_from_fixed_length_file(self, pathL, pathR, header_bytes, footer_bytes, fields_num, batch_size, repeat):
+        with tf.device(StfConfig.workerL[0]):
+            if self.xL is None:
+                self.xL = SharedTensorBase(shape=[batch_size, fields_num])
+            self.xL.load_from_fixed_length_file(pathL, header_bytes, footer_bytes, repeat)
+        with tf.device(StfConfig.workerR[0]):
+            if self.xR is None:
+                self.xR = SharedTensorBase(shape=[batch_size, fields_num])
+            self.xR.load_from_fixed_length_file(pathR, header_bytes, footer_bytes, repeat)
 
     def random_uniform_adjoint(self, seed=None):
         with tf.device(self.ownerL):

@@ -520,6 +520,7 @@ def compute_precision_mnist():
     print(np.mean(pred==label))
 
 
+
 def compute_KS_a1a():
     file_path = "../dataset/a1a_y.t"
     # file_path = '/Users/guanshun/PycharmProjects/morse-stf/stf_keeper/xindai_xy_shuffle.csv'
@@ -542,6 +543,21 @@ def compute_KS_a1a():
     #
     y = df.loc[:, 'y']
     #
+
+def compute_KS_epsilon():
+    file_path = "../dataset/epsilon_normalized_test_y"
+
+    predict_path = '/Users/qizhi.zqz/projects/Antchain-MPC/morse-stf/output/predict'
+
+    y = pd.read_csv(file_path, header=None, names=["y"])
+
+    y_hat = pd.read_csv(predict_path, header=None, names=["predict"])
+
+    df=pd.concat([y, y_hat], axis=1).dropna(axis=0)
+    print("df=", df)
+    y = df.loc[:, 'y']
+
+
     y_hat = df.loc[:, 'predict']
 
     y = np.array(y)
@@ -561,7 +577,8 @@ if __name__=='__main__':
     #compute_KS_elec_gbdtcode()
     #compute_KS_ym5w()
     #compute_KS_xd()
-    compute_KS_a1a()
+    #compute_KS_a1a()
+    compute_KS_epsilon()
     #compute_KS_gaode3w()
     #compute_KS_gaode20w()
     #compute_KS_gaode20w_DNN()

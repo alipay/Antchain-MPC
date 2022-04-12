@@ -21,3 +21,4 @@ dist/
 *.egg-info/
 self_test/
 Dockerfile*
+ceping/

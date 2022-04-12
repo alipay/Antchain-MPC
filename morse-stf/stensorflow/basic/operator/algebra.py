@@ -91,8 +91,9 @@ def concat(x: list, axis, fixed_point=None):
                 x[i] = x[i].to_SharedPairBase(other_owner=other_owner)
         return concat(x, axis)
     else:
-
         raise Exception("x[i] must be PrivateTensorBase or SharedPairBase")
+
+
 
 def stack(x: list, axis, fixed_point=None):
     """

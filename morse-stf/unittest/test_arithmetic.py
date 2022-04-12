@@ -1,6 +1,8 @@
 import unittest
 from stensorflow.basic.basic_class.base import SharedTensorBase, SharedPairBase, PrivateTensorBase
+from stensorflow.basic.basic_class.private import PrivateTensor
 from stensorflow.basic.basic_class.pair import SharedPair
+from stensorflow.basic.basic_class.pair import SharedVariablePair
 from stensorflow.basic.operator.arithmetic import add, sub, matmul, mul
 import tensorflow as tf
 from stensorflow.random.random import random_init
@@ -39,14 +41,29 @@ class MyTestCase(unittest.TestCase):
         self.assertAlmostEqual(self.sess.run(u), a * b, delta=0.001)
         self.assertAlmostEqual(self.sess.run(v), a * b, delta=0.001)
 
+
+    def test_mul(self):
+        tf.compat.v1.disable_eager_execution()
+
+        x_test = PrivateTensor(owner='L')
+        x_test.load_from_tf_tensor(tf.constant([[1.0]*1000000]))
+        y_test = PrivateTensor(owner='R')
+        y_test.load_from_tf_tensor(tf.constant([[1.0]*1000000]))
+        z = x_test * y_test
+
+        init_op = tf.compat.v1.global_variables_initializer()
+        self.sess.run(init_op)
+        self.sess.run(tf.norm(z.to_tf_tensor("L")))
+
+
     def test_matmul(self):
         tf.compat.v1.disable_eager_execution()
 
-        x_test = stf.PrivateTensor(owner='L')
+        x_test = PrivateTensor(owner='L')
         x_test.load_from_tf_tensor(tf.constant([[0.1, 0.2]]))
-        w_test = stf.SharedVariablePair(ownerL="L", ownerR="R", shape=[2, 1])
+        w_test = SharedVariablePair(ownerL="L", ownerR="R", shape=[2, 1])
         w_test.load_from_tf_tensor(tf.constant([[1], [-1]]))
-        b_test = stf.SharedVariablePair(ownerL="L", ownerR="R", shape=[2, 1])
+        b_test = SharedVariablePair(ownerL="L", ownerR="R", shape=[2, 1])
         b_test.load_from_tf_tensor(tf.constant([[0.2], [-0.2]]))
         y = x_test @ w_test
         z = y + b_test
