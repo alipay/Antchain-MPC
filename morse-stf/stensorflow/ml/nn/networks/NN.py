@@ -108,6 +108,9 @@ class NN:
                 # tmp = sess.run([train_op, self.layers[3].y.to_tf_tensor("R")])
                 # print(tmp[1])
 
+
+
+
     def cut_off(self):
         for ly in self.layers:
             assert isinstance(ly, Layer)

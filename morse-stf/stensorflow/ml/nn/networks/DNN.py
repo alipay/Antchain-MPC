@@ -113,6 +113,31 @@ class DNN(NN):
         else:
             return ly.score
 
+
+    def print(self, sess, model_file_machine="R"):
+        for ly in self.layers:
+            if isinstance(ly, Dense) or isinstance(ly, Dense_Local):
+                for weight in ly.w:
+                    weight_tf = weight.to_tf_tensor(owner=model_file_machine)
+                    print(sess.run(weight_tf))
+
+    def save(self, sess, model_file_machine="R", path="./output/model"):
+        print("save model...")
+        i = 0
+        for ly in self.layers:
+            if isinstance(ly, Dense):
+                ly.save(model_file_machine, sess, path + "/param_{}".format(i))
+            i += 1
+
+    def load(self, path="./output/model/"):
+        print("load model...")
+        i = 0
+        for ly in self.layers:
+            if isinstance(ly, Dense):
+                ly.load(path + "/param_{}".format(i))
+            i += 1
+
+
     def predict_to_file(self, sess, x, predict_file_name,
                         batch_num, idx, model_file_machine="R", record_num_ceil_mod_batch_size=0,
                         x_another=None, with_sigmoid=True):

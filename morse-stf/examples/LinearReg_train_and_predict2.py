@@ -38,7 +38,7 @@ epoch = 10   # 15
 batch_size = 128
 
 num_features = featureNumL + featureNumR
-dense_dims = [num_features, 1]       # the neural network structure is 32, 32, 1
+dense_dims = [num_features, 1]       # the neural network structure is 32, 1
 l2_regularization = 0.0
 clip_value = 5.0
 
@@ -90,6 +90,8 @@ model.train_sgd(learning_rate=learning_rate, batch_num=train_batch_num, l2_regul
 end_time = time.time()
 
 print("train_time=", end_time-start_time)
+model.save(sess=sess, path="../output/model")
+model.load(path="../output/model")
 
 # ------------define the private tensors for test dataset ----------------
 pred_record_num = 12042*3//10
