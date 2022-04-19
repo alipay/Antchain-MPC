@@ -19,6 +19,7 @@ from stensorflow.basic.operator.order import greater, geq, less, leq
 from stensorflow.global_var import StfConfig
 from stensorflow.exception.exception import StfEqualWarning, StfCondException, StfEqualException, StfTypeException
 import numpy as np
+import tensorflow as tf
 
 
 class PrivateTensor(PrivateTensorBase):
@@ -252,6 +253,13 @@ class PrivateTensor(PrivateTensorBase):
     def __ge__(self, other):
         result = self.op_map['ge'](self, other)
         return self._convert_result_type_(result)
+
+    def clip_by_value(self, clip_value):
+        clip_value = tf.cast(clip_value * (1 << self.fixedpoint), "int64")
+        inner_value = tf.clip_by_value(self.inner_value, -clip_value, clip_value)
+        r = PrivateTensor(owner=self.owner, fixedpoint=self.fixedpoint,
+                          inner_value=inner_value, module=self.module, op_map=self.op_map)
+        return r
 
 
 class PrivateVariable(PrivateTensor):

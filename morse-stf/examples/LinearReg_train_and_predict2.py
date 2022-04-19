@@ -65,11 +65,12 @@ xL_train.load_from_file(path=StfConfig.train_file_onL,
 
 xyR_train.load_from_file(path=StfConfig.train_file_onR,
                          record_defaults=format_y, batch_size=batch_size, repeat=epoch + 2, skip_col_num=matchColNum,
-                         clip_value=clip_value)
+                         clip_value=None)
+
 
 # split xyR_train to features xR_train and label y_train
 xR_train, y_train = xyR_train.split(size_splits=[featureNumR, 1], axis=1)
-
+xR_train = xR_train.clip_by_value(clip_value)
 # ----------- build a DNN model (fully connected neural network)---------------
 
 model = DNN(feature=xL_train, label=y_train, dense_dims=dense_dims, feature_another=xR_train,
@@ -106,10 +107,10 @@ xL_test.load_from_file(path=StfConfig.pred_file_onL,
 
 id = xRy_test.load_from_file_withid(path=StfConfig.pred_file_onR,
                                     record_defaults=format_y, batch_size=batch_size, repeat=2,
-                                    id_col_num=matchColNum, clip_value=clip_value)
+                                    id_col_num=matchColNum, clip_value=None)
 
 xR_test, y_test = xRy_test.split(size_splits=[-1, 1], axis=1)
-
+xR_test = xR_test.clip_by_value(clip_value)
 
 # --------------predict --------------
 model.predict_to_file(sess=sess, x=xL_test, x_another=xR_test,
