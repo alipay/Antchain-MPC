@@ -116,7 +116,7 @@ class DNN(NN):
 
     def print(self, sess, model_file_machine="R"):
         for ly in self.layers:
-            if isinstance(ly, Dense) or isinstance(ly, Dense_Local):
+            if isinstance(ly, Dense):
                 for weight in ly.w:
                     weight_tf = weight.to_tf_tensor(owner=model_file_machine)
                     print(sess.run(weight_tf))
