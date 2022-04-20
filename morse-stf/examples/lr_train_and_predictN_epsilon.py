@@ -105,6 +105,7 @@ model.fit(sess=sess, x=x_train, y=y_train, num_batches=train_batch_num)
 print("train time=", time.time()-start_time)
 save_op = model.save(model_file_path="../output/")
 sess.run(save_op)
+model.load(model_file_path="../output/")
 
 # ------------define the private tensors for test dataset ----------------
 x_tests = []

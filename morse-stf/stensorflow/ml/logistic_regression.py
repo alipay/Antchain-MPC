@@ -236,8 +236,8 @@ class LogisticRegression:
 
     def load(self, model_file_path, model_file_machine="R"):
 
-        self.w = PrivateVariable(owner=model_file_machine)
-        self.b = PrivateVariable(owner=model_file_machine)
+        self.w = PrivateTensor(owner=model_file_machine)
+        self.b = PrivateTensor(owner=model_file_machine)
 
         self.w.load_first_line_from_file(os.path.join(model_file_path, "param_0"), col_num=self.num_features)
         self.w = self.w.reshape([self.num_features, 1])

@@ -44,7 +44,8 @@ clip_value = 5.0
 
 batch_num_per_epoch = record_num // batch_size
 train_batch_num = epoch * batch_num_per_epoch + 1
-
+pred_record_num = 12042*3//10
+pred_batch_num = pred_record_num // batch_size
 
 learning_rate = 0.01
 
@@ -95,8 +96,7 @@ model.save(sess=sess, path="../output/model")
 model.load(path="../output/model")
 
 # ------------define the private tensors for test dataset ----------------
-pred_record_num = 12042*3//10
-pred_batch_num = pred_record_num // batch_size
+
 
 xL_test = PrivateTensor(owner='L')
 xRy_test = PrivateTensor(owner='R')
