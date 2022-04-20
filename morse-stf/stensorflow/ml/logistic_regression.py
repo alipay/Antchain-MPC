@@ -60,8 +60,8 @@ class LogisticRegression:
         """
 
         m = x @ self.w
-        print("m.xL.shape=", m.xL.shape)
-        print("m.xR.shape=", m.xR.shape)
+        # print("m.xL.shape=", m.xL.shape)
+        # print("m.xR.shape=", m.xR.shape)
         out = m + self.b
 
         if with_sigmoid:
