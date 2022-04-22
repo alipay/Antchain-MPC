@@ -282,9 +282,9 @@ class LogisticRegression2:
         return save_op
 
     def load(self, model_file_path, model_file_machine="R"):
-        self.w_L = stf.PrivateVariable(owner=model_file_machine)
-        self.w_R = stf.PrivateVariable(owner=model_file_machine)
-        self.b = stf.PrivateVariable(owner=model_file_machine)
+        self.w_L = PrivateTensor(owner=model_file_machine)
+        self.w_R = PrivateTensor(owner=model_file_machine)
+        self.b = PrivateTensor(owner=model_file_machine)
 
         self.w_L.load_first_line_from_file(os.path.join(model_file_path, "param_0"), col_num=self.num_features_L)
         self.w_L = self.w_L.reshape([self.num_features_L, 1])
