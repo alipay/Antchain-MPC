@@ -11,18 +11,20 @@
    Description : description what the main function of this file
 """
 
+import os
+import random
+import string
+from typing import Union, List
+
+import numpy as np
 import tensorflow as tf
 import tensorflow.python as python
-from stensorflow.global_var import StfConfig
+
+from stensorflow.basic.sparse.read_libsvm import load_libsvm_x
 from stensorflow.exception.exception import StfEqualWarning, StfCondException, StfEqualException, StfTypeException, \
     StfDTypeException, StfValueException, StfNoneException, StfException
-import numpy as np
+from stensorflow.global_var import StfConfig
 from stensorflow.random.random import gen_rint64, gen_rint64_from_seed
-from typing import Union
-from stensorflow.basic.sparse.read_libsvm import load_libsvm_x
-import random
-import os
-import string
 
 random.seed(0)
 
@@ -584,6 +586,22 @@ class SharedTensorBase:
         z = tf.strings.substr(z, 0, self.serialize_len)
         self.inner_value = tf.reshape(tf.io.parse_tensor(z, 'int64'), shape)
 
+    def load_from_dataset(self, dataset: tf.data.Dataset, batch_size: int, repeat: int):
+        """
+        Load shared tensor from dataset. the dataset must have dtype == tf.int64 and shaped defined in its element_spec.
+        :param dataset: the input dataset
+        :param batch_size:
+        :param repeat:
+        :return:
+        """
+        if self.shape is None:
+            self.shape = [batch_size, dataset.element_spec.shape[-1]]
+        assert dataset.element_spec.dtype == tf.int64
+
+        z = tf.compat.v1.data.make_one_shot_iterator(dataset.repeat(repeat).batch(batch_size)).get_next()
+
+        self.inner_value = tf.reshape(z, self.shape)
+
     def load_from_fixed_length_file(self, path, header_bytes, footer_bytes, repeat, fields_num=None, batch_size=None):
         if self.shape is None:
             self.shape = [batch_size, fields_num]
@@ -727,6 +745,50 @@ class PrivateTensorBase:
         with tf.device(self.owner):
             inner_value = tf.identity(self.inner_value)
         return PrivateTensorBase(self.owner, fixedpoint=self.fixedpoint, inner_value=inner_value, module=self.module)
+
+    def load_from_dataset(self, dataset: tf.data.Dataset, batch_size, repeat=1, clip_value=None, scale=1.0,
+                          map_fn=None, cobatch: List[tf.data.Dataset] = []) -> List:
+        """
+        Load from dataset which data is predefined tensor. the dataset & cobatch datasets must have shape and dtype defined in
+        its element_spec.
+        :param dataset: the main dataset which data will be filled in this Tensor
+        :param batch_size: batch size to fetch
+        :param repeat: how many times will this dataset be repeated
+        :param clip_value: the features are clip by this value such that |x|<=clip_value
+        :param scale: multiply scale for the  columns
+        :param map_fn: A map function for the columns, for example: lambda x: x[3]*x[4]
+        :param cobatch: datasets which will be applied as same fetch pipelien as with the input dataset. (like zip datasets)
+        :return: cobatched datasets' tensor list
+        """
+        def clip(r):
+            if clip_value is None:
+                return r * scale if scale != 1.0 else r
+            else:
+                return tf.clip_by_value(r * scale, -clip_value, clip_value)
+
+        def batchize(input_ds):
+            p_data_iter = tf.compat.v1.data.make_one_shot_iterator(input_ds.repeat(repeat).batch(batch_size))
+            p_data = p_data_iter.get_next()
+            p_data = tf.reshape(p_data, [batch_size, input_ds.element_spec.shape[-1]])
+            return p_data
+
+        with tf.device(self.owner):
+            data = batchize(dataset)
+            if dataset.element_spec.dtype == tf.string:
+                data = tf.strings.to_number(data, out_type=tf.float64)
+            else:
+                data = tf.cast(data, tf.float64)
+            data = clip(data)
+            if map_fn is not None:
+                data = map_fn(data)
+
+        self.load_from_tf_tensor(data)
+
+        ret = []
+        with tf.device(self.owner):
+            for ds in cobatch:
+                ret.append(batchize(ds))
+        return ret
 
     def load_from_file(self, path: str, record_defaults, batch_size, field_delim=",", skip_row_num=1, skip_col_num=0,
                        repeat=1, clip_value=None, scale=1.0, map_fn=None, output_col_num=None, buffer_size=0):
@@ -1495,6 +1557,16 @@ class SharedPairBase:
             self.xL.unserialize(StfConfig.stf_home_workerL)
         with tf.device(StfConfig.workerR[0]):
             self.xR.unserialize(StfConfig.stf_home_workerR)
+
+    def load_from_dataset(self, dataset_l: tf.data.Dataset, dataset_r: tf.data.Dataset, batch_size: int, repeat: int):
+        with tf.device(StfConfig.workerL[0]):
+            if self.xL is None:
+                self.xL = SharedTensorBase(shape=[batch_size, dataset_l.element_spec.shape[-1]])
+            self.xL.load_from_dataset(dataset_l, batch_size, repeat)
+        with tf.device(StfConfig.workerR[0]):
+            if self.xR is None:
+                self.xR = SharedTensorBase(shape=[batch_size, dataset_r.element_spec.shape[-1]])
+            self.xR.load_from_dataset(dataset_r, batch_size, repeat)
 
     def load_from_fixed_length_file(self, pathL, pathR, header_bytes, footer_bytes, fields_num, batch_size, repeat):
         with tf.device(StfConfig.workerL[0]):
