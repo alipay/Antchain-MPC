@@ -19,30 +19,61 @@ from typing import Union, List
 from stensorflow.basic.protocol.bilinear_triangle import BiliinearTriangle
 import pandas as pd
 from stensorflow.exception.exception import StfNoneException, StfCondException
+import tensorflow as tf
 
 class GraphConv(Layer):
-    def __init__(self, output_dim, fathers, adjoint_matrix, with_b=True):
+    def __init__(self, fathers, output_dim, adjacency_matrix, norm='both',
+                 weight=False, bias=False, allow_zero_in_degree=True):
+
+        if norm not in ("none", "both" or "right"):
+            raise StfCondException('norm in Set("none", "both" or "right")', 'norm={}'.format(norm))
         if fathers is None:
             raise StfNoneException("fathers")
         if fathers == []:
             raise StfCondException("fathers != []", "fathers == []")
         super(GraphConv, self).__init__(output_dim=output_dim, fathers=fathers)
-        self.with_b = with_b
-        self.adjoint_matrix = adjoint_matrix
-        for father in fathers:
-            if not isinstance(father, Layer):
-                raise Exception("father must be a layer")
-            wi = SharedVariablePair(ownerL="L", ownerR="R", shape=[father.output_dim, output_dim])
-            wi.load_from_numpy(
-                np.random.normal(scale=1.0 / np.sqrt(father.output_dim + 1), size=[father.output_dim, output_dim]))
-            self.w += [wi]
+        self._norm = norm
+        self._allow_zero_in_degree = allow_zero_in_degree
+        self.adjacency_matrix = adjacency_matrix
 
-        if with_b:
+        if norm == 'both':
+            out_degrees = tf.reduce_sum(adjacency_matrix, axis=0, keepdims=True)
+            in_degrees = tf.reduce_sum(adjacency_matrix, axis=1, keepdims=True)
+            out_degrees = tf.clip_by_value(tf.cast(out_degrees, "float32"), clip_value_min=1.0,
+                                           clip_value_max=np.inf)
+            in_degrees = tf.clip_by_value(tf.cast(in_degrees, 'float32'), clip_value_min=1.0,
+                                          clip_value_max=np.inf)
+            isqrt_out_degrees = tf.pow(out_degrees, -1 / 2)
+            isqrt_in_degrees = tf.pow(in_degrees, -1 / 2)
+            isqrt_in_degrees = tf.reshape(isqrt_in_degrees, [1, -1])
+            isqrt_out_degrees = tf.reshape(isqrt_out_degrees, [-1, 1])
+            normalized_adjacency_matrix = isqrt_in_degrees * adjacency_matrix * isqrt_out_degrees
+        elif norm == 'right':
+            in_degrees = tf.reduce_sum(adjacency_matrix, axis=1, keepdims=True)
+            in_degrees = tf.clip_by_value(tf.cast(in_degrees, 'float32'), clip_value_min=1.0,
+                                          clip_value_max=np.inf)
+            inv_in_degrees = 1.0 / in_degrees
+            inv_in_degrees = tf.reshape(inv_in_degrees, [1, -1])
+            normalized_adjacency_matrix = inv_in_degrees * adjacency_matrix
+        else:
+            normalized_adjacency_matrix = adjacency_matrix
+
+        self.normalized_adjacency_matrix = normalized_adjacency_matrix
+        self.weight = weight
+        self.bias = bias
+        if self.weight:
+            for father in fathers:
+                if not isinstance(father, Layer):
+                    raise Exception("father must be a layer")
+                wi = SharedVariablePair(ownerL="L", ownerR="R", shape=[father.output_dim, output_dim])
+                wi.load_from_numpy(
+                    np.random.normal(scale=1.0 / np.sqrt(father.output_dim + 1), size=[father.output_dim, output_dim]))
+                self.w += [wi]
+
+        if self.bias:
             b = SharedVariablePair(ownerL="L", ownerR="R", shape=[output_dim])
             b.load_from_numpy(np.zeros([output_dim]))
             self.w += [b]
-
-
 
     def __str__(self):
         return "GraphConv Layer of output_dim={}".format(self.output_dim)
@@ -58,8 +89,8 @@ class GraphConv(Layer):
         y = y.dup_with_precision(x[0].fixedpoint)
         for i in range(1, len(x)):
             y = y + x[i] @ w[i]
-        y = self.adjoint_matrix @ y
-        if self.with_b:
+        y = self.normalized_adjacency_matrix.transpose() @ y
+        if self.bias:
             y = y + self.w[len(x)]
         return y.dup_with_precision(new_fixedpoint=x[0].fixedpoint)
 
@@ -69,7 +100,7 @@ class GraphConv(Layer):
         list_ploss_px = []
         ploss_pw = []
         # Z= sum_i X_i W_i   Y = AZ
-        ploss_pz = self.adjoint_matrix.transpose() @ ploss_py
+        ploss_pz = self.normalized_adjacency_matrix @ ploss_py
         for i in range(len(x)):
             ploss_pxi = ploss_pz @ w[i].transpose()
             list_ploss_px += [ploss_pxi.dup_with_precision(x[0].fixedpoint)]
@@ -81,7 +112,7 @@ class GraphConv(Layer):
 
         ploss_px = dict(zip(self.fathers, list_ploss_px))
 
-        if self.with_b:
+        if self.bias:
             ploss_pb = ploss_py.reduce_sum(axis=[0]) / batch_size
             ploss_pw += [ploss_pb.dup_with_precision(x[0].fixedpoint)]
 
