@@ -1484,6 +1484,7 @@ class SharedPairBase:
         """
         return self.to_private(owner=owner).to_tf_str(precision=precision, id_col=id_col)
 
+
     def serialize(self):
         with tf.device(StfConfig.workerL[0]):
             self.xL.serialize(StfConfig.stf_home_workerL)

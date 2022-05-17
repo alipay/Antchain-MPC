@@ -16,6 +16,7 @@ from stensorflow.basic.basic_class.private import PrivateVariable
 from stensorflow.ml.nn.layers.input import Input
 import tensorflow as tf
 import time
+from stensorflow.basic.operator.inverssqrt import invers_sqrt
 import numpy as np
 
 
@@ -93,7 +94,7 @@ class NN:
                 # 每次传入不同的学习率进行梯度下降
                 print("batch ", i)
                 sess.run(train_op, feed_dict={self.learning_rate: learning_rate_list[i]})
-                if i%10==0:
+                if i % 10 == 0:
                     print("time=", time.time()-start_time)
         else:
             for i in range(batch_num):
@@ -107,6 +108,110 @@ class NN:
                 # print(self.layers[3])
                 # tmp = sess.run([train_op, self.layers[3].y.to_tf_tensor("R")])
                 # print(tmp[1])
+
+
+
+
+
+    def get_train_adam_op(self, learningRate=1e-3, betas=(0.9, 0.999), eps=1e-8,
+                 weight_decay=0.0, amsgrad=False):
+        """
+        Construct a new Adam optimizer
+        """
+        if not 0.0 <= learningRate:
+            raise ValueError("Invalid learning rate: {}".format(learningRate))
+        if not 0.0 <= eps:
+            raise ValueError("Invalid epsilon value: {}".format(eps))
+        if not 0.0 <= betas[0] < 1.0:
+            raise ValueError("Invalid beta parameter at index 0: {}".format(betas[0]))
+        if not 0.0 <= betas[1] < 1.0:
+            raise ValueError("Invalid beta parameter at index 1: {}".format(betas[1]))
+        if not 0.0 <= weight_decay:
+            raise ValueError("Invalid weight_decay value: {}".format(weight_decay))
+        if amsgrad:
+            raise NotImplementedError
+        if weight_decay >0:
+            raise NotImplementedError
+        train_ops = []
+        for ly in self.layers:
+            if isinstance(ly, Layer):
+                for i in range(len(ly.w)):
+                    wi = ly.w[i]
+                    assert isinstance(wi, SharedVariablePair) or isinstance(wi, PrivateVariable)
+                    ploss_pwi = ly.ploss_pw[i]
+                    beta1 = betas[0]
+                    beta2 = betas[1]
+
+
+                    m = SharedVariablePair(ownerL=ploss_pwi.ownerL, ownerR=ploss_pwi.ownerR,
+                                           shape=ploss_pwi.shape)
+                    m.load_from_numpy(np.zeros(shape=ploss_pwi.shape))
+
+                    v = SharedVariablePair(ownerL=ploss_pwi.ownerL, ownerR=ploss_pwi.ownerR,
+                                           shape=ploss_pwi.shape)
+                    v.load_from_numpy(np.zeros(shape=ploss_pwi.shape))
+
+
+
+
+                    # m_new = beta1/(1-beta1_power_t) * m + (1-beta1)/(1-beta1_power_t) * ploss_pwi
+                    # v_new = beta1/(1-beta2_power_t) * v + (1-beta1)/(1-beta2_power_t) * ploss_pwi * ploss_pwi
+                    #
+                    # m_up_op = m.assign(m_new)
+                    # v_up_op = v.assign(v_new)
+                    #
+                    # wi_new = wi - learningRate * m_new * invers_sqrt(m_new, eps)
+
+
+                    m_new = beta1 * m + (1-beta1) * ploss_pwi
+                    v_new = beta2 * v + (1-beta2) * ploss_pwi * ploss_pwi
+
+                    m_up_op = m.assign(m_new)
+                    v_up_op = v.assign(v_new)
+
+                    beta1_power_t = tf.Variable(initial_value=beta1, dtype='float64')
+                    beta2_power_t = tf.Variable(initial_value=beta2, dtype='float64')
+
+
+                    beta1_power_t_up_op = beta1_power_t.assign(beta1 * beta1_power_t)
+                    beta2_power_t_up_op = beta2_power_t.assign(beta2 * beta2_power_t)
+                    with tf.control_dependencies([m_up_op, v_up_op, beta1_power_t_up_op, beta2_power_t_up_op]):
+                        q = tf.sqrt(1-beta2_power_t)/(1-beta1_power_t)
+                        ins = invers_sqrt(v_new, eps * tf.sqrt(1-beta2_power_t))
+                        wi_new = wi - learningRate * q * ins * m_new
+
+                        wi_up_op = wi.assign(wi_new)
+                    # train_ops += [beta1_power_t_up_op, beta2_power_t_up_op,
+                    #               m_up_op, v_up_op, wi_up_op]
+                    train_ops += [beta1_power_t_up_op, beta2_power_t_up_op,
+                                  m_up_op, v_up_op, wi_up_op,
+                                  tf.print("wi, plosspwi, m_new, v_new, q, ins, wi_new=",
+                                           [wi.to_tf_tensor("R"), ploss_pwi.to_tf_tensor("R"),
+                                            m_new.to_tf_tensor("R"), v_new.to_tf_tensor("R"),
+                                            q, ins.to_tf_tensor("R"), wi_new.to_tf_tensor("R")])]
+
+        return tf.group(train_ops)
+
+
+
+    def train_adam(self, sess, batch_num, learningRate=1e-3, betas=(0.9, 0.999), eps=1e-8,
+                 weight_decay=0.0, amsgrad=False):
+        train_op = self.get_train_adam_op(learningRate, betas, eps,
+                 weight_decay, amsgrad)
+        sess.run(tf.compat.v1.global_variables_initializer())
+        start_time = time.time()
+        for i in range(batch_num):
+            print("batch ", i)
+            sess.run(train_op)
+            if i % 10 == 0:
+                print("time=", time.time() - start_time)
+
+
+            # 输出某层结果的测试代码
+            # print(self.layers[3])
+            # tmp = sess.run([train_op, self.layers[3].y.to_tf_tensor("R")])
+            # print(tmp[1])
+
 
 
 

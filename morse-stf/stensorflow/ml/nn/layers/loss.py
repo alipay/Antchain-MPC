@@ -30,11 +30,12 @@ class Loss(Layer):
 
 
 class BinaryCrossEntropyLossWithSigmoid(Loss):
-    def __init__(self, layer_score, layer_label):
+    def __init__(self, layer_score, layer_label, train_mask):
 
         fathers = [layer_score, layer_label]
         super(BinaryCrossEntropyLossWithSigmoid, self).__init__(fathers=fathers)
         self.M = 512
+        self.train_mask = train_mask
 
     def forward(self):
         for father in self.fathers:
@@ -50,7 +51,12 @@ class BinaryCrossEntropyLossWithSigmoid(Loss):
 
     def backward(self):
         self.ploss_pw = []
-        self.ploss_px = {self.fathers[0]: self.y - self.label, self.fathers[1]: -self.score}
+        if self.train_mask is not None:
+            print("self.train_mask=", self.train_mask)
+            self.ploss_px = {self.fathers[0]: self.train_mask * (self.y - self.label),
+                             self.fathers[1]: -self.train_mask * self.score}
+        else:
+            self.ploss_px = {self.fathers[0]: self.y - self.label, self.fathers[1]: -self.score}
 
 
 class BinaryCrossEntropyLossWithSigmoidLocal(Loss):
@@ -80,10 +86,11 @@ class BinaryCrossEntropyLossWithSigmoidLocal(Loss):
 
 
 class CrossEntropyLossWithSoftmax(Loss):
-    def __init__(self, layer_score, layer_label):
+    def __init__(self, layer_score, layer_label, train_mask=None):
 
         fathers = [layer_score, layer_label]
         super(CrossEntropyLossWithSoftmax, self).__init__(fathers=fathers)
+        self.train_mask = tf.constant(train_mask, dtype='int64')
 
     def forward(self):
         for father in self.fathers:
@@ -92,15 +99,19 @@ class CrossEntropyLossWithSoftmax(Loss):
             else:
                 raise Exception("father must be a layer")
         self.x = list(map(lambda father: father.y, self.fathers))
-        # dense层的输出值
         self.score = self.x[0]
-        # 原始label信息
         self.label = self.x[1]
         self.y = softmax(self.score)
 
     def backward(self):
         self.ploss_pw = []
-        self.ploss_px = {self.fathers[0]: self.y - self.label, self.fathers[1]: -self.score}
+        if self.train_mask is not None:
+            print("self.train_mask=", self.train_mask)
+            self.ploss_px = {self.fathers[0]: self.train_mask * (self.y - self.label),
+                             self.fathers[1]: -self.train_mask * self.score}
+            print("line 113@loss, self.ploss_px=", self.ploss_px)
+        else:
+            self.ploss_px = {self.fathers[0]: self.y - self.label, self.fathers[1]: -self.score}
 
 
 

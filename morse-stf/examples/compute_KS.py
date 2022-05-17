@@ -573,14 +573,38 @@ def compute_KS_epsilon():
     print("AUC=", AUC)
 
 
+def compute_acc_CoraGraphDataset():
+    from sklearn.metrics import accuracy_score
+    import dgl
+    import tensorflow as tf
+    import numpy as np
+    from sklearn.preprocessing import OneHotEncoder
+    dgl.backend.set_default_backend('tensorflow')
+    predict_file = "/Users/qizhi.zqz/projects/Antchain-MPC/morse-stf/output/predict"
+    predict = pd.read_csv(predict_file, header=None, names=["id","predict"], index_col=["id"])
+    dataset = dgl.data.CoraGraphDataset()
+
+    # print('Number of categories:', dataset.num_classes)
+    g = dataset[0]
+    print("g=", g)
+    print("Node feature")
+    feature = g.ndata['feat'].numpy()
+    label = g.ndata['label'].numpy()
+    label = np.reshape(label, [-1, 1])
+    acc = accuracy_score(y_true=label, y_pred=predict)
+    print("acc=", acc)
+
+
+
 if __name__=='__main__':
     #compute_KS_elec_gbdtcode()
     #compute_KS_ym5w()
     #compute_KS_xd()
     #compute_KS_a1a()
-    compute_KS_epsilon()
+    # compute_KS_epsilon()
     #compute_KS_gaode3w()
     #compute_KS_gaode20w()
     #compute_KS_gaode20w_DNN()
     #compute_trun_KS_company_gbdtcode()
     #compute_precision_mnist()
+    compute_acc_CoraGraphDataset()

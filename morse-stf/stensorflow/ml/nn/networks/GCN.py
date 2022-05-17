@@ -11,13 +11,15 @@
    Description : description what the main function of this file
 """
 from stensorflow.ml.nn.layers.layer import Layer
+import tensorflow as tf
 from stensorflow.ml.nn.networks.NN import NN
 from typing import List
+import numpy as np
 from stensorflow.global_var import StfConfig
 from stensorflow.basic.basic_class.private import PrivateTensor
 from stensorflow.basic.basic_class.pair import SharedPair
 from stensorflow.ml.nn.layers.input import Input
-from stensorflow.ml.nn.layers.dense import Dense
+from stensorflow.ml.nn.layers.graphconv import GraphConv
 from stensorflow.ml.nn.layers.loss import Loss, BinaryCrossEntropyLossWithSigmoid, \
     CrossEntropyLossWithSoftmax, MSE
 from stensorflow.ml.nn.layers.relu import ReLU
@@ -25,7 +27,7 @@ from stensorflow.random.random import random_init
 
 class GCN(NN):
     def __init__(self, feature: PrivateTensor, label: PrivateTensor, dense_dims: List[int],
-                 adjoint_matrix: PrivateTensor = None, loss=None):
+                 adjacency_matrix: PrivateTensor, train_mask, loss=None):
         """
         Graph Convalution Network.
         :param feature:
@@ -37,33 +39,24 @@ class GCN(NN):
 
         if len(dense_dims) < 2:
             raise Exception("must have len(dense_dims)>=2")
-        if feature_another is None:
-            self.double_feature = False
-            if feature.shape[1] != dense_dims[0]:
-                raise Exception("must have x.shape[1] == dense_dims[0]")
-            super(GCN, self).__init__()
-            layer = Input(dim=dense_dims[0], x=feature)
-            self.addLayer(ly=layer)
-            input_layers = [layer]
 
-        else:
-            self.double_feature = True
-            if feature.shape[1] + feature_another.shape[1] != dense_dims[0]:
-                raise Exception("must have x.shape[1] == dense_dims[0]")
-            if feature.owner == feature_another.owner:
-                raise Exception("must have feature.owner != feature_another.owner")
-            super(DNN, self).__init__()
-            input_layer = Input(dim=feature.shape[1], x=feature)
-            self.addLayer(ly=input_layer)
-            input_layer_another = Input(dim=feature_another.shape[1], x=feature_another)
-            self.addLayer(input_layer_another)
-            input_layers = [input_layer, input_layer_another]
+        if feature.shape[1] != dense_dims[0]:
+            raise Exception("must have x.shape[1] == dense_dims[0]")
+        super(GCN, self).__init__()
+        layer = Input(dim=dense_dims[0], x=feature)
+        self.addLayer(ly=layer)
+        self.adjacency_matrix = adjacency_matrix
+        self.train_mask = np.reshape(train_mask.astype(np.int64), [-1,1])
+        self.test_mask = 1 - self.train_mask
+        input_layers = [layer]
 
         for i in range(1, len(dense_dims)):
             if i == 1:
-                layer = Dense(output_dim=dense_dims[i], fathers=input_layers)
+                layer = GraphConv(output_dim=dense_dims[i], fathers=input_layers,
+                                  adjacency_matrix=self.adjacency_matrix, train_mask=self.train_mask)
             else:
-                layer = Dense(output_dim=dense_dims[i], fathers=[layer])
+                layer = GraphConv(output_dim=dense_dims[i], fathers=[layer],
+                                  adjacency_matrix=self.adjacency_matrix, train_mask=self.train_mask)
             self.addLayer(ly=layer)
             if i < len(dense_dims) - 1:
                 layer = ReLU(output_dim=dense_dims[i], fathers=[layer])
@@ -74,10 +67,13 @@ class GCN(NN):
 
         if loss is None or loss == "BinaryCrossEntropyLossWithSigmoid" or \
                 loss == Loss.BinaryCrossEntropyLossWithSigmoid:
-            layer_loss = BinaryCrossEntropyLossWithSigmoid(layer_score=layer, layer_label=layer_label)
+            layer_loss = BinaryCrossEntropyLossWithSigmoid(layer_score=layer,
+                                                           layer_label=layer_label,
+                                                           train_mask=self.train_mask)
             self.addLayer(ly=layer_loss)
         elif loss == "CrossEntropyLossWithSoftmax" or loss == Loss.CrossEntropyLossWithSoftmax:
-            layer_loss = CrossEntropyLossWithSoftmax(layer_score=layer, layer_label=layer_label)
+            layer_loss = CrossEntropyLossWithSoftmax(layer_score=layer, layer_label=layer_label,
+                                                     train_mask=self.train_mask)
             self.addLayer(ly=layer_loss)
         elif loss == "MSE" or loss == Loss.MSE:
             layer_loss = MSE(layer_score=layer, layer_label=layer_label)
@@ -85,26 +81,10 @@ class GCN(NN):
         else:
             raise Exception("unsupposed loss")
 
-    def predict(self, x, x_another=None, out_prob=True) -> SharedPair:
-        self.cut_off()
-        l_input = self.layers[0]
-        assert isinstance(l_input, Input)
-        l_input.replace(x)
-        self.layers[0] = l_input
-
-        if self.double_feature:
-            l_input_another = self.layers[1]
-            if not isinstance(l_input_another, Input):
-                raise Exception("l_input_another mast be a Input layer")
-            l_input_another.replace(x_another)
-            self.layers[1] = l_input_another
-
+    def predict(self, out_prob=True) -> SharedPair:
         ly = self.layers[-1]
         if not isinstance(ly, Layer):
             raise Exception("l must be a Layer")
-        else:
-            ly.forward()
-
         if out_prob:
             return ly.y
         else:
@@ -113,7 +93,7 @@ class GCN(NN):
 
     def print(self, sess, model_file_machine="R"):
         for ly in self.layers:
-            if isinstance(ly, Dense):
+            if isinstance(ly, GraphConv):
                 for weight in ly.w:
                     weight_tf = weight.to_tf_tensor(owner=model_file_machine)
                     print(sess.run(weight_tf))
@@ -122,7 +102,7 @@ class GCN(NN):
         print("save model...")
         i = 0
         for ly in self.layers:
-            if isinstance(ly, Dense):
+            if isinstance(ly, GraphConv):
                 ly.save(model_file_machine, sess, path + "/param_{}".format(i))
             i += 1
 
@@ -130,33 +110,36 @@ class GCN(NN):
         print("load model...")
         i = 0
         for ly in self.layers:
-            if isinstance(ly, Dense):
+            if isinstance(ly, GraphConv):
                 ly.load(path + "/param_{}".format(i))
             i += 1
 
 
-    def predict_to_file(self, sess, x, predict_file_name,
-                        batch_num, idx, model_file_machine="R", record_num_ceil_mod_batch_size=0,
-                        x_another=None, with_sigmoid=True):
+    def predict_to_file(self, sess, predict_file_name,
+                        idx, model_file_machine="R",
+                        with_sigmoid=True, single_out=False):
         print("predict_file_name=", predict_file_name)
-        y_pred = self.predict(x=x, x_another=x_another, out_prob=with_sigmoid)
-
-        id_y_pred = y_pred.to_tf_str(owner=model_file_machine, id_col=idx)
+        y_pred = self.predict(out_prob=with_sigmoid)
+        if not single_out:
+            id_y_pred = y_pred.to_tf_str(owner=model_file_machine, id_col=idx)
+        else:
+            y_pred = tf.argmax(y_pred.to_tf_tensor(owner=model_file_machine), axis=1)
+            y_pred = tf.reshape(y_pred, [-1, 1])
+            y_pred = tf.strings.as_string(y_pred)
+            if idx is not None:
+                id_y_pred = tf.concat([idx, y_pred], axis=1)
+                id_y_pred = tf.compat.v1.reduce_join(id_y_pred, separator=",", axis=-1)
         random_init(sess)
 
         with open(predict_file_name, "w") as f:
-            for batch in range(batch_num - 1):
-                records = sess.run(id_y_pred)
-                records = "\n".join(records.astype('str'))
-                f.write(records + "\n")
-
-            records = sess.run(id_y_pred)[0:record_num_ceil_mod_batch_size]
+            records = sess.run(id_y_pred)
             records = "\n".join(records.astype('str'))
             f.write(records + "\n")
 
+
     def print(self, sess, model_file_machine="R"):
         for ly in self.layers:
-            if isinstance(ly, Dense):
+            if isinstance(ly, GraphConv):
                 for weight in ly.w:
                     weight = weight.to_tf_tensor(model_file_machine)
                     print(sess.run(weight))
