@@ -76,7 +76,7 @@ class GCN(NN):
                                                      train_mask=self.train_mask)
             self.addLayer(ly=layer_loss)
         elif loss == "MSE" or loss == Loss.MSE:
-            layer_loss = MSE(layer_score=layer, layer_label=layer_label)
+            layer_loss = MSE(layer_score=layer, layer_label=layer_label, train_mask=self.train_mask)
             self.addLayer(ly=layer_loss)
         else:
             raise Exception("unsupposed loss")

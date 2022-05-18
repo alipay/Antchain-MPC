@@ -582,14 +582,17 @@ def compute_acc_CoraGraphDataset():
     dgl.backend.set_default_backend('tensorflow')
     predict_file = "/Users/qizhi.zqz/projects/Antchain-MPC/morse-stf/output/predict"
     predict = pd.read_csv(predict_file, header=None, names=["id","predict"], index_col=["id"])
+
+
     dataset = dgl.data.CoraGraphDataset()
 
     # print('Number of categories:', dataset.num_classes)
     g = dataset[0]
     print("g=", g)
-    print("Node feature")
-    feature = g.ndata['feat'].numpy()
-    label = g.ndata['label'].numpy()
+    train_mask = g.ndata['train_mask'].numpy()
+    predict = predict[np.logical_not(train_mask)]
+    label = g.ndata['label'][np.logical_not(train_mask)]
+    #print("label=", label)
     label = np.reshape(label, [-1, 1])
     acc = accuracy_score(y_true=label, y_pred=predict)
     print("acc=", acc)

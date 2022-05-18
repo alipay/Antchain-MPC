@@ -23,7 +23,7 @@ print("g=", g)
 print("Node feature")
 feature = g.ndata['feat'].numpy()
 label = g.ndata['label'].numpy()
-label = np.reshape(label, [-1,1])
+label = np.reshape(label, [-1, 1])
 label = OneHotEncoder(sparse=False).fit_transform(label)
 print("label=", label)
 
@@ -44,13 +44,11 @@ import time
 start_local_server(config_file="../conf/config_ym.json")
 # start_client(config_file="../conf/config_ym.json", job_name="workerR")
 
-StfConfig.softmax_iter_num = 64
+StfConfig.default_fixed_point = 18
 
+StfConfig.softmax_iter_num = 32
 
-
-
-
-epoch = 1
+epoch = 80
 learning_rate = 0.002
 
 dense_dims = [num_features, 16, 7]                # the neural network structure is 16, 7
@@ -85,7 +83,7 @@ sess.run(init_op)
 # -------------train the model ------------------------
 start_time = time.time()
 # model.train_sgd(learning_rate=learning_rate, batch_num=epoch, l2_regularization=l2_regularization, sess=sess)
-model.train_adam(sess=sess, batch_num=epoch, learningRate=learning_rate)
+model.train_adam(sess=sess, batch_num=epoch, learningRate=learning_rate, eps=1E-4)
 end_time = time.time()
 print("train_time=", end_time - start_time)
 
@@ -104,6 +102,6 @@ x_test = PrivateTensor(owner='L')
 # # --------------predict --------------
 model.predict_to_file(sess=sess, predict_file_name=StfConfig.predict_to_file,
                       idx=tf.reshape(tf.strings.as_string(tf.range(start=0, limit=record_num)), [-1, 1])
-                     ,single_out=False, with_sigmoid=False)
+                     ,single_out=True, with_sigmoid=False)
 #
 sess.close()

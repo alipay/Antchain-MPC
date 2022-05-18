@@ -106,10 +106,10 @@ class CrossEntropyLossWithSoftmax(Loss):
     def backward(self):
         self.ploss_pw = []
         if self.train_mask is not None:
-            print("self.train_mask=", self.train_mask)
+            # print("self.train_mask=", self.train_mask)
             self.ploss_px = {self.fathers[0]: self.train_mask * (self.y - self.label),
                              self.fathers[1]: -self.train_mask * self.score}
-            print("line 113@loss, self.ploss_px=", self.ploss_px)
+            # print("line 113@loss, self.ploss_px=", self.ploss_px)
         else:
             self.ploss_px = {self.fathers[0]: self.y - self.label, self.fathers[1]: -self.score}
 
@@ -167,10 +167,11 @@ class CrossEntropyLossWithSoftmaxLocal(Loss):
 
 
 class MSE(Loss):
-    def __init__(self, layer_score, layer_label):
+    def __init__(self, layer_score, layer_label, train_mask=None):
 
         fathers = [layer_score, layer_label]
         super(MSE, self).__init__(fathers=fathers)
+        self.train_mask = tf.constant(train_mask, dtype='int64')
 
     def forward(self):
         for father in self.fathers:
@@ -186,4 +187,9 @@ class MSE(Loss):
 
     def backward(self):
         self.ploss_pw = []
-        self.ploss_px = {self.fathers[0]: self.score - self.label, self.fathers[1]: self.label - self.score}
+        if self.train_mask is not None:
+            self.ploss_px = {self.fathers[0]: self.train_mask * (self.score - self.label),
+                             self.fathers[1]: self.train_mask * (self.label - self.score)}
+
+        else:
+            self.ploss_px = {self.fathers[0]: self.score - self.label, self.fathers[1]: self.label - self.score}

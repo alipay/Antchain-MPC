@@ -42,8 +42,8 @@ class GraphConv(Layer):
         if norm == 'both':
             with tf.device(self.adjacency_matrix.owner):
                 adjacency_matrix = self.adjacency_matrix.to_tf_tensor()
-                out_degrees = tf.reduce_sum(adjacency_matrix, axis=0, keepdims=True)
-                in_degrees = tf.reduce_sum(adjacency_matrix, axis=1, keepdims=True)
+                out_degrees = tf.reduce_sum(adjacency_matrix, axis=1, keepdims=True)
+                in_degrees = tf.reduce_sum(adjacency_matrix, axis=0, keepdims=True)
                 out_degrees = tf.clip_by_value(tf.cast(out_degrees, "float64"), clip_value_min=1.0,
                                                clip_value_max=np.inf)
                 in_degrees = tf.clip_by_value(tf.cast(in_degrees, 'float64'), clip_value_min=1.0,
@@ -58,7 +58,7 @@ class GraphConv(Layer):
         elif norm == 'right':
             with tf.device(self.adjacency_matrix.owner):
                 adjacency_matrix = self.adjacency_matrix.to_tf_tensor()
-                in_degrees = tf.reduce_sum(adjacency_matrix, axis=1, keepdims=True)
+                in_degrees = tf.reduce_sum(adjacency_matrix, axis=0, keepdims=True)
                 in_degrees = tf.clip_by_value(tf.cast(in_degrees, 'float32'), clip_value_min=1.0,
                                               clip_value_max=np.inf)
                 inv_in_degrees = 1.0 / in_degrees
@@ -76,8 +76,9 @@ class GraphConv(Layer):
                 if not isinstance(father, Layer):
                     raise Exception("father must be a layer")
                 wi = SharedVariablePair(ownerL="L", ownerR="R", shape=[father.output_dim, output_dim])
-                wi.load_from_numpy(
-                    np.random.normal(scale=1.0 / np.sqrt(father.output_dim + 1), size=[father.output_dim, output_dim]))
+                xinit = tf.keras.initializers.glorot_uniform()
+                initial_value = xinit(shape=(father.output_dim, output_dim), dtype='float32')
+                wi.load_from_tf_tensor(initial_value)
                 self.w += [wi]
 
         if self.bias:

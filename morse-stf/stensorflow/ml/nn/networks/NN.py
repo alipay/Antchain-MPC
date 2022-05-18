@@ -176,19 +176,19 @@ class NN:
                     beta1_power_t_up_op = beta1_power_t.assign(beta1 * beta1_power_t)
                     beta2_power_t_up_op = beta2_power_t.assign(beta2 * beta2_power_t)
                     with tf.control_dependencies([m_up_op, v_up_op, beta1_power_t_up_op, beta2_power_t_up_op]):
-                        q = tf.sqrt(1-beta2_power_t)/(1-beta1_power_t)
-                        ins = invers_sqrt(v_new, eps * tf.sqrt(1-beta2_power_t))
-                        wi_new = wi - learningRate * q * ins * m_new
+                        step_size = learningRate/(1-beta1_power_t)
+                        ins = invers_sqrt(v_new/(1-beta2_power_t), eps)
+                        wi_new = wi - (step_size * ins) * m_new
 
                         wi_up_op = wi.assign(wi_new)
                     # train_ops += [beta1_power_t_up_op, beta2_power_t_up_op,
                     #               m_up_op, v_up_op, wi_up_op]
                     train_ops += [beta1_power_t_up_op, beta2_power_t_up_op,
                                   m_up_op, v_up_op, wi_up_op,
-                                  tf.print("wi, plosspwi, m_new, v_new, q, ins, wi_new=",
+                                  tf.print("wi, plosspwi, m_new, v_new, step_size, ins, wi_new=",
                                            [wi.to_tf_tensor("R"), ploss_pwi.to_tf_tensor("R"),
                                             m_new.to_tf_tensor("R"), v_new.to_tf_tensor("R"),
-                                            q, ins.to_tf_tensor("R"), wi_new.to_tf_tensor("R")])]
+                                            step_size, ins.to_tf_tensor("R"), wi_new.to_tf_tensor("R")])]
 
         return tf.group(train_ops)
 
