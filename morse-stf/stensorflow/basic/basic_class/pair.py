@@ -358,3 +358,9 @@ class SharedVariablePair(SharedPair):
             with tf.device(self.ownerR):
                 xR = -tf.ones_like(xL)
                 self.xR = SharedVariable(initial_inner_value=xR, module=px.module)
+
+    def load_from_SharedPair(self, x: SharedPair):
+        with tf.device(self.ownerL):
+            self.xL = SharedVariable(initial_inner_value=x.xL.inner_value, module=x.xL.module)
+        with tf.device(self.ownerR):
+            self.xR = SharedVariable(initial_inner_value=x.xR.inner_value, module=x.xR.module)

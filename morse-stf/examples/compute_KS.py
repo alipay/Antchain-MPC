@@ -545,11 +545,12 @@ def compute_KS_a1a():
     #
 
 def compute_KS_epsilon():
-    file_path = "../dataset/epsilon_normalized_test_y"
+    file_path = "../dataset/epsilon_normalized_test_xy"
 
     predict_path = '/Users/qizhi.zqz/projects/Antchain-MPC/morse-stf/output/predict'
 
-    y = pd.read_csv(file_path, header=None, names=["y"])
+    y = pd.read_csv(file_path)
+    y = y.loc[:, 'y']
 
     y_hat = pd.read_csv(predict_path, header=None, names=["predict"])
 

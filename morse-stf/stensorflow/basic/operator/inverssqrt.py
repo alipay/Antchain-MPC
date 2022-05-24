@@ -18,10 +18,11 @@ from stensorflow.exception.exception import StfTypeException
 from stensorflow.global_var import StfConfig
 from stensorflow.basic.basic_class.private import PrivateTensor
 from typing import Union
-
+import numpy as np
 
 def invers_sqrt(x: SharedPair, eps=0.0):
-    y = 1 / (tf.sqrt(x.to_tf_tensor("R")) + eps)
+    # y = 1 / (tf.sqrt(x.to_tf_tensor("R")) + eps)
+    y = 1 / (tf.sqrt(x.to_tf_tensor("R") + eps*eps))
     z = SharedPair(ownerL=x.ownerL, ownerR=x.ownerR, shape=y.shape)
     z.load_from_tf_tensor(y)
     return z
@@ -47,25 +48,13 @@ def invers_sqrt(x: SharedPair, eps=0.0):
 #     else:
 #         raise StfTypeException("x", "SharedPair or PrivateTensor", type(x))
 
-#
-#
-# def softmax(x: Union[SharedPair, PrivateTensor]):
-#     if isinstance(x, SharedPair):
-#         # x = x - x.reduce_sum(axis=-1, keepdims=True)
-#         # x = StfConfig.softmax_iter_num * sin2pi(x, T=StfConfig.softmax_iter_num*4)
-#         y = x.ones_like() / x.shape[-1]
-#         for _ in range(StfConfig.softmax_iter_num):
-#             # formula of Qizhi Zhang
-#             # y = y + (x - (y * x).reduce_sum(axis=-1, keepdims=True)) * y / StfConfig.softmax_iter_num
-#             y = y + (x - (y.expend_dims(axis=[-2]) @ x.expend_dims(axis=-1)).squeeze(axis=-1)) * y / StfConfig.softmax_iter_num
-#
-#         return y
-#     elif isinstance(x, PrivateTensor):
-#         with tf.device(x.owner):
-#             y = tf.nn.softmax(x.to_tf_tensor())
-#             y = tf.cast(y * (2 ** x.fixedpoint), 'int64')
-#             z = PrivateTensor(owner=x.owner, fixedpoint=x.fixedpoint,
-#                               inner_value=y, module=x.module, op_map=x.op_map)
-#             return z
-#     else:
-#         raise StfTypeException("x", "SharedPair or PrivateTensor", type(x))
+
+
+def invers_sqrt_diff_eq(x: Union[SharedPair, PrivateTensor], x0=1E-8, y0=1E4, iter=10):
+    y = y0
+    h = (x-x0)/iter
+
+    for _ in range(iter):
+        dydx = -0.5 * (y ** 3)
+        y = y + dydx * h
+    return y
