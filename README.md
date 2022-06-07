@@ -9,7 +9,7 @@ Others: Coming soon.
 
 ## Morse-STF
 
-Morse-STF is a tool for machine learning using MPC. You can get more information about Morse-STF from the following links:
+Morse-STF is a tool for privacy-preserving machine learning using MPC. We outline more information below:
 | Folder      | Description |
 | ----------- | ----------- |
 | conf        | ...         |
