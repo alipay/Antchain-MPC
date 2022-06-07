@@ -1,8 +1,8 @@
 # Antchain-MPC
 
-Antchain-MPC is a library of MPC (Multi-Parties Computation). It include 
+Antchain-MPC is a open-source library for providing multiparty computation (MPC) algorithms/protocols. It includes Morse-STF, ...
 
-Morse-STF: A tool for machine learning using MPC.
+Morse-STF: A tool for privacy-preserving machine learning using MPC.
 
 Others: Comming soon.
 
