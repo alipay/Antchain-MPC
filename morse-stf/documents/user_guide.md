@@ -32,4 +32,4 @@ l2 - local simulation for two-party computation; l3 - local simulation for three
 d2 - distributed deployment for two-party computation; d3 - distributed deployment for three-party computation; 
 
 ### Data Types
-Morse-STF defines three data types: 'class PrivateTensor', 'SharedTensor', 'class SharedPair'.
+Morse-STF defines three data types: `class PrivateTensor`, `SharedTensor`, `class SharedPair`.
