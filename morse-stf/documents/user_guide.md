@@ -33,3 +33,8 @@ d2 - distributed deployment for two-party computation; d3 - distributed deployme
 
 ### Data Types
 Morse-STF defines three data types: `class PrivateTensor`, `class SharedTensor`, `class SharedPair`.
+
+`PrivateTensor` represnts private data owned by one party. It contains an `inner_value` of type `tf.Tensor of dtype = int64`, `int module` , `int fixedpoint`, and `owner`.  
+When `module is None`, a fixed-point number is defined, which represents `inner_value*pow(2,-fixedpoint)`.
+
+
