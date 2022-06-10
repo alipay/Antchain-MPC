@@ -43,5 +43,7 @@ When `module is None`, a fixed-point number is defined, which represents `inner_
 #### SharedTensor 
 `SharedTensor`contains `inner_value` and `module`.
 
-
+#### SharedPair 
+`SharedPair` contains `xL`, `xR`, `ownerL`, `ownerR`, `fixedpoint`. Both `(xL, xR)` are `SharedTensor`. In particular, `ownerL != ownerR` and `xL.module == xR.module`.  
+When `module is None`, a fixed-point number is defined, which represents `(xL.inner_value + xR.inner_value mod pow(2,64)) * pow(2, -fixedpoint)`. When `module is not None`, it defines a tensor of `module`-factorial cyclic group, which represents `(xL.inner_value + xR.inner_value mod module)`.
 
