@@ -18,8 +18,11 @@ Morse-STF contains *secure* arithmetic computation, Boolean calculation, sequent
 See tutorials.
 
 
-### Running Examples
-#### Secure matrix multiplication
-Three-party computation:
+### Running Examples 
 
-Two-party computation:
+|  Operation   | Setting  | Instruction |
+|  ----      | ----     |   ---       | 
+| matrix multiplication  | l2,l3, d2, d3 | To do|
+| Linear regression   |   | |
+
+
