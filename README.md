@@ -10,7 +10,7 @@ Others: Coming soon.
 
 **June 13, 2022** 
 
-<font color=#DC143C> The [user guide](morse-stf/documents/user_guide.md) for Morse-STF has been updated. </font>
+<font color=#DC143C> The user guide for Morse-STF has been updated. </font>
 
 ## Morse-STF
 
