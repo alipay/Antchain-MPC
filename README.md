@@ -8,7 +8,8 @@ Others: Coming soon.
 
 ## News
 
-**June 13, 2022** The [user guide](morse-stf/documents/user_guide.md) for Morse-STF has been updated.
+**June 13, 2022** 
+<font color=red> The [user guide](morse-stf/documents/user_guide.md) for Morse-STF has been updated. </font>
 
 ## Morse-STF
 
