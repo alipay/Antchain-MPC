@@ -138,7 +138,7 @@ You can train linear regression with two-party private inputs by
 
 You can train FCM/CNN with one/two-party private inputs by
 ```
-    model.train_sgd(learning_rate=learning_rate,batch_num=train_batch_num, l2_regularization=l2_regularization, sess=sess)
+     model.train_sgd(learning_rate=learning_rate,batch_num=train_batch_num, l2_regularization=l2_regularization, sess=sess)
 ```
 
 ## Model Prediction
