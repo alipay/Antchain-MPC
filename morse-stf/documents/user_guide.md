@@ -133,7 +133,7 @@ You can train linear regression with one-party private inputs by
 
 You can train linear regression with two-party private inputs by
 ```
-model.fit(sess, x_L=xL_train, x_R=xR_train, y=y_train, num_batches=train_batch_num)
+     model.fit(sess, x_L=xL_train, x_R=xR_train, y=y_train, num_batches=train_batch_num)
 ```
 
 You can train FCM/CNN with one/two-party private inputs by
