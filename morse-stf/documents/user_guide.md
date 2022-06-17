@@ -79,7 +79,7 @@ You can build linear regression with two-party private inputs by:
 You can build the fully connected model with one-party private inputs by:
 ```
     from stensorflow.ml.nn.networks.DNN import DNN
-    model = DNN(feature=x_train,label=y_train,dense_dims=dense_dims)
+    model = DNN(feature=x_train, label=y_train, dense_dims=dense_dims)
     model.compile()
 ```
 `feature` is a `PrivateTensor` representing features; `label` is a `PrivateTensor` representing labels; `dense_dims` is a `list` of type `int`, representing the number of neurons at each layer.
