@@ -49,8 +49,8 @@ To get `non-const PrivateTensor`, you can use `load_first_line_from_file()`, `lo
 You can load data using `load_from_file()` by following the example below.
 
 ```
-    x_train=PrivateTensor(owner='L')
-    format_x=[["a"],[0.1],[0.1],[0.1],[0.1],[0.1]]
+    x_train = PrivateTensor(owner='L')
+    format_x = [["a"], [0.1], [0.1], [0.1], [0.1], [0.1]]
     x_train.load_from_file(path=path, record_defaults=format_x, batch_size=batch_size, repeat=repeat, skip_col_num=1)
 ```
 
@@ -62,15 +62,15 @@ You can load data using `load_from_file()` by following the example below.
 
 You can build linear regression with one-party private inputs by:
 ```
-    fromstensorflow.ml.logistic_regressionimportLogisticRegression
-    model=LogisticRegression(num_features=featureNum, learning_rate=learning_rate)
+    from stensorflow.ml.logistic_regression import LogisticRegression
+    model = LogisticRegression(num_features=featureNum, learning_rate=learning_rate)
 ```
 `num_features` is the number of features; `learning_rate` is the learning rate of model training.
 
 You can build linear regression with two-party private inputs by:
 ```
-    fromstensorflow.ml.logistic_regression2importLogisticRegression2
-    model=LogisticRegression2(learning_rate=learning_rate, num_features_L=featureNumL, num_features_R=featureNumR)
+    from stensorflow.ml.logistic_regression2 import LogisticRegression2
+    model = LogisticRegression2(learning_rate=learning_rate, num_features_L=featureNumL, num_features_R=featureNumR)
 ```
 `learning_rate` is the learning rate of model training; `num_features_L` is the number of private features owned by party `workerL`; `num_features_R` is the number of private features owned by party `workerR`.
 
@@ -78,16 +78,16 @@ You can build linear regression with two-party private inputs by:
 
 You can build the fully connected model with one-party private inputs by:
 ```
-    fromstensorflow.ml.nn.networks.DNNimportDNN
-    model=DNN(feature=x_train,label=y_train,dense_dims=dense_dims)
+    from stensorflow.ml.nn.networks.DNN import DNN
+    model = DNN(feature=x_train,label=y_train,dense_dims=dense_dims)
     model.compile()
 ```
 `feature` is a `PrivateTensor` representing features; `label` is a `PrivateTensor` representing labels; `dense_dims` is a `list` of type `int`, representing the number of neurons at each layer.
 
 You can build fully connected model (FCM) with two-party private inputs by:
 ```
-    fromstensorflow.ml.nn.networks.DNNimportDNN
-    model=DNN(feature=xL_train, label=y_train, dense_dims=dense_dims, feature_another=xR_train)
+    from stensorflow.ml.nn.networks.DNN import DNN
+    model = DNN(feature=xL_train, label=y_train, dense_dims=dense_dims, feature_another=xR_train)
     model.compile()
 ```
 Both `feature`, `feature_another` are `PrivateTensor` representing features; `label` is a `PrivateTensor` representing labels; `dense_dims` is a `list` of type `int`, representing the number of neurons at each layer.
@@ -95,20 +95,20 @@ Both `feature`, `feature_another` are `PrivateTensor` representing features; `la
 ### Convolutional Neural Network 
 You can build Convolutional Neural Network (CNN) with one-party private inputs by:
 ```
-    fromstensorflow.ml.nn.networks.NETWORKBimportNETWORKB
-    model=NETWORKB(feature=x_train, label=y_train, loss="CrossEntropyLossWithSoftmax")
+    from stensorflow.ml.nn.networks.NETWORKB import NETWORKB
+    model = NETWORKB(feature=x_train, label=y_train, loss="CrossEntropyLossWithSoftmax")
     model.compile()
 ```
 `feature` is a `PrivateTensor` representing features; `label` is a `PrivateTensor` representing labels; `loss` defines the loss function.
 The layers for `NETWORKB` are described below,
 ```
-    Conv2D(16,(5,5),activation='relu',use_bias=False),
+    Conv2D(16,(5,5), activation='relu', use_bias=False),
     AvgPool2D(2,2),
-    Conv2D(16,(5,5),activation='relu',use_bias=False),
+    Conv2D(16,(5,5), activation='relu', use_bias=False),
     AvgPool2D(2,2),
     Flatten(),
-    Dense(100,activation='relu'),
-    Dense(10,name="Dense"),
+    Dense(100, activation='relu'),
+    Dense(10, name="Dense"),
     Activation('softmax')
 ```
 `NETWORKA`, `NETWORKC`, and `NETWORKD` follow the same format. See [here]().
@@ -119,8 +119,8 @@ The layers for `NETWORKB` are described below,
 
 Before training a model, you need to initialize `Session` and `Variable`.
 ```
-     sess=tf.compat.v1.Session(StfConfig.target)
-     init_op=tf.compat.v1.initialize_all_variables()
+     sess = tf.compat.v1.Session(StfConfig.target)
+     init_op = tf.compat.v1.initialize_all_variables()
      sess.run(init_op)
 ```
 
@@ -128,7 +128,7 @@ Before training a model, you need to initialize `Session` and `Variable`.
 
 You can train linear regression with one-party private inputs by
 ```
-     model.fit(sess=sess,x=x_train,y=y_train,num_batches=train_batch_num)
+     model.fit(sess=sess, x=x_train, y=y_train, num_batches=train_batch_num)
 ```
 
 You can train linear regression with two-party private inputs by
@@ -138,14 +138,14 @@ You can train linear regression with two-party private inputs by
 
 You can train FCM/CNN with one/two-party private inputs by
 ```
-     model.train_sgd(learning_rate=learning_rate,batch_num=train_batch_num, l2_regularization=l2_regularization, sess=sess)
+     model.train_sgd(learning_rate=learning_rate, batch_num=train_batch_num, l2_regularization=l2_regularization, sess=sess)
 ```
 
 ## Model Prediction
 
 For linear regression with one-party private inputs, you could use
 ```
-    model.predict(id,x_test,pred_batch_num,sess,predict_file=None)
+    model.predict(id,x_test, pred_batch_num, sess, predict_file=None)
 ```
 
 For linear regression with two-party private inputs, you could use
