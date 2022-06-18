@@ -19,8 +19,10 @@ See tutorials.
 | matrix multiplication  | l2,d2,l3,d3 | private inputs from two parties    |
 | linear regression      | l2,d2,l3,d3 | private features from one party    |
 | linear regression      | l2,d2,l3,d3 | private features from two parties  |
-| DNN prediction         | l3,d3       | private features from two parties  |
-| DNN prediction         | l3,d3       | private features from one party    |
+| logistic regression    | l2,d2,l3,d3 | private features from one party    |
+| logistic regression    | l2,d2,l3,d3 | private features from two parties  |
+| DNN                    | l3,d3       | private features from two parties  |
+| DNN                    | l3,d3       | private features from one party    |
 
 l2 - local simulation for two-party computation; l3 - local simulation for three-party computation;   
 d2 - distributed deployment for two-party computation; d3 - distributed deployment for three-party computation; 
@@ -180,30 +182,11 @@ For CNN with one-party private inputs, you could use
 
 ## Choose Your Protocol
 
-Morse-STF allows users to choose their MPC protocols, including `const`, `log`, and `linear`. You could configure `protocols` in `config.json`. For example,
+Morse-STF allows users to choose their MPC protocols (for DReLU), including `const`, `log`, and `linear`. You could configure `protocols` in `config.json`. For example,
 ```
     "protocols":{
     	"drelu": "log"
     }
 ```
 
-Here, we summarize training time (for 1 epoch) of `const`, `log`, and `linear` for your reference.
 
-|  Dataset  | Network    |    Delay (ms) | `linear` (s) | `log` (s) | `const` (s)|
-|  ---      | ---        |    ---        |    ---       |    ---    |     ---    |
-| xindai10  | 32, 32     |    5          |     67       |    46     |     208    |
-| xindai10  | 32, 32     |    10         |     113      |    52     |     208    |
-| xindai10  | 32, 32     |    30         |     306      |    94     |     224    |
-| xindai10  | 32, 32     |    60         |     606      |    165    |     252    |
-| xindai291 |  7, 7      |    5          |     226      |     93    |     204    |
-| xindai291 |  7, 7      |    10         |     445      |    133    |     205    |
-| xindai291 |  7, 7      |    30         |    1307      |    308    |     253    |
-| xindai291 |  7, 7      |    60         |    2549      |    612    |     492    |
-| xindai291 | 32, 32     |    5          |     234      |    123    |     928    |
-| xindai291 | 32, 32     |    10         |     450      |    134    |     928    |
-| xindai291 | 32, 32     |    30         |    1332      |    296    |     979    |
-| xindai291 | 32, 32     |    60         |    2657      |    640    |    1284    |
-| MNIST     | networka   |    60         |    7996      |    790    |     2527   |
-| MNIST     | networkb   |    60         |   19125      |   26109   |     n.a.   |
-| MNIST     | networkc   |    60         |   23766      |   33764   |     n.a.   |
-| MNIST     | networkd   |    60         |    4620      |    3230   |    25913   |
