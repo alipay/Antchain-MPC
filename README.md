@@ -28,4 +28,4 @@ Morse-STF is a tool for privacy-preserving machine learning using MPC. We outlin
 
 ### Pip Install
 
-[https://pypi.org/project/morse-stf/#description](https://pypi.org/project/morse-stf/#description)
+To be open
