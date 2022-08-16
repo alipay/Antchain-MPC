@@ -25,3 +25,7 @@ Morse-STF is a tool for privacy-preserving machine learning using MPC. We outlin
 [Morse-STF快速开始](https://github.com/alipay/Antchain-MPC/wiki/MORSE-STF%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B)
 
 [Morse-STF使用手册](https://github.com/alipay/Antchain-MPC/wiki/MORSE-STF%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C)
+
+### Pip Install
+
+[https://pypi.org/project/morse-stf/#description](https://pypi.org/project/morse-stf/#description)
