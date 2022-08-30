@@ -17,6 +17,7 @@ from stensorflow.basic.basic_class.private import PrivateTensor
 from stensorflow.global_var import StfConfig
 from stensorflow.random.random import random_init
 from stensorflow.engine.start_server import start_local_server, start_client
+import time
 
 """
 A Example of training a DNN model (fully connected neural network) with security level on a dataset of feature number 10 and predict using 
@@ -27,12 +28,10 @@ The features f0 ~ f4 are in the party L, the features f5 ~ f9 are in the party R
 start_local_server(config_file="../conf/config.json")
 # start_client(config_file="../conf/config.json", job_name="workerR")
 
-import time
-
 matchColNum = 1
-featureNumL = 5      # feature number in workerL
-featureNumR = 5      # feature number in workerR
-record_num = 12042*7//10  # 30000 #50038
+featureNumL = 5  # feature number in workerL
+featureNumR = 5  # feature number in workerR
+record_num = 12042 * 7 // 10  # 30000 #50038
 epoch = 1
 batch_size = 128
 l2_regularization = 0.0
@@ -41,17 +40,16 @@ batch_num_per_epoch = record_num // batch_size
 train_batch_num = epoch * batch_num_per_epoch + 1
 learning_rate = 0.01
 
-
 # -------------define a private tensor x_train of party L and a private tensor xyR_train on the party R
-xL_train = PrivateTensor(owner='L')        # features that is private data in workerL
-xyR_train = PrivateTensor(owner='R')       # features and label that is  private data in workerR
+xL_train = PrivateTensor(owner='L')  # features that is private data in workerL
+xyR_train = PrivateTensor(owner='R')  # features and label that is  private data in workerR
 
-format_x = [["a"]] * matchColNum + [[0.2]] * featureNumL       # data format inn workerL
-format_y = [["a"]] * matchColNum + [[0.3]] * featureNumR + [[1.0]] # data format in workerR
+format_x = [["a"]] * matchColNum + [[0.2]] * featureNumL  # data format inn workerL
+format_y = [["a"]] * matchColNum + [[0.3]] * featureNumR + [[1.0]]  # data format in workerR
 
 # -----------------  load data from files -------------------
 
-xL_train.load_from_file(path=StfConfig.train_file_onL,record_defaults=format_x, batch_size=batch_size,
+xL_train.load_from_file(path=StfConfig.train_file_onL, record_defaults=format_x, batch_size=batch_size,
                         repeat=epoch + 2, skip_col_num=matchColNum, clip_value=clip_value)
 
 xyR_train.load_from_file(path=StfConfig.train_file_onR, record_defaults=format_y, batch_size=batch_size,
@@ -79,14 +77,13 @@ model.train_sgd(learning_rate=learning_rate, batch_num=train_batch_num, l2_regul
 # train the model
 end_time = time.time()
 
-print("train_time=", end_time-start_time)
+print("train_time=", end_time - start_time)
 model.save(sess=sess, path="../output/model")
 
 model.load(path="../output/model")
 
-
 # ------------define the private tensors for test dataset ----------------
-pred_record_num = 12042*3//10
+pred_record_num = 12042 * 3 // 10
 pred_batch_num = pred_record_num // batch_size
 
 xL_test = PrivateTensor(owner='L')
@@ -101,7 +98,6 @@ id = xRy_test.load_from_file_withid(path=StfConfig.pred_file_onR,
                                     id_col_num=matchColNum, clip_value=clip_value)
 
 xR_test, y_test = xRy_test.split(size_splits=[-1, 1], axis=1)
-
 
 # --------------predict --------------
 y_pred = model.predict(xL_test, xR_test, with_sigmoid=False)

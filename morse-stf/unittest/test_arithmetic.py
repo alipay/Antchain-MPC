@@ -47,6 +47,8 @@ class MyTestCase(unittest.TestCase):
 
         x_test = PrivateTensor(owner='L')
         x_test.load_from_tf_tensor(tf.constant([[1.0]*1000000]))
+        x_test.load_from_numpy()
+
         y_test = PrivateTensor(owner='R')
         y_test.load_from_tf_tensor(tf.constant([[1.0]*1000000]))
         z = x_test * y_test
@@ -60,11 +62,16 @@ class MyTestCase(unittest.TestCase):
         tf.compat.v1.disable_eager_execution()
 
         x_test = PrivateTensor(owner='L')
-        x_test.load_from_tf_tensor(tf.constant([[0.1, 0.2]]))
-        w_test = SharedVariablePair(ownerL="L", ownerR="R", shape=[2, 1])
-        w_test.load_from_tf_tensor(tf.constant([[1], [-1]]))
+        x_test.load_from_tf_tensor(tf.constant([[0.1, 0.2], [2, 1]]))
+
+        w_test = SharedVariablePair(ownerL="L", ownerR="R", shape=[2, 2])
+        w_test.load_from_tf_tensor(tf.constant([[1, 2], [-1, 3]]))
+
+        x_test.expend_dims(axis=2) - w_test.expend_dims(axis=0)
+
         b_test = SharedVariablePair(ownerL="L", ownerR="R", shape=[2, 1])
         b_test.load_from_tf_tensor(tf.constant([[0.2], [-0.2]]))
+
         y = x_test @ w_test
         z = y + b_test
 
@@ -85,6 +92,11 @@ class MyTestCase(unittest.TestCase):
         result = self.sess.run([y])
         print(b)
         print(result)
+
+
+
+
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -26,8 +26,7 @@ this model.
 The features f0 ~ f4 are in the party L, the features f5 ~ f9 are in the party R, the label is in the party R.
 """
 
-
-#start_local_server(config_file="../conf/config_parties2.json")
+# start_local_server(config_file="../conf/config_parties2.json")
 start_local_server(config_file="../conf/config.json")
 # start_client(config_file="../conf/config.json", job_name="workerR")
 
@@ -36,14 +35,15 @@ matchColNum = 1
 featureNumL = 5
 featureNumR = 5
 record_num = 8429
-epoch = 10  # 15
+epoch = 100  # 15
 batch_size = 128
 learning_rate = 0.1
 clip_value = 5.0
 
 train_batch_num = epoch * record_num // batch_size + 1
 pred_record_num = 12042 * 3 // 10
-pred_batch_num = pred_record_num // batch_size
+pred_batch_size = 128
+pred_batch_num = pred_record_num // pred_batch_size
 
 # -------------define a private tensor x_train of party L and a private tensor xyR_train on the party R
 xL_train = PrivateTensor(owner='L')
@@ -81,7 +81,11 @@ start_time = time.time()
 model.fit(sess, x_L=xL_train, x_R=xR_train, y=y_train, num_batches=train_batch_num)
 
 print("train time=", time.time() - start_time)
-model.save(model_file_path="./")
+save_op = model.save(model_file_path="../output")
+sess.run(save_op)
+model.load(model_file_path="../output")
+init_op = tf.compat.v1.global_variables_initializer()
+sess.run(init_op)
 
 
 # ------------define the private tensors for test dataset ----------------
@@ -100,5 +104,7 @@ xR_test, y_test = xRy_test.split(size_splits=[-1, 1], axis=1)
 
 # --------------predict --------------
 print("StfConfig.predict_to_file=", StfConfig.predict_to_file)
-model.predict(id, xL_test, xR_test, pred_batch_num, sess, predict_file=StfConfig.predict_to_file)
+start_time = time.time()
+model.predict_simple(id, xL_test, xR_test, pred_batch_num, sess, predict_file=StfConfig.predict_to_file)
+print("predict time=", time.time() - start_time)
 sess.close()

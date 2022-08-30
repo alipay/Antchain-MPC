@@ -110,23 +110,33 @@ def sigmoid_sin_v3_numpy(x, M):
     print("2. fake=", fake)
     return fake
 
+def sigmoid_line(x):
+    y = (x<-0.5) * 0 + (x>=-0.5) * (x<0.5)*(x+0.5) + (x>=0.5) * 1
+    return y
 
 
 class MyTestCase(unittest.TestCase):
 
     def test_sigmoid(self):
         M = 16
-        x = np.linspace(-M, M, 256, endpoint=True)
+        x = np.linspace(-5, 5, 256, endpoint=True)
         trues = 1 / (1 + np.exp(-x))
-        falses = sigmoid_sin_v3_numpy(x, M)
-        #falses = sigmoid_poly(x)
+        fake_sigmoid = sigmoid_sin_v3_numpy(x, M)
+        fake_poly = sigmoid_poly(x)
+        fake_line = sigmoid_line(np.array(x))
         import matplotlib.pyplot as plt
 
-        plt.plot(x, trues)
-        plt.plot(x, falses)
+        plt.plot(x, trues, ls='-', label='original sigmoid')
+        plt.plot(x, fake_sigmoid, ls='--', label='sigmoid fourier')
+        plt.plot(x, fake_poly, ls='-.', label='sigmoid poly')
+        #plt.plot(x, fake_line, ls='-.', label='sigmoid piecewise linear')
+
+        plt.legend()
         plt.xticks(fontsize=16)
         plt.yticks(fontsize=16)
         plt.show()
+
+
 
 
 if __name__ == '__main__':

@@ -3,6 +3,7 @@
 """
 import os
 from stensorflow.engine.start_server import start_local_server, start_client
+
 start_local_server(config_file="../conf/config.json")
 # start_client(config_file="../conf/config.json", job_name="workerR")
 
@@ -12,14 +13,13 @@ from stensorflow.ml.nn.networks.NETWORKB import NetworkB
 from stensorflow.global_var import StfConfig
 from cnn_utils import convert_datasets, load_data, calculate_score
 
-
-
 epochs = 1
 batch_size = 128
 learning_rate = 0.01
 momentum = 0.9
-l2_regularzation =1E-6
+l2_regularzation = 1E-6
 pooling = 'avg'
+
 
 def cnn_baseline(train_x, train_y, test_x, test_y, train=True, pooling='max'):
     """
@@ -32,15 +32,15 @@ def cnn_baseline(train_x, train_y, test_x, test_y, train=True, pooling='max'):
             tf.keras.layers.Conv2D(16, (5, 5), input_shape=(28, 28, 1), use_bias=False),
             # tf.keras.layers.BatchNormalization(),
             tf.keras.layers.Activation(activation='relu'),
-            tf.keras.layers.MaxPooling2D(2,2) if pooling=='max' else tf.keras.layers.AvgPool2D(2, 2),
+            tf.keras.layers.MaxPooling2D(2, 2) if pooling == 'max' else tf.keras.layers.AvgPool2D(2, 2),
             tf.keras.layers.Conv2D(16, (5, 5), use_bias=False),
-            #tf.keras.layers.BatchNormalization(),
+            # tf.keras.layers.BatchNormalization(),
             tf.keras.layers.Activation(activation='relu'),
-            tf.keras.layers.MaxPooling2D(2,2) if pooling=='max' else tf.keras.layers.AvgPool2D(2, 2),
+            tf.keras.layers.MaxPooling2D(2, 2) if pooling == 'max' else tf.keras.layers.AvgPool2D(2, 2),
             tf.keras.layers.Flatten(),
             # Third layer
             tf.keras.layers.Dense(100),
-            #tf.keras.layers.BatchNormalization(),
+            # tf.keras.layers.BatchNormalization(),
             tf.keras.layers.Activation(activation='relu'),
             # Final Layer
             tf.keras.layers.Dense(10, name="Dense"),
@@ -71,6 +71,8 @@ def cnn_baseline(train_x, train_y, test_x, test_y, train=True, pooling='max'):
         test_loss = keras_model.evaluate(test_x, test_y)
         print("keras test result: " + str(test_loss))
         keras_model.save("../output/complex_epoch.h5")
+
+
 #
 # def max_cnn_baseline(train_x, train_y, test_x, test_y, train=True):
 #     """
@@ -187,4 +189,3 @@ if __name__ == "__main__":
     #                 test_x=test_x)
     # compare_weight(keras_model_path="../output/complex_epoch.h5",
     #                stf_model_path="../output/complex_CNN.npz")
-

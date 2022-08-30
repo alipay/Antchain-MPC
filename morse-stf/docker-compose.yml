@@ -2,10 +2,11 @@ version: '2.0'
 services:
   workerL:
     #image: morse-stf:v0.3
-    image: morsestf_test20210712
+    image: morse-stf:ceping
+    #image: morse-registry.cn-shanghai.cr.aliyuncs.com/rd/morse-stf:test20220606
     #image: registry.cn-hangzhou.aliyuncs.com/dtunion/morseredis:v24
     ports:
-      - 8886:8886
+      - 7777:7777
     cap_add:
       - ALL
     tty: true
@@ -13,31 +14,35 @@ services:
     #stdin_open: true
     volumes:
     # - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime
-     - /Users/qizhi.zqz/projects/morse-stf/morse-stf/conf:/morse-stf/conf
+    #  - /Users/qizhi.zqz/projects/morse-stf/morse-stf/conf:/morse-stf/conf
+    #  - /Users/qizhi.zqz/projects/morse-stf/morse-stf/dataset:/morse-stf/dataset
+     - /root/qizhi.zqz/morse-stf/dataset:/morse-stf/dataset
+     - /root/qizhi.zqz/morse-stf/conf:/morse-stf/conf
     command:
-        python3 /morse-stf/stensorflow/engine/start_server.py --player=workerL  --config_file=/morse-stf/conf/config_docker.json
+        morse-stf-server --player=workerL  --config_file=/morse-stf/conf/config_epsilon2.json
         #wondershaper eth0 10240 10240
   workerR:
-    image: morsestf_test20210712
+    image: morse-stf:ceping
     ports:
-    - 8887:8887
+    - 7777:7777
     cap_add:
       - ALL
     tty: true
     #stdin_open: true
     volumes:
     # - /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime
-    - /Users/qizhi.zqz/projects/morse-stf/morse-stf/conf:/morse-stf/conf
+     - /root/qizhi.zqz/morse-stf/dataset:/morse-stf/dataset
+     - /root/qizhi.zqz/morse-stf/conf:/morse-stf/conf
     command:
 #      - /bin/bash
 #      - -c
 #      - |
-        python3 /morse-stf/stensorflow/engine/start_server.py --player=workerR  --config_file=/morse-stf/conf/config_docker.json
+        morse-stf-server --player=workerR  --config_file=/morse-stf/conf/config_epsilon2.json
         #wondershaper eth0 10240 10240
   RS:
-    image: morsestf_test20210712
+    image: morse-stf:ceping
     ports:
-      - 8888:8888
+      - 7777:7777
     cap_add:
       - ALL
     tty: true
@@ -45,8 +50,9 @@ services:
     volumes:
     #- /usr/share/zoneinfo/Asia/Shanghai:/etc/localtime
     #- /Users/qizhi.zqz/projects/TFE/tf-encrypted/examples/test_on_morse_datas/data:/morse-stf/data
-    - /Users/qizhi.zqz/projects/morse-stf/morse-stf/conf:/morse-stf/conf
-    command: python3 /morse-stf/stensorflow/engine/start_server.py --player=RS  --config_file=/morse-stf/conf/config_docker.json
+     - /root/qizhi.zqz/morse-stf/dataset:/morse-stf/dataset
+     - /root/qizhi.zqz/morse-stf/conf:/morse-stf/conf
+    command: morse-stf-server --player=RS  --config_file=/morse-stf/conf/config_epsilon2.json
 
 
 #networks:
