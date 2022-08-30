@@ -23,6 +23,11 @@ See tutorials.
 | logistic regression    | l2,d2,l3,d3 | private features from two parties  |
 | DNN                    | l3,d3       | private features from two parties  |
 | DNN                    | l3,d3       | private features from one party    |
+| PCA                    | l3,d3       | private features from two parties  |
+| PCA                    | l3,d3       | private features from one party    |
+| KMeans                 | l3,d3       | private features from two parties  |
+| KMeans                 | l3,d3       | private features from one party    |
+
 
 l2 - local simulation for two-party computation; l3 - local simulation for three-party computation;   
 d2 - distributed deployment for two-party computation; d3 - distributed deployment for three-party computation; 
