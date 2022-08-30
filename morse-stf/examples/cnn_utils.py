@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.utils import shuffle
 import pandas as pd
 from stensorflow.basic.basic_class.private import PrivateTensor,PrivateTensorBase
-#from keras.models import Model
+# from keras.models import Model
 
 
 def build_mnist(path):
@@ -181,8 +181,3 @@ def LeNet_network():
     print(test_loss)
     # 全数据，sgd, lr= 0.1, epoch=15, 准确率0.89
     # 全数据，adam,lr= 0.1, epoch=10, 准确率0.91
-
-
-
-
-

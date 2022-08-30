@@ -33,17 +33,17 @@ matchColNum = 1
 featureNumL = 5
 featureNumR = 5
 record_num = 8429
-epoch = 10   # 15
+epoch = 100  # 15
 batch_size = 128
 
 num_features = featureNumL + featureNumR
-dense_dims = [num_features, 32, 32, 1]       # the neural network structure is 32, 32, 1
+# dense_dims = [num_features, 7, 7, 1]       # the neural network structure is 32, 32, 1
+dense_dims = [num_features, 1]
 l2_regularization = 0.0
 clip_value = 5.0
 
 batch_num_per_epoch = record_num // batch_size
 train_batch_num = epoch * batch_num_per_epoch + 1
-
 
 learning_rate = 0.01
 
@@ -54,7 +54,6 @@ xyR_train = PrivateTensor(owner='R')
 
 format_x = [["a"]] * matchColNum + [[0.2]] * featureNumL
 format_y = [["a"]] * matchColNum + [[0.3]] * featureNumR + [[1.0]]
-
 
 # -----------------  load data from files -------------------
 
@@ -75,22 +74,27 @@ model = DNN(feature=xL_train, label=y_train, dense_dims=dense_dims, feature_anot
 model.compile()
 
 # -------------start a tensorflow session, and initialize all variables -----------------
+# sess = tf.compat.v1.Session(StfConfig.target, config=tf.compat.v1.ConfigProto(
+#  device_count={"CPU":12},
+#  inter_op_parallelism_threads=1,
+#  intra_op_parallelism_threads=1
+#  ))
 sess = tf.compat.v1.Session(StfConfig.target)
+
 init_op = tf.compat.v1.initialize_all_variables()
 sess.run(init_op)
-
 
 # -------------train the model ------------------------
 start_time = time.time()
 
 model.train_sgd(learning_rate=learning_rate, batch_num=train_batch_num, l2_regularization=l2_regularization, sess=sess)
-
+# model.train_adam(sess=sess, batch_num=train_batch_num, learningRate=1E-3)
 end_time = time.time()
 
-print("train_time=", end_time-start_time)
+print("train_time=", end_time - start_time)
 
 # ------------define the private tensors for test dataset ----------------
-pred_record_num = 12042*3//10
+pred_record_num = 12042 * 3 // 10
 pred_batch_num = pred_record_num // batch_size
 
 xL_test = PrivateTensor(owner='L')
@@ -105,7 +109,6 @@ id = xRy_test.load_from_file_withid(path=StfConfig.pred_file_onR,
                                     id_col_num=matchColNum, clip_value=clip_value)
 
 xR_test, y_test = xRy_test.split(size_splits=[-1, 1], axis=1)
-
 
 # --------------predict --------------
 model.predict_to_file(sess=sess, x=xL_test, x_another=xR_test,

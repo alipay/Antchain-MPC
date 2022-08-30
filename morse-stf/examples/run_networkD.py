@@ -13,18 +13,19 @@
 
 from stensorflow.global_var import StfConfig
 from stensorflow.engine.start_server import start_local_server, start_client
-start_local_server(config_file="../conf/config.json")
 # start_client(config_file="../conf/config.json", job_name="workerR")
 import time
 import tensorflow as tf
 from stensorflow.ml.nn.networks.NETWORKD import NetworkD
 from cnn_utils import convert_datasets, load_data, calculate_score
+start_local_server(config_file="../conf/config.json")
 
 epoch = 1
 batch_size = 128
 learning_rate = 0.01
 momentum = 0.9
 l2_regularzation =1E-6
+
 
 def cnn_baseline(train_x, train_y, test_x, test_y, train=True):
     """
@@ -73,7 +74,6 @@ def cnn_baseline(train_x, train_y, test_x, test_y, train=True):
         keras_model.save("../output/complex_epoch.h5")
 
 
-
 def stf_cnn_test(train_x, train_y, test_x, test_y,keras_weight=None):
     """
     NETWORK D using STF
@@ -119,10 +119,7 @@ def stf_cnn_test(train_x, train_y, test_x, test_y,keras_weight=None):
     model.save_model(save_file_path="../output/complex_CNN.npz", sess=sess, model_file_machine='R')
 
 
-
 if __name__ == "__main__":
-
-
     StfConfig.default_fixed_point = 16
     train_x, train_y, test_x, test_y = load_data(normal=True, small=True)
 

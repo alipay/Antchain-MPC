@@ -39,14 +39,15 @@ learning_rate = 0.01
 clip_value = 5.0
 train_batch_num = epoch * record_num // batch_size + 1
 
-pred_record_num = 12042 * 3 // 10
+pred_record_num = 12510
 pred_batch_num = pred_record_num // batch_size + 1
 
 format_x = [["a"]] * matchColNum + [[0.2]] * featureNumL
 format_y = [["a"]] * matchColNum + [[1.0]]
 
 num_features = featureNumL + featureNumR
-dense_dims = [num_features, 7, 7, 1]                # the neural network structure is 7, 7, 1
+# dense_dims = [num_features, 7, 7, 1]                # the neural network structure is 7, 7, 1
+dense_dims = [num_features, 1]
 l2_regularization = 0.0
 
 # -------------define a private tensor x_train of party L and a private tensor y_train on the party R
