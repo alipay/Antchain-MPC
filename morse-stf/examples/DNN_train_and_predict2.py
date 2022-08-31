@@ -33,7 +33,7 @@ matchColNum = 1
 featureNumL = 5
 featureNumR = 5
 record_num = 8429
-epoch = 100  # 15
+epoch = 10  # 15
 batch_size = 128
 
 num_features = featureNumL + featureNumR
