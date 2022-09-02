@@ -8,7 +8,10 @@
    Author : qizhi.zqz
    Email: qizhi.zqz@antgroup.com
    Create Time : 2022/5/26 下午2:18
-   Description : description what the main function of this file
+   Description : Please note that inverse_sqrt is NOT secure.
+   We will release the real code later due to business reasons.
+    For running all examples sucessfully,
+    we TEMPORARILY use the functionality of idea world to substitute real-world protocols.
 """
 
 from stensorflow.basic.basic_class.pair import SharedPair
