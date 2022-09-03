@@ -10,7 +10,7 @@ Others: Coming soon.
 
 **Sep 3, 2022**
 
-🎉🎉🎉  <font color=#DC143C> MPC-Secure KMeans, Partially-Secure PCA, Fully-Secure PCA have been updated. Please note that fake inverse_sqrt (used in Fully-Secure PCA) is NOT secure. We will release the real code later due to business reasons. </font>
+🎉🎉🎉  <font color=#DC143C> [MPC-Secure KMeans](https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/secure_k_means.py), [Partially-Secure PCA])(https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/partially_secure_pca.py), [Fully-Secure PCA](https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/fully_secure_pca.py) have been updated. Please note that fake inverse_sqrt (used in Fully-Secure PCA) is NOT secure. We will release the real code later due to business reasons. </font>
 
 **June 13, 2022** 
 
@@ -33,3 +33,8 @@ Morse-STF is a tool for privacy-preserving machine learning using MPC. We outlin
 ### Pip Install
 
 To be open
+
+### Disclaimer
+Part of code has been used in [AntChain](https://www.antchain.net/home) products. If you use it for business, please don't hesitate to get in touch with our team.
+
+For academic usage, please cite our paper (under anonymous review, to be updated).
