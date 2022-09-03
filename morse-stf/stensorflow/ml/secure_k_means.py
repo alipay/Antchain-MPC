@@ -5,7 +5,7 @@
    Ant Group
    Copyright (c) 2004-2022 All Rights Reserved.
    ------------------------------------------------------
-   File Name : sKmeans
+   File Name : secure_k_means.py
    Author : Yu Zheng
    Email: yuzheng0404@gmail.com
    Create Time : 2022-08-03 17:12
