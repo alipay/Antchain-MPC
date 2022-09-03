@@ -10,7 +10,8 @@ Others: Coming soon.
 
 **Sep 3, 2022**
 
-🎉🎉🎉  <font color=#DC143C> [MPC-Secure KMeans](https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/secure_k_means.py), [Partially-Secure PCA](https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/partially_secure_pca.py), [Fully-Secure PCA](https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/fully_secure_pca.py) have been updated. Please note that fake inverse_sqrt (used in Fully-Secure PCA) is NOT secure. We will release the real code later due to business reasons. </font>
+🎉🎉🎉  <font color=#DC143C> [MPC-Secure KMeans](https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/secure_k_means.py), [Partially-Secure PCA](https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/partially_secure_pca.py), [Fully-Secure PCA](https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/fully_secure_pca.py) have been updated. Running examples see [here](https://github.com/alipay/Antchain-MPC/tree/main/morse-stf/examples).
+ Please note that fake inverse_sqrt (used in Fully-Secure PCA) is NOT secure. We will release the real code later due to business reasons. </font>
 
 **June 13, 2022** 
 
@@ -20,9 +21,13 @@ Others: Coming soon.
 
 Morse-STF is a tool for privacy-preserving machine learning using MPC. We outline more information below:
 | Folder      | Description |
-| ----------- | ----------- |
-| conf        | ...         |
-| cops        | ...         |
+| -----------  | ----------- |
+| conf        | configuration files   |
+| ducuments   |  descriptive files (keep updating)   |
+| examples    | runnning examples for stensorflow |
+| stensorflow | importing folder for all functionality |
+| unitest| testing files for different units used in stensorflow |
+| output| store outputing files |
 
 [User Guide](morse-stf/documents/user_guide.md)
 
@@ -32,7 +37,8 @@ Morse-STF is a tool for privacy-preserving machine learning using MPC. We outlin
 
 ### Pip Install
 
-To be open
+If you do not prefer to git clone our repository, python packages are [here](https://pypi.org/project/morse-stf/) via [pip install](https://pip.pypa.io/en/stable/cli/pip_install/). 
+Please note that the newest version will be open very soon.
 
 ### Disclaimer
 Part of code has been used in [AntChain](https://www.antchain.net/home) products. If you use it for business, please don't hesitate to get in touch with our team.
