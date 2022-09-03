@@ -4,7 +4,7 @@ Antchain-MPC is a open-source library for providing multiparty computation (MPC)
 
 Morse-STF: A tool for privacy-preserving machine learning using MPC.
 
-Others: Coming soon.
+Others: Coming later.
 
 ## News
 
@@ -27,7 +27,7 @@ Morse-STF is a tool for privacy-preserving machine learning using MPC. We outlin
 | examples    | runnning examples for stensorflow |
 | stensorflow | importing folder for all functionality |
 | unitest| testing files for different units used in stensorflow |
-| output| store outputing files |
+| output| store output files |
 
 [User Guide](morse-stf/documents/user_guide.md)
 
