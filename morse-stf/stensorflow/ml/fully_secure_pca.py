@@ -5,7 +5,7 @@
    Ant Group
    Copyright (c) 2004-2022 All Rights Reserved.
    ------------------------------------------------------
-   File Name : spca_batch
+   File Name : fully_secure_pca.py
    Author : Yu Zheng
    Email: yuzheng0404@gmail.com
    Create Time : 2022-08-14 15:18
