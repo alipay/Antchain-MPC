@@ -35,7 +35,7 @@ Morse-STF is a tool for privacy-preserving machine learning using MPC. We outlin
 
 [Morse-STF使用手册](https://github.com/alipay/Antchain-MPC/wiki/MORSE-STF%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C)
 
-### Pip Install
+### Python Package Index
 
 If you do not prefer to git clone our repository, python packages are [here](https://pypi.org/project/morse-stf/) via [pip install](https://pip.pypa.io/en/stable/cli/pip_install/). 
 Please note that the newest version will be open very soon.
