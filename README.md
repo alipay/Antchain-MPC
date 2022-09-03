@@ -10,7 +10,7 @@ Others: Coming soon.
 
 **Sep 3, 2022**
 
-🎉🎉🎉  <font color=#DC143C> [MPC-Secure KMeans](https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/secure_k_means.py), [Partially-Secure PCA])(https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/partially_secure_pca.py), [Fully-Secure PCA](https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/fully_secure_pca.py) have been updated. Please note that fake inverse_sqrt (used in Fully-Secure PCA) is NOT secure. We will release the real code later due to business reasons. </font>
+🎉🎉🎉  <font color=#DC143C> [MPC-Secure KMeans](https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/secure_k_means.py), [Partially-Secure PCA](https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/partially_secure_pca.py), [Fully-Secure PCA](https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/fully_secure_pca.py) have been updated. Please note that fake inverse_sqrt (used in Fully-Secure PCA) is NOT secure. We will release the real code later due to business reasons. </font>
 
 **June 13, 2022** 
 
