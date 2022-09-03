@@ -8,8 +8,9 @@ Others: Coming soon.
 
 ## News
 
-** Sep 3, 2022** 
-🎉🎉🎉 <font color=#DC143C> MPC-Secure KMeans, Partially-Secure PCA, Fully-Secure PCA have been updated. Please note that fake inverse_sqrt (used in Fully-Secure PCA) is NOT secure. We will release the real code later due to business reasons. 
+**Sep 3, 2022**
+
+🎉🎉🎉  <font color=#DC143C> MPC-Secure KMeans, Partially-Secure PCA, Fully-Secure PCA have been updated. Please note that fake inverse_sqrt (used in Fully-Secure PCA) is NOT secure. We will release the real code later due to business reasons. </font>
 
 **June 13, 2022** 
 
