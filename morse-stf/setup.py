@@ -7,7 +7,7 @@ setuptools.setup(
     author="Morse-STF Team",
     author_email="morse-stf@service.alipay.com",
     description="Morse Secure TensorFlow",
-    url="https://github.com/alipay/Antchain-MPC/morse-stf",
+    url="https://github.com/alipay/Antchain-MPC/tree/main/morse-stf",
     install_requires=[
         'matplotlib==3.3.2',
         'tensorflow==2.2.0',
