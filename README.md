@@ -10,6 +10,10 @@ Others: Coming later.
 
 ## News
 
+**Aug 26, 2023**
+
+One paper has been conditionally accepted. The code is available at https://github.com/alipay/Antchain-MPC/tree/sec_softmoid.
+
 **Sep 3, 2022**
 
 🎉🎉🎉  <font color=#DC143C> [MPC-Secure KMeans](https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/secure_k_means.py), [Partially-Secure PCA](https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/partially_secure_pca.py), [Fully-Secure PCA](https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/fully_secure_pca.py) have been updated. Running examples can be seen [here](https://github.com/alipay/Antchain-MPC/tree/main/morse-stf/examples).
