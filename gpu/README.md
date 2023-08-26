@@ -8,8 +8,6 @@ We have built and run this project using Docker and the [NVIDIA Container Toolki
 
 1. Download codes and checkout external modules
 ```shell
-git clone https://github.com/qizhi-zhang/piranha.git
-cd piranha
 git submodule update --init --recursive
 ```
 2. Prepare datasets
