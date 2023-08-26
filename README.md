@@ -2,7 +2,9 @@
 
 Antchain-MPC is a open-source library for providing multiparty computation (MPC) algorithms/protocols. It includes Morse-STF, ...
 
-Morse-STF: A tool for privacy-preserving machine learning using MPC.
+
+## Key Branches
+`sec_softmoid`: Secure Softmax/Sigmoid for Machine-learning Computation. [GitHub Link](https://github.com/alipay/Antchain-MPC/tree/sec_softmoid)
 
 Others: Coming later.
 
