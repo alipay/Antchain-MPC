@@ -1,5 +1,5 @@
 # Secure Softmax and Sigmoid
-The branch of `sec_softmoid` contains Python implementation and C++ implementation of the paper entitled "Secure Softmax/Sigmoid for Machine-learning Computation".
+The branch of `sec_softmoid` contains Python implementation and C++ implementation of the paper entitled "Secure Softmax/Sigmoid for Machine-learning Computation" by Name, Name, ... and Name.
 
 
 Our open-source code is available at https://github.com/alipay/Antchain-MPC/tree/sec_softmoid. The artifact consists of CPU and GPU implementation prototypes in Python and C++, respectively. Besides, we provide scripts for reproducing experimental results in Section 6. Artifact evaluation is to reproduce results in replicating Tables 3-12 in the paper by executing the protocol-level and end-to-end training benchmarks. The evaluation consists of communication, running time, and training accuracy. As for GPU implementation in Piranha [33], participating parties require a machine equipped with a GPU and access to the NVIDIA CUDA toolkit.
