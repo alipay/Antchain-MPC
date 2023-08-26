@@ -1,0 +1,23 @@
+{
+    "hosts": {
+        "workerL": "0.0.0.0:8886",
+        "workerR": "0.0.0.0:8887",
+        "RS": "0.0.0.0:8888"
+    },
+    "stf_home": "/Users/qizhi.zqz/projects/Antchain-MPC/morse-stf",
+    "stf_home_workerL": "/Users/qizhi.zqz/projects/Antchain-MPC/morse-stf",
+    "stf_home_workerR": "/Users/qizhi.zqz/projects/Antchain-MPC/morse-stf",
+    "stf_home_RS": "/Users/qizhi.zqz/projects/Antchain-MPC/morse-stf",
+    "sess_worker": "workerR",
+    "ml": {
+        "dataset_train": {
+            "L": "dataset/xindai_xx_train.csv",
+            "R": "dataset/xindai_xy_train.csv"
+        },
+        "dataset_predict": {
+            "L": "dataset/xindai_xx_test.csv",
+            "R": "dataset/xindai_xy_test.csv"
+        },
+        "predict_to_file": "output/predict"
+    }
+}

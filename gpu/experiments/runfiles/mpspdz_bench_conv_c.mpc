@@ -1,0 +1,46 @@
+def conv(which_conv):
+    """ Convolution benchmarks """
+    import ml
+    import util
+    import math
+
+    ml.FixConv2d.use_conv2ds = True
+    sfix.set_precision(16, 31)
+
+    # ml.FixConv2d([batch size, image width, image height, Din], (Dout, filter width, filter height, Din), (Dout,), [batch size, output width, output height, Dout], (stride, stride)),
+    # B = 1
+    # S = 1
+    # OW = (((W - F) / S) + 1)
+
+    # layers = [
+    #     ml.FixConv2d([B, W, W, Din], (Dout, F, F, Din), (Dout,), [B, OW, OW, Dout], (S, S)),
+    # ]
+
+    if which_conv == 'A':
+        layers = [
+            ml.FixConv2d([1, 28, 28, 1], (16, 5, 5, 1), (16,), [1, 24, 24, 16], (1, 1), 'VALID'),
+        ]
+    elif which_conv == 'B':
+        layers = [
+            ml.FixConv2d([1, 12, 12, 20], (50, 3, 3, 20), (50,), [1, 10, 10, 50], (1, 1), 'VALID'),
+        ]
+    elif which_conv == 'C':
+        layers = [
+            ml.FixConv2d([1, 32, 32, 3], (50, 7, 7, 3), (50,), [1, 24, 24, 50], (1, 1), 'VALID'),
+        ]
+    elif which_conv == 'D':
+        layers = [
+            ml.FixConv2d([1, 64, 64, 3], (32, 5, 5, 3), (32,), [1, 60, 60, 32], (1, 1), 'VALID'),
+        ]
+    elif which_conv == 'E':
+        B = 1
+        layers = [
+            ml.FixConv2d([B, 224, 224, 3], (64, 5, 5, 3), (64,), [B, 220, 220, 64], (1, 1), 'VALID'),
+        ]
+
+    opt = ml.Optimizer()
+    opt.layers = layers
+    opt.forward(1)
+
+conv('C')
+

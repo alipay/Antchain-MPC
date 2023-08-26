@@ -1,3 +1,0 @@
-include cops/*
-include cops/inc/*
-include cops/src/*
