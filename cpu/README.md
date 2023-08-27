@@ -1,17 +1,4 @@
-### Step 1: Download the code:
-
-`git clone https://github.com/alipay/Antchain-MPC.git`
-
-`cd Antchain-MPC`
-
-`git checkout -b sec_softmoid origin/sec_softmoid`
-
-`cd cpu`
-
-
-
-
-### Step 2: Install requirements:
+### Step 1: Install requirements:
 
 `python3 -m venv stf_venv`
 
@@ -22,7 +9,7 @@
 `pip3 install -r requirements.txt`
 
 
-### Step 3: Edit the config file:
+### Step 2: Edit the config file:
 
 edit the file `./conf/config.json`  and  `./conf/config_linear.json`
 Modify the following segment：
@@ -39,7 +26,7 @@ Modify the following segment：
 ```
 
 
-### Step 4: Run the experiments in the paper.
+### Step 3: Run the experiments in the paper.
 
 `bash run.sh`
 
