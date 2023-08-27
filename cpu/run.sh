@@ -114,7 +114,7 @@ python3 run_networkA.py --epoch=5  --pretrain=0 > $MAIN_PATH/artifacts/Table7_ne
 python3 run_networkA.py --epoch=5  --pretrain=1 > $MAIN_PATH/artifacts/Table7_networkA_epoch5_pretrain1.log 2>&1
 
 
-echo "run test for Table_networkB"
+echo "run test for Table7_networkB"
 python3 run_networkB.py --epoch=1  --pretrain=0 --pooling=max > $MAIN_PATH/artifacts/Table7_networkB_epoch1_pretrain0.log 2>&1
 python3 run_networkB.py --epoch=1  --pretrain=1 --pooling=max > $MAIN_PATH/artifacts/Table7_networkB_epoch1_pretrain1.log 2>&1
 python3 run_networkB.py --epoch=5  --pretrain=0 --pooling=max > $MAIN_PATH/artifacts/Table7_networkB_epoch5_pretrain0.log 2>&1
@@ -141,8 +141,6 @@ python3 run_AlexNet.py --epoch=5  --pretrain=1 --truncation_type=1 > $MAIN_PATH/
 python3 run_AlexNet.py --epoch=10  --pretrain=1 --truncation_type=1 > $MAIN_PATH/artifacts/Table7_Alexnet_epoch10_pretrain1.log 2>&1
 python3 run_AlexNet.py --epoch=5  --pretrain=0  --truncation_type=1 > $MAIN_PATH/artifacts/Table7_Alexnet_epoch5_pretrain0.log 2>&1
 python3 run_AlexNet.py --epoch=10  --pretrain=0  --truncation_type=1 > $MAIN_PATH/artifacts/Table7_Alexnet_epoch10_pretrain0.log 2>&1
-
-
 
 
 

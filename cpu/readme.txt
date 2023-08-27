@@ -32,3 +32,4 @@ edit the file ./conf/config.json  and  ./conf/config_linear.json
 Step 4: Run the examples in the paper.
 
 bash run.sh
+
