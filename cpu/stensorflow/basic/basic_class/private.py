@@ -253,6 +253,14 @@ class PrivateTensor(PrivateTensorBase):
             return PrivateTensor(owner=self.owner, fixedpoint=self.fixedpoint,
                                  inner_value=inner_value, module=self.module)
 
+    def __neg__(self):
+        """
+
+        :return:
+        """
+        result = PrivateTensorBase.__neg__(self)
+        return self._convert_result_type_(result)
+
     def __lt__(self, other):
         result = self.op_map['lt'](self, other)
         return self._convert_result_type_(result)
@@ -278,7 +286,7 @@ class PrivateTensor(PrivateTensorBase):
 
 
 class PrivateVariable(PrivateTensor):
-    def __init__(self, owner, fixedpoint: int = 14, initial_inner_value=None, module: int = None, op_map={}):
+    def __init__(self, owner, fixedpoint: int = None, initial_inner_value=None, module: int = None, op_map={}):
         super(PrivateVariable, self).__init__(owner=owner, fixedpoint=fixedpoint, module=module, op_map=op_map)
         if initial_inner_value is not None:
             with tf.device(self.owner):
@@ -296,7 +304,7 @@ class PrivateVariable(PrivateTensor):
         if other.owner != self.owner:
             raise StfEqualException("other.owner", "self.owner", other.owner, self.owner)
         if self.fixedpoint != other.fixedpoint:
-            raise Exception("the fixedpoint must be same")
+            raise StfEqualException("other.fixedpoint", "self.fixedpoint", other.fixedpoint, self.fixedpoint)
         if self.module != other.module:
             raise Exception("the fixedpoint must be same")
         with tf.device(self.owner):

@@ -27,26 +27,38 @@ def drelu_binary_const(x: SharedPair):
     return SharedPair.from_SharedPairBase(y)
 
 
-def drelu_binary_log(x: SharedPair):
-    t = msb_log_round(x)
-    return t.ones_like() - t
+def drelu_binary_log(x: SharedPair, out_carry=False):
+    if out_carry:
+        t, carry = msb_log_round(x, out_carry)
+        s = t.ones_like() - t
+        return (s, carry)
+    else:
+        t = msb_log_round(x)
+        s = t.ones_like() - t
+    return s
 
 
-def drelu_binary_linear(x: SharedPair):
-    t = msb(x)
-    # print("t=", t)
-    s = t.ones_like() - t
+def drelu_binary_linear(x: SharedPair, out_carry=False):
+    if out_carry:
+        t, carry = msb(x, out_carry)
+        s = t.ones_like() - t
+        return (s, carry)
+    else:
+        t = msb(x)
+        s = t.ones_like() - t
     # print("s=", s)
     return s
 
 
-def drelu_binary(x: SharedPair):
+def drelu_binary(x: SharedPair, out_carry=False):
     if StfConfig.drelu == "const":
+        if out_carry:
+            raise Exception("const drelu unsuported out carry")
         return drelu_binary_const(x)
     elif StfConfig.drelu == "log":
-        return drelu_binary_log(x)
+        return drelu_binary_log(x, out_carry)
     elif StfConfig.drelu == "linear":
-        return drelu_binary_linear(x)
+        return drelu_binary_linear(x, out_carry)
     else:
         raise StfValueException("StfConfig.delay", "high or middle or low", StfConfig.delay)
 
@@ -61,11 +73,10 @@ def relu_local(x: PrivateTensor):
 
 
 def drelu_local(x: PrivateTensor):
-    z = PrivateTensor(owner=x.owner)
     with tf.device(x.owner):
-        x = x.to_tf_tensor()
-        y = tf.cast(x >= 0, 'float32')
-        z.load_from_tf_tensor(y)
+        y = x.to_tf_tensor()
+        y = tf.cast(y >= 0, 'int64')
+        z = PrivateTensor(owner=x.owner, fixedpoint=0, inner_value=y, module=2)
     return z
 
 
@@ -76,23 +87,37 @@ def relu(x: Union[SharedPair, PrivateTensor], drelu_b=None):
         else:
             s = drelu_binary(x)
         y = select_share(s, x)
-        return SharedPair.from_SharedPairBase(y)
+        y = SharedPair.from_SharedPairBase(y)
+        return y
     elif isinstance(x, PrivateTensor):
-        return relu_local(x)
+        if drelu_b is not None:
+            s = drelu_b
+            y = select_share(s, x)
+        else:
+            y = relu_local(x)
+        return y
     else:
         raise StfTypeException("x", "SharedPair or PrivateTensor", type(x))
 
 
 def relu_pull_back(x: Union[SharedPair, PrivateTensor], ploss_py, drelu_b=None):
-    if drelu_b is not None:
-        ploss_px = select_share(drelu_b, ploss_py)
-        return SharedPair.from_SharedPairBase(ploss_px)
-    elif isinstance(x, SharedPair):
-        s = drelu_binary(x)
+
+    if isinstance(ploss_py, SharedPair):
+        if drelu_b is not None:
+            ploss_px = select_share(drelu_b, ploss_py)
+            return SharedPair.from_SharedPairBase(ploss_px)
+        else:
+            s = drelu_binary(x)
+            ploss_px = select_share(s, ploss_py)
+            return SharedPair.from_SharedPairBase(ploss_px)
+    elif isinstance(ploss_py, PrivateTensor):
+        if drelu_b is not None:
+            s = drelu_b
+        else:
+            s = drelu_local(x)
         ploss_px = select_share(s, ploss_py)
-        return SharedPair.from_SharedPairBase(ploss_px)
-    elif isinstance(x, PrivateTensor):
-        return drelu_local(x) * ploss_py
+        return PrivateTensor.from_PrivteTensorBase(ploss_px)
+
     else:
         raise StfTypeException("x", "SharedPair or PrivateTensor", type(x))
 

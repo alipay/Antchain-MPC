@@ -17,6 +17,7 @@ from stensorflow.basic.basic_class.base import SharedPairBase
 from stensorflow.global_var import StfConfig
 import tensorflow as tf
 from stensorflow.exception.exception import StfCondException
+from stensorflow.basic.operator.truncation import dup_with_precision
 
 
 def concat(x: list, axis, fixed_point=None):
@@ -38,7 +39,7 @@ def concat(x: list, axis, fixed_point=None):
 
     if fixed_point is None:
         fixed_point = max(min(list(map(lambda u: u.fixedpoint, x))), StfConfig.default_fixed_point)
-    x = list(map(lambda u: u.dup_with_precision(fixed_point), x))
+    x = list(map(lambda u: dup_with_precision(u, fixed_point), x))
 
     if all(list(map(lambda u: isinstance(u, PrivateTensorBase), x))):  # all x are PrivateTensorBase
         if len(set(map(lambda u: u.owner, x))) == 1:  # all x have same owner
@@ -114,7 +115,7 @@ def stack(x: list, axis, fixed_point=None):
 
     if fixed_point is None:
         fixed_point = max(min(list(map(lambda u: u.fixedpoint, x))), StfConfig.default_fixed_point)
-    x = list(map(lambda u: u.dup_with_precision(fixed_point), x))
+    x = list(map(lambda u: dup_with_precision(u, fixed_point), x))
 
     if all(list(map(lambda u: isinstance(u, PrivateTensorBase), x))):  # all x are PrivateTensorBase
         if len(set(map(lambda u: u.owner, x))) == 1:  # all x have same owner

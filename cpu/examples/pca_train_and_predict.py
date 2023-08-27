@@ -4,12 +4,12 @@
    Ant Group
    Copyright (c) 2004-2022 All Rights Reserved.
    ------------------------------------------------------
-   File Name : pca_train_and_predict
+   File Name : spcabatch_train_and_predict
    Author : Yu Zheng
    Email: yuzheng0404@gmail.com
    Create Time : 2022-06-20 16:46
    Description : examples for spca_batch.py
-   YuQue Document (Chinese version): https://yuque.antfin.com/sslab/tnoymw/vrvi78 (please use Alibaba VPN)
+   YuQue Document: https://yuque.antfin.com/sslab/tnoymw/vrvi78 (please use Alibaba VPN)
 """
 
 import numpy as np

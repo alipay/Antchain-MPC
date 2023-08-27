@@ -20,18 +20,18 @@ class NETWORKA(NN):
         self.addLayer(layer)
         # 全连接层
         # a 28*28 × 128 linear layer
-        layer = Dense(output_dim=128, fathers=[layer])
+        layer = Dense(output_dim=128, fathers=[layer], activate='relu')
         self.addLayer(layer)
         # Relu Layer
-        layer = ReLU(output_dim=128, fathers=[layer])
-        self.addLayer(layer)
+        # layer = ReLU(output_dim=128, fathers=[layer])
+        # self.addLayer(layer)
         # 全连接层
         # a 128 × 128 linear layer
-        layer = Dense(output_dim=128, fathers=[layer])
+        layer = Dense(output_dim=128, fathers=[layer], activate='relu')
         self.addLayer(layer)
         # Relu Layer
-        layer = ReLU(output_dim=128, fathers=[layer])
-        self.addLayer(layer)
+        # layer = ReLU(output_dim=128, fathers=[layer])
+        # self.addLayer(layer)
         # 100x10
         layer = Dense(output_dim=10, fathers=[layer])
         self.addLayer(layer)
@@ -60,28 +60,6 @@ class NETWORKA(NN):
         else:
             return ly.score
 
-    def predict_to_file(self, sess, x, predict_file_name,
-                        pred_batch_num, model_file_machine,
-                        with_sigmoid):
-        y_pred = self.predict(x=x,  out_prob=with_sigmoid)
-        id_y_pred = y_pred.to_tf_str(owner=model_file_machine)
-        random.random_init(sess)
-        # with open(predict_file_name, "w") as f:
-        #     for batch in range(batch_num - 1):
-        #         records = sess.run(id_y_pred)
-        #         records = "\n".join(records.astype('str'))
-        #         f.write(records + "\n")
-        #
-        #     records = sess.run(id_y_pred)[0:record_num_ceil_mod_batch_size]
-        #     records = "\n".join(records.astype('str'))
-        #     f.write(records + "\n")
-        # 分批写入文件
-        with open(predict_file_name, "w") as f:
-            for batch in range(pred_batch_num):
-                records = sess.run(id_y_pred)
-                records = "\n".join(records.astype('str'))
-                # records.to_file()
-                f.write(records + "\n")
 
     def replace_weight(self, keras_weight):
         i = 0

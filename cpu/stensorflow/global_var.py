@@ -54,12 +54,18 @@ class StfConfig:
     drelu = "log"
     invert_iter_num = 32
     inv_sqrt_iter_num = 20
-    softmax_iter_num = 16
+    softmax_functionality = False
+    softmax_iter_num = 32
     parties = 3
     pre_produce_flag = None
     offline_model = None
     pre_produce_list = []
     offline_triple_multiplex = 10000
+    fixed_point_alter_mul = "max"  # "max" or "sum"
+    truncation_functionality = False # use a functionality for truncation
+    positive_truncation_without_error = False  # use truncation_without_error for positive number
+    truncation_without_error_ratio = 0.0 # how ratio of truncation use truncation_without_error
+    log_op_list = []
 
     @classmethod
     def load_config(cls, config_file, job_name=None):
@@ -180,8 +186,10 @@ class StfConfig:
         else:
             raise Exception("only support Linux or macos.")
 
+        StfConfig.optimizer=config_dict.get("optimizer", "sgd")
+        StfConfig.train_epoch=config_dict.get("train_epoch", "30")
+        StfConfig.predict_epoch=config_dict.get("predict_epoch", "1")
         # # ----------- protocols ------------
         protocols = config_dict.get("protocols")
         StfConfig.drelu = protocols.get("drelu")
-        # # ---------- log ------------------
-        StfConfig.log_op_list = []
+

@@ -1,29 +1,30 @@
 {
     "hosts": {
-        "workerL": "0.0.0.0:8886",
-        "workerR": "0.0.0.0:8887",
-        "RS": "0.0.0.0:8888"
+        "workerL": "127.0.0.1:8886",
+        "workerR": "127.0.0.1:8887",
+        "RS": "127.0.0.1:8888"
     },
-    "stf_home": "/Users/qizhi.zqz/projects/Antchain-MPC/morse-stf",
-    "stf_home_workerL": "/Users/qizhi.zqz/projects/Antchain-MPC/morse-stf",
-    "stf_home_workerR": "/Users/qizhi.zqz/projects/Antchain-MPC/morse-stf",
-    "stf_home_RS": "/Users/qizhi.zqz/projects/Antchain-MPC/morse-stf",
+    "stf_home": "/Users/qizhi.zqz/projects/Antchain-MPC/cpu",
+    "stf_home_workerL": "/Users/qizhi.zqz/projects/Antchain-MPC/cpu",
+    "stf_home_workerR": "/Users/qizhi.zqz/projects/Antchain-MPC/cpu",
+    "stf_home_RS": "/Users/qizhi.zqz/projects/Antchain-MPC/cpu",
     "prf_flag": true,
     "compress_flag": true,
     "default_fixed_point": 14,
     "ml": {
         "dataset_train": {
-            "L": "dataset/xindai_xx_train.csv",
-            "R": "dataset/xindai_xy_train.csv"
+            "L": "dataset/xxx.csv",
+            "R": "dataset/xxx.csv"
         },
         "dataset_predict": {
-            "L": "dataset/xindai_xx_test.csv",
-            "R": "dataset/xindai_xy_test.csv"
+            "L": "dataset/xxx.csv",
+            "R": "dataset/xxx.csv"
         },
         "predict_to_file": "output/predict"
     },
     "protocols":
     {
-        "drelu": "linear"
-    }
+        "drelu": "log"
+    },
+    "optimizer": "sgd"
 }

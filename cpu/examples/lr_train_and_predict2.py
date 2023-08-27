@@ -10,6 +10,10 @@
    Create Time : 2021/5/21 上午10:13
    Description : description what the main function of this file
 """
+import sys
+sys.path.append("/Users/qizhi.zqz/projects/morse-stf")
+
+
 from stensorflow.engine.start_server import start_local_server, start_client
 import tensorflow as tf
 import numpy as np
@@ -26,16 +30,17 @@ this model.
 The features f0 ~ f4 are in the party L, the features f5 ~ f9 are in the party R, the label is in the party R.
 """
 
-# start_local_server(config_file="../conf/config_parties2.json")
+
+#start_local_server(config_file="../conf/config_parties2.json")
 start_local_server(config_file="../conf/config.json")
 # start_client(config_file="../conf/config.json", job_name="workerR")
-
+# StfConfig.truncation_functionality = True
 
 matchColNum = 1
 featureNumL = 5
 featureNumR = 5
 record_num = 8429
-epoch = 10  # 15
+epoch = 5  # 15
 batch_size = 128
 learning_rate = 0.1
 clip_value = 5.0

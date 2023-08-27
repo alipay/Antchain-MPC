@@ -1,0 +1,1 @@
+run_GCN_train_and_predict.sh: line 5:  2442 Aborted                 python3 GCN_train_and_predit_Pubmed.py > GCN_train_and_predit_Pubmed.log 2>&1

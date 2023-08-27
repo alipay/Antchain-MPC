@@ -10,8 +10,12 @@
    Create Time : 2020-06-09 15:49
    Description : description what the main function of this file
 """
+import random
+
 from stensorflow.basic.operator.arithmetic import add, sub, mul, matmul, rmul, rmatmul, truediv
 from stensorflow.basic.operator.order import greater, geq, less, leq
+from stensorflow.basic.operator.iszero import equalto
+from stensorflow.basic.operator.truncation import dup_with_precision
 from stensorflow.basic.basic_class.share import SharedVariable
 from stensorflow.basic.basic_class.base import SharedPairBase, SharedTensorBase, PrivateTensorBase, get_device
 import tensorflow as tf
@@ -84,9 +88,41 @@ class SharedPair(SharedPairBase):
         y = SharedPairBase.ones_like(self)
         return SharedPair.from_SharedPairBase(y, self.op_map)
 
-    def dup_with_precision(self, new_fixedpoint):
-        result = SharedPairBase.dup_with_precision(self, new_fixedpoint)
+    def cumulative_sum(self, axis=-1, reverse=False):
+        y = SharedPairBase.cumulative_sum(self, axis=axis, reverse=reverse)
+        return SharedPair.from_SharedPairBase(y, self.op_map)
+
+    def dup_with_precision(self, new_fixedpoint, non_negative=False):
+        result = dup_with_precision(self, new_fixedpoint, non_negative)
         return self.from_SharedPairBase(result, self.op_map)
+
+    # def dup_with_precision(self, new_fixedpoint):
+    #     if new_fixedpoint > self.fixedpoint:
+    #         with tf.device(self.ownerL):
+    #             xL = self.xL << (new_fixedpoint - self.fixedpoint)  # left shift
+    #         with tf.device(self.ownerR):
+    #             xR = self.xR << (new_fixedpoint - self.fixedpoint)  # left shift
+    #         return SharedPair(ownerL=self.ownerL, ownerR=self.ownerR, xL=xL, xR=xR, fixedpoint=new_fixedpoint, op_map=self.op_map)
+    #     elif new_fixedpoint == self.fixedpoint:
+    #         return self
+    #     elif new_fixedpoint < self.fixedpoint:
+    #         r = StfConfig.truncation_without_error_ratio
+    #         if random.random() <= r:
+    #             result = dup_with_precision(self, new_fixedpoint, non_negative=False)
+    #         else:
+    #             with tf.device(self.ownerL):
+    #                 xL = self.xL >> (self.fixedpoint - new_fixedpoint)  # right shift
+    #             with tf.device(self.ownerR):
+    #                 xR = -((-self.xR) >> (self.fixedpoint - new_fixedpoint))  # right shift
+    #             result = SharedPairBase(ownerL=self.ownerL, ownerR=self.ownerR, xL=xL, xR=xR, fixedpoint=new_fixedpoint)
+    #         return self.from_SharedPairBase(result, self.op_map)
+
+        # if random.random()<=r:
+        #     result = dup_with_precision(self, new_fixedpoint, non_negative=False)
+        # else:
+        #     result = SharedPairBase.dup_with_precision(self, new_fixedpoint)
+        # return self.from_SharedPairBase(result, self.op_map)
+
 
     def split(self, size_splits, axis: int = 0, num=None):
         with tf.device(self.ownerL):
@@ -99,6 +135,18 @@ class SharedPair(SharedPairBase):
                              op_map=self.op_map)]
 
         return tuple(xs)
+
+    def mirror(self):
+        """
+        Get the mirrored SharedPairBase of self.
+        :return:
+        """
+        ownerR = self.ownerL
+        ownerL = self.ownerR
+        xR = self.xL
+        xL = self.xR
+        return SharedPair(ownerL, ownerR, xL, xR, self.fixedpoint, op_map=self.op_map)
+
 
     def concat(self, other, axis):
         if isinstance(other, SharedPairBase):
@@ -251,6 +299,12 @@ class SharedPair(SharedPairBase):
         result = self.op_map['ge'](self, other)
         return self.from_SharedPairBase(result, self.op_map)
 
+
+    def __lshift__(self, other):
+        result = SharedPairBase.__lshift__(self, other)
+        return self.from_SharedPairBase(result, self.op_map)
+
+
     def __pow__(self, power: int):
         if not isinstance(power, int):
             raise Exception("power must be a non-negative integral number.")
@@ -314,7 +368,7 @@ class SharedVariablePair(SharedPair):
         return 'SharedPairVariable(ownerL={}, ownerR={}, fixedpoint={}, module={}, shape={})'.format(
             self.ownerL.to_string(), self.ownerR.to_string(), self.fixedpoint, self.xL.module, self.xL.shape)
 
-    def assign(self, other: SharedPairBase) -> tf.Operation:
+    def assign(self, other: SharedPair) -> tf.Operation:
 
         if self.fixedpoint != other.fixedpoint:
             other = other.dup_with_precision(new_fixedpoint=self.fixedpoint)

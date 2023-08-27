@@ -28,14 +28,14 @@ import numpy as np
 
 class NetworkC(NN):
     """4 layer CNN.  NetworkC in SecureNN """
-    def __init__(self, feature, label, pooling='avg'):
+    def __init__(self, feature, label, pooling='avg', input_shape=[28, 28, 1]):
         super(NetworkC, self).__init__()
         # input layer, init data；
-        layer = Input(dim=28, x=feature)
+        layer = Input(dim=input_shape, x=feature)
         self.addLayer(layer)
         # convolutional layer with 1 input channel, 20 output channels and a 5×5 filter
         layer = Conv2d(output_dim=None, fathers=[layer], filters=20,
-                       kernel_size=5, input_shape=[28, 28, 1])
+                       kernel_size=5, input_shape=input_shape)
         self.addLayer(layer)
         # Relu Layer
         layer = ReLU(output_dim=layer.output_dim, fathers=[layer])
@@ -110,9 +110,10 @@ class NetworkC(NN):
         else:
             return ly.score
 
+
     def predict_to_file(self, sess, x, predict_file_name,
-                        pred_batch_num,
-                        with_sigmoid):
+                        pred_batch_num, model_file_machine,
+                        out_prob=True):
         """
         Save prediction results to file
         Computation is done in batches.
@@ -120,11 +121,12 @@ class NetworkC(NN):
         :param x: PrivateTensor. Input samples.
         :param predict_file_name: String.
         :param pred_batch_num: Number of samples per batch.
+        :param model_file_machine: String.
         :param with_sigmoid:
         :return:
         """
-        y_pred = self.predict(x=x,  out_prob=with_sigmoid)
-        id_y_pred = y_pred.to_tf_str(owner="R")
+        y_pred = self.predict(x=x,  out_prob=out_prob)
+        id_y_pred = y_pred.to_tf_str(owner=model_file_machine)
         random.random_init(sess)
         # 分批写入文件
         with open(predict_file_name, "w") as f:

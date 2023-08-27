@@ -32,19 +32,22 @@ start_local_server(config_file="../conf/config_epsilon2.json")
 matchColNum = 1
 featureNumL = 1500
 featureNumR = 1500
-record_num = 2  # 800000
+record_num = 2 #800000
 epoch = 100  # 15
-batch_size = 2  # 128
+batch_size = 2# 128
 learning_rate = 0.01
 clip_value = 5.0
 
 train_batch_num = epoch * record_num // batch_size + 1
-pred_record_num = 2  # 200000
-pred_batch_size = 2  # 1024
+pred_record_num = 2# 200000
+pred_batch_size = 2# 1024
 pred_batch_num = pred_record_num // pred_batch_size
+
+
 
 num_features = featureNumL + featureNumR
 l2_regularization = 0.0
+
 
 batch_num_per_epoch = record_num // batch_size
 
@@ -58,6 +61,7 @@ xyR_train = PrivateTensor(owner='R')
 
 format_x = [["a"]] * matchColNum + [[0.2]] * featureNumL
 format_y = [["a"]] * matchColNum + [[0.3]] * featureNumR + [[1.0]]
+
 
 # -----------------  load data from files -------------------
 
@@ -87,17 +91,18 @@ sess.run(init_op)
 
 # -------------train the model ------------------------
 start_time = time.time()
-# learning_rate = [learning_rate] * (train_batch_num//epoch) + [0.0] * (train_batch_num - train_batch_num//epoch)
+#learning_rate = [learning_rate] * (train_batch_num//epoch) + [0.0] * (train_batch_num - train_batch_num//epoch)
 model.train_sgd(learning_rate=learning_rate, batch_num=train_batch_num, l2_regularization=l2_regularization, sess=sess)
 # train the model
 end_time = time.time()
 
-print("train_time=", end_time - start_time)
+print("train_time=", end_time-start_time)
 
 if train_batch_num > 0:
     model.save(sess=sess, path="../output/model")
 
 model.load(path="../output/model")
+
 
 # ------------define the private tensors for test dataset ----------------
 
@@ -115,6 +120,7 @@ id = xRy_test.load_from_file_withid(path=StfConfig.pred_file_onR,
 
 xR_test, y_test = xRy_test.split(size_splits=[-1, 1], axis=1)
 
+
 # --------------predict --------------
 y_pred = model.predict(xL_test, xR_test, with_sigmoid=False)
 
@@ -122,7 +128,7 @@ id_y_pred = y_pred.to_tf_str(owner="R", id_col=id)
 
 random_init(sess)
 start_time = time.time()
-print("predict  to " + StfConfig.predict_to_file)
+print("predict  to "+ StfConfig.predict_to_file)
 with open(StfConfig.predict_to_file, "w") as f:
     for batch in range(pred_batch_num):
         records = sess.run(id_y_pred)
@@ -130,5 +136,5 @@ with open(StfConfig.predict_to_file, "w") as f:
         f.write(records + "\n")
 
 end_time = time.time()
-print("predict_time=", end_time - start_time)
+print("predict_time=", end_time-start_time)
 sess.close()

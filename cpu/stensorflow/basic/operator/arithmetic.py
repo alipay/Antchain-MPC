@@ -20,6 +20,7 @@ from stensorflow.basic.protocol.bilinear_map import BM_PrivateTensor_SharedPair,
     BM_SharedPair_SharedPair, BM_SharedPair_PrivateTensor
 from stensorflow.homo_enc.homo_mat_mul import matmul_homo_offline, matmul_homo_online, matmul_homo
 from stensorflow.homo_enc.homo_mul import mul_homo, mul_homo_offline, mul_homo_online
+from stensorflow.basic.operator.truncation import dup_with_precision
 
 
 def add(x: Union[PrivateTensorBase, SharedPairBase, int, float, np.ndarray, tf.Tensor],
@@ -37,14 +38,16 @@ def add(x: Union[PrivateTensorBase, SharedPairBase, int, float, np.ndarray, tf.T
             return PrivateTensorBase.__add__(x, y)
         else:
             fixedpoint = min(x.fixedpoint, y.fixedpoint)
-            altered_x = x.dup_with_precision(fixedpoint)
-            altered_y = y.dup_with_precision(fixedpoint)
+            # altered_x = x.dup_with_precision(fixedpoint)
+            # altered_y = y.dup_with_precision(fixedpoint)
+            altered_x = dup_with_precision(x, fixedpoint)
+            altered_y = dup_with_precision(y, fixedpoint)
             return SharedPairBase(ownerL=altered_x.owner, ownerR=altered_y.owner, xL=altered_x.to_SharedTensor(),
                                   xR=altered_y.to_SharedTensor(), fixedpoint=fixedpoint)
     elif x_is_private and y_is_pair:
         fixedpoint = min(x.fixedpoint, y.fixedpoint)
-        altered_x = x.dup_with_precision(fixedpoint)
-        altered_y = y.dup_with_precision(fixedpoint)
+        altered_x = dup_with_precision(x, fixedpoint)
+        altered_y = dup_with_precision(y, fixedpoint)
         if x.owner == y.ownerL:
             with tf.device(y.ownerL):
                 zL = altered_x.to_SharedTensor() + altered_y.xL
@@ -65,8 +68,8 @@ def add(x: Union[PrivateTensorBase, SharedPairBase, int, float, np.ndarray, tf.T
         return add(y, x)
     elif x_is_pair and y_is_pair:
         fixedpoint = min(x.fixedpoint, y.fixedpoint)
-        altered_x = x.dup_with_precision(fixedpoint)
-        altered_y = y.dup_with_precision(fixedpoint)
+        altered_x = dup_with_precision(x, fixedpoint)
+        altered_y = dup_with_precision(y, fixedpoint)
         if x.ownerL != y.ownerL or x.ownerR != y.ownerR:
             y = y.mirror()
         if x.ownerL != y.ownerL or x.ownerR != y.ownerR:
@@ -101,6 +104,8 @@ def mul3p(x: Union[PrivateTensorBase, SharedPairBase],
         pass
     elif not hasattr(y, "fixedpoint"):
         fixed_point = x.fixedpoint
+    elif StfConfig.fixed_point_alter_mul == "sum":
+        fixed_point = x.fixedpoint + y.fixedpoint
     else:
         fixed_point = max(x.fixedpoint, y.fixedpoint)
 
@@ -118,7 +123,7 @@ def mul3p(x: Union[PrivateTensorBase, SharedPairBase],
             result = PrivateTensorBase.__mul__(x, y)
         else:
             result = BM_PrivateTensor_PrivateTensor(x, y, lambda _x, _y: SharedTensorBase.__mul__(_x, _y),
-                                                    prf_flag=False)
+                                                    prf_flag=prf_flag)
     elif x_is_private and y_is_pair:
         result = BM_PrivateTensor_SharedPair(x, y, lambda _x, _y: SharedTensorBase.__mul__(_x, _y), prf_flag=prf_flag)
     elif x_is_pair and y_is_private:
@@ -129,7 +134,8 @@ def mul3p(x: Union[PrivateTensorBase, SharedPairBase],
         result = rmul(y, x)
     else:
         raise NotImplementedError
-    return result.dup_with_precision(fixed_point)
+    # return result.dup_with_precision(fixed_point)
+    return dup_with_precision(result,fixed_point)
 
 
 def mul2p(x: Union[PrivateTensorBase, SharedPairBase], y: Union[PrivateTensorBase, SharedPairBase],
@@ -196,10 +202,15 @@ def matmul3p(x: Union[PrivateTensorBase, SharedPairBase], y: Union[PrivateTensor
 
 
     if fixed_point is None:
-        if y_is_public:
+        if y_is_public and StfConfig.fixed_point_alter_mul == "sum":
+            fixed_point = 2*x.fixedpoint
+        elif y_is_public:
             fixed_point = x.fixedpoint
+        elif StfConfig.fixed_point_alter_mul == "sum":
+            fixed_point = x.fixedpoint+y.fixedpoint
         else:
             fixed_point = max(x.fixedpoint, y.fixedpoint)
+
     if prf_flag is None:
         prf_flag = StfConfig.prf_flag
 
@@ -229,7 +240,11 @@ def matmul3p(x: Union[PrivateTensorBase, SharedPairBase], y: Union[PrivateTensor
         result = SharedPairBase(ownerL=x.ownerL, ownerR=x.ownerR, xL=zL, xR=zR, fixedpoint=2*x.fixedpoint)
     else:
         raise Exception("type exception for type(x)={}, type(y)={}".format(type(x), type(y)))
-    return result.dup_with_precision(fixed_point)
+    if fixed_point == 0:
+        return result
+    else:
+        # return result.dup_with_precision(fixed_point)
+        return dup_with_precision(result, fixed_point)
 
 
 def matmul2p(x: Union[PrivateTensorBase, SharedPairBase], y: Union[PrivateTensorBase, SharedPairBase],
@@ -311,8 +326,12 @@ def rmul_matmul(x: Union[int, float, np.ndarray, tf.Tensor], y: Union[PrivateTen
     else:
         raise Exception("y must be PrivateTensorBase or SharedPairBase")
     if fixed_point is None:
-        fixed_point = max(fixedpoint_x, y.fixedpoint)
-        return w.dup_with_precision(new_fixedpoint=fixed_point)
+        if StfConfig.fixed_point_alter_mul == "sum":
+            fixed_point = fixedpoint_x + y.fixedpoint
+        else:
+            fixed_point = max(fixedpoint_x, y.fixedpoint)
+        # return w.dup_with_precision(new_fixedpoint=fixed_point)
+        return dup_with_precision(w, fixed_point)
 
 
 def rmul(x: Union[int, float, np.ndarray, tf.Tensor], y: Union[PrivateTensorBase, SharedPairBase],
@@ -328,4 +347,13 @@ def rmatmul(x: Union[np.ndarray, tf.Tensor], y: Union[PrivateTensorBase, SharedP
 
 def truediv(x: Union[PrivateTensorBase, SharedPairBase], y: Union[int, float, np.ndarray, tf.Tensor]) -> \
         Union[PrivateTensorBase, SharedPairBase]:
-    return rmul(1.0 / y, x)
+    if isinstance(y, PrivateTensorBase):
+        return y.__invert__() * x
+    # elif isinstance(x, SharedPairBase) and isinstance(y, int):
+        # print("truediv for y is int")
+        # zL = x.xL//y
+        # zR = -((-x.xR)//y)
+        # z = SharedPairBase(ownerL=x.ownerL, ownerR=x.ownerR, xL=zL, xR=zR, fixedpoint=x.fixedpoint)
+        # return z
+    else:
+        return rmul(1.0 / y, x)

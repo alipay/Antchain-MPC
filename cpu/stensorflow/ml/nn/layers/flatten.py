@@ -70,7 +70,8 @@ class FlattenLocal(Layer):
             raise Exception("must have len(fathers) == 1 ")
         self.owner = owner
         self.input_shape = fathers[0].output_dim
-        if isinstance(fathers[0], Conv2dLocal) or isinstance(fathers[0], AveragePooling2DLocal):
+        #if isinstance(fathers[0], Conv2dLocal) or isinstance(fathers[0], AveragePooling2DLocal):
+        if output_dim is None:
             output_dim = np.prod(self.input_shape[:], dtype=int)
         super(FlattenLocal, self).__init__(output_dim=output_dim, fathers=fathers)
 

@@ -413,7 +413,7 @@ class SharedTensorBase:
         inner_value = tf.expand_dims(self.inner_value, axis=axis)
         return SharedTensorBase(inner_value=inner_value, module=self.module)
 
-    def cumulative_sum(self, axis=-1):
+    def cumulative_sum(self, axis=-1, reverse=False):
         """
         Compute the cumulative_sum of self along the axis
         :param axis: Integer specifying the dimension index at which to expand the
@@ -426,7 +426,10 @@ class SharedTensorBase:
         perm[0] = perm[axis]
         perm[axis] = 0
         x = tf.transpose(self.inner_value, perm=perm)
-        y = tf.scan(lambda a, b: a + b, x, back_prop=False) % self.module
+        if self.module is not None:
+            y = tf.scan(lambda a, b: a + b, x, back_prop=False, reverse=reverse) % self.module
+        else:
+            y = tf.scan(lambda a, b: a + b, x, back_prop=False, reverse=reverse)
         y = tf.transpose(y, perm=perm)
         return SharedTensorBase(inner_value=y, module=self.module)
 
@@ -524,14 +527,16 @@ class SharedTensorBase:
         return SharedTensorBase(inner_value=inner_value,
                                 module=self.module)
 
+
     def __lshift__(self, other: int):
         self.check_inner_value_is_not_None()
-        if other > 62 or other < 0:
+        if other > 63 or other < 0:
             raise StfCondException(cond="0<=other<=62", real="other={}".format(other))
         elif other == 0:
             return self
         else:  # other > 0
-            inner_value = (1 << other) * self.inner_value
+            # inner_value = (1 << other) * self.inner_value
+            inner_value = tf.bitwise.left_shift(self.inner_value, other)
             return SharedTensorBase(inner_value=inner_value,
                                     module=self.module)
 
@@ -542,9 +547,20 @@ class SharedTensorBase:
         elif other == 0:
             return self
         else:
-            inner_value = self.inner_value // (1 << other)
+            # inner_value = self.inner_value // (1 << other)
+            inner_value = tf.bitwise.right_shift(self.inner_value, other)
             return SharedTensorBase(inner_value=inner_value,
                                     module=self.module)
+
+    def __or__(self, other):
+        self.check_inner_value_is_not_None()
+        if isinstance(other, int):
+            inner_value = tf.bitwise.bitwise_or(self.inner_value, other)
+        elif isinstance(other, SharedTensorBase):
+            inner_value = tf.bitwise.bitwise_or(self.inner_value, other.inner_value)
+        else:
+            raise Exception("other must be int or SharedTensorBase")
+        return  SharedTensorBase(inner_value=inner_value, module=self.module)
 
     def __pow__(self, power: int):
         self.check_inner_value_is_not_None()
@@ -1049,9 +1065,13 @@ class PrivateTensorBase:
         :return:
 
         """
-        xL = SharedTensorBase(inner_value=self.inner_value, module=self.module)
-        xR = -xL.ones_like()  # use one but not zero, for div
-        xL += xL.ones_like()
+        with tf.device(self.owner):
+            xL = SharedTensorBase(inner_value=self.inner_value, module=self.module)
+            # xR = -xL.ones_like()  # use one but not zero, for div
+            # xL += xL.ones_like()
+            # xR = xL.random_uniform_adjoint()
+            # xL = xL - xR
+            xR = xL.zeros_like()
         x = SharedPairBase(ownerL=self.owner, ownerR=other_owner, xL=xL, xR=xR, fixedpoint=self.fixedpoint)
         return x
 
@@ -1069,7 +1089,8 @@ class PrivateTensorBase:
             if new_fixedpoint > self.fixedpoint:
                 inner_value = self.inner_value * (1 << (new_fixedpoint - self.fixedpoint))  # left shift
             else:
-                inner_value = self.inner_value // (1 << (self.fixedpoint - new_fixedpoint))
+                # inner_value = self.inner_value // (1 << (self.fixedpoint - new_fixedpoint))
+                inner_value = tf.bitwise.right_shift(self.inner_value, self.fixedpoint - new_fixedpoint)
             return PrivateTensorBase(self.owner, fixedpoint=new_fixedpoint, inner_value=inner_value,
                                      module=self.module)
 
@@ -1231,8 +1252,10 @@ class PrivateTensorBase:
                                   inner_value=inner_value,
                                   module=self.module)
         if not fixed_point:
-            fixed_point = max(self.fixedpoint, other.fixedpoint)
-            # fixed_point = self.fixedpoint + other.fixedpoint
+            if StfConfig.fixed_point_alter_mul == "sum":
+                fixed_point = self.fixedpoint + other.fixedpoint
+            else:
+                fixed_point = max(self.fixedpoint, other.fixedpoint)
         return w.dup_with_precision(fixed_point)
 
     def __matmul__(self, other, fixed_point=None):
@@ -1248,8 +1271,11 @@ class PrivateTensorBase:
                                   inner_value=inner_value,
                                   module=self.module)
         if not fixed_point:
-            fixed_point = max(self.fixedpoint, other.fixedpoint)
-            # fixed_point = self.fixedpoint + other.fixedpoint
+            if StfConfig.fixed_point_alter_mul == "sum":
+                fixed_point = self.fixedpoint + other.fixedpoint
+            else:
+                fixed_point = max(self.fixedpoint, other.fixedpoint)
+
         return w.dup_with_precision(fixed_point)
 
     def __lt__(self, other):
@@ -1366,6 +1392,16 @@ class SharedPairBase:
         z = SharedPairBase(ownerL=self.ownerL, ownerR=self.ownerR, xL=xL, xR=xR, fixedpoint=self.fixedpoint)
         return z
 
+
+    def __lshift__(self, other):
+        if not isinstance(other, int):
+            raise Exception("must have other is int")
+        xL = self.xL << other
+        xR = self.xR << other
+        z = SharedPairBase(ownerL=self.ownerL, ownerR=self.ownerR, xL=xL, xR=xR, fixedpoint=self.fixedpoint)
+        return z
+
+
     def split(self, size_splits, axis: int = 0, num=None):
         """
         See tf.split.
@@ -1413,9 +1449,11 @@ class SharedPairBase:
         :param owner:
         :return:
         """
+        if self.xL.module != self.xR.module:
+            raise StfEqualException("self.xL.module","self.xR.module", self.xL.module, self.xR.module)
         with tf.device(get_device(owner)):
             x = self.xL.inner_value + self.xR.inner_value
-            return PrivateTensorBase(owner=owner, fixedpoint=self.fixedpoint, inner_value=x, module=self.xL.module)
+        return PrivateTensorBase(owner=owner, fixedpoint=self.fixedpoint, inner_value=x, module=self.xL.module)
 
     def to_tf_tensor(self, owner) -> tf.Tensor:
         """
@@ -1459,16 +1497,16 @@ class SharedPairBase:
             xR = self.xR.zeros_like()
         return SharedPairBase(self.ownerL, self.ownerR, xL, xR, fixedpoint=self.fixedpoint)
 
-    def cumulative_sum(self, axis=-1):
+    def cumulative_sum(self, axis=-1, reverse=False):
         """
         Compute the cumulative_sum of self alone the given axis.
         :param axis:
         :return:
         """
         with tf.device(self.ownerL):
-            xL = self.xL.cumulative_sum(axis)
+            xL = self.xL.cumulative_sum(axis, reverse=reverse)
         with tf.device(self.ownerR):
-            xR = self.xR.cumulative_sum(axis)
+            xR = self.xR.cumulative_sum(axis, reverse=reverse)
         return SharedPairBase(ownerL=self.ownerL, ownerR=self.ownerR, xL=xL, xR=xR, fixedpoint=self.fixedpoint)
 
     def load_from_tf_tensor(self, x):
@@ -1534,6 +1572,7 @@ class SharedPairBase:
             xR = alter_self.xR.stack(other.xR, axis=axis)
         return SharedPairBase(ownerL=self.ownerL, ownerR=self.ownerR, xL=xL, xR=xR, fixedpoint=fixed_point)
 
+
     def dup_with_precision(self, new_fixedpoint: int):
         """
         Duplicate self to a new SharedPairBase with new fixedpoint.
@@ -1547,6 +1586,12 @@ class SharedPairBase:
                 xR = self.xR << (new_fixedpoint - self.fixedpoint)  # left shift
             return SharedPairBase(ownerL=self.ownerL, ownerR=self.ownerR, xL=xL, xR=xR, fixedpoint=new_fixedpoint)
         elif new_fixedpoint < self.fixedpoint:
+            #try:
+            SharedPairBase.dup_with_precision.call_times += 1
+            #dup_with_precision.call_times += 1
+            # except Exception as e:
+            #     print("first call SharedPairBase.dup_with_precision")
+            #     SharedPairBase.dup_with_precision.call_times = 0
             with tf.device(self.ownerL):
                 xL = self.xL >> (self.fixedpoint - new_fixedpoint)  # right shift
             with tf.device(self.ownerR):
@@ -1555,6 +1600,7 @@ class SharedPairBase:
         else:
             return self
 
+    dup_with_precision.call_times = 0
     def reshape(self, shape):
         """
         See tf.reshape.

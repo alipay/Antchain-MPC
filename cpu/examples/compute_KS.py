@@ -233,7 +233,7 @@ def compute_KS_xd():
     file_path = "../dataset/xindai_xy_test.csv"
     # file_path = '/Users/guanshun/PycharmProjects/morse-stf/stf_keeper/xindai_xy_shuffle.csv'
 
-    predict_path = '/Users/qizhi.zqz/projects/morse-stf/morse-stf/output/predict'
+    predict_path = '/Users/qizhi.zqz/projects/stf2022/output/predict'
     #predict_path = '/Users/qizhi.zqz/projects/morse-stf/morse-stf/stf_keeper/tfe/qqq/predict'
 
     y = pd.read_csv(file_path, index_col=["id"])
@@ -553,11 +553,9 @@ def compute_KS_epsilon0():
 def compute_acc_CoraGraphDataset():
     from sklearn.metrics import accuracy_score
     import dgl
-    import tensorflow as tf
     import numpy as np
-    from sklearn.preprocessing import OneHotEncoder
     dgl.backend.set_default_backend('tensorflow')
-    predict_file = "/Users/qizhi.zqz/projects/morse-stf/morse-stf/output/predict"
+    predict_file = "/Users/qizhi.zqz/projects/stf2022/output/predict"
     predict = pd.read_csv(predict_file, header=None, names=["id","predict"], index_col=["id"])
 
 
@@ -576,10 +574,58 @@ def compute_acc_CoraGraphDataset():
 
 
 
+def compute_acc_CiteseerGraphDataset():
+    from sklearn.metrics import accuracy_score
+    import dgl
+    import tensorflow as tf
+    import numpy as np
+    from sklearn.preprocessing import OneHotEncoder
+    dgl.backend.set_default_backend('tensorflow')
+    predict_file = "/Users/qizhi.zqz/projects/stf2022/output/predict"
+    predict = pd.read_csv(predict_file, header=None, names=["id","predict"], index_col=["id"])
+
+
+    dataset = dgl.data.CiteseerGraphDataset()
+
+    # print('Number of categories:', dataset.num_classes)
+    g = dataset[0]
+    print("g=", g)
+    train_mask = g.ndata['train_mask'].numpy()
+    predict = predict[np.logical_not(train_mask)]
+    label = g.ndata['label'][np.logical_not(train_mask)]
+
+    label = np.reshape(label, [-1, 1])
+    acc = accuracy_score(y_true=label, y_pred=predict)
+    print("acc=", acc)
+
+
+def compute_acc_PubmedDataset():
+    from sklearn.metrics import accuracy_score
+    import dgl
+    import numpy as np
+    dgl.backend.set_default_backend('tensorflow')
+    predict_file = "/Users/qizhi.zqz/projects/stf2022/output/predict"
+    predict = pd.read_csv(predict_file, header=None, names=["id","predict"], index_col=["id"])
+
+
+    dataset = dgl.data.PubmedGraphDataset()
+
+    # print('Number of categories:', dataset.num_classes)
+    g = dataset[0]
+    print("g=", g)
+    train_mask = g.ndata['train_mask'].numpy()
+    predict = predict[np.logical_not(train_mask)]
+    label = g.ndata['label'][np.logical_not(train_mask)]
+
+    label = np.reshape(label, [-1, 1])
+    acc = accuracy_score(y_true=label, y_pred=predict)
+    print("acc=", acc)
+
+
 if __name__ == '__main__':
     # compute_KS_elec_gbdtcode()
     # compute_KS_ym5w()
-    compute_KS_xd()
+    # compute_KS_xd()
     # compute_KS_a1a()
     # compute_KS_epsilon()
     # compute_KS_gaode3w()
@@ -588,3 +634,5 @@ if __name__ == '__main__':
     # compute_trun_KS_company_gbdtcode()
     # compute_precision_mnist()
     # compute_acc_CoraGraphDataset()
+    # compute_acc_CiteseerGraphDataset()
+    compute_acc_PubmedDataset()

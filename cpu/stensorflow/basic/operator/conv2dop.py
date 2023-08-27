@@ -6,9 +6,10 @@
 from stensorflow.global_var import StfConfig
 from stensorflow.basic.basic_class.base import PrivateTensorBase, SharedPairBase, SharedTensorBase
 from typing import Union
-from stensorflow.basic.protocol.bilinear_triangle import BiliinearTriangle
+from stensorflow.basic.protocol.bilinear_triangle import BilinearTriangle
 from stensorflow.basic.protocol.bilinear_map import BM_PrivateTensor_SharedPair, BM_PrivateTensor_PrivateTensor, \
     BM_SharedPair_SharedPair, BM_SharedPair_PrivateTensor
+from stensorflow.basic.operator.truncation import dup_with_precision
 
 
 
@@ -27,7 +28,10 @@ def conv2d(input: Union[PrivateTensorBase, SharedPairBase],
     """
     model = StfConfig.conv_module
     if fixed_point is None:
-        fixed_point = max(input.fixedpoint, filter.fixedpoint)
+        if StfConfig.fixed_point_alter_mul == "sum":
+            fixed_point = input.fixedpoint + filter.fixedpoint
+        else:
+            fixed_point = max(input.fixedpoint, filter.fixedpoint)
     if prf_flag is None:
         prf_flag = StfConfig.prf_flag
     input_is_private = isinstance(input, PrivateTensorBase)
@@ -57,7 +61,8 @@ def conv2d(input: Union[PrivateTensorBase, SharedPairBase],
         result = BM_SharedPair_SharedPair(input, filter, lambda_func, prf_flag=prf_flag)
     else:
         raise Exception("type exception for type(x)={}, type(y)={}".format(type(input), type(filter)))
-    return result.dup_with_precision(fixed_point)
+    # return result.dup_with_precision(fixed_point)
+    return dup_with_precision(result, fixed_point)
 
 
 def conv2d_backprop_input(input_sizes,
@@ -75,7 +80,10 @@ def conv2d_backprop_input(input_sizes,
     """
     model = StfConfig.conv_module
     if fixed_point is None:
-        fixed_point = max(filter.fixedpoint, out_backprop.fixedpoint)
+        if StfConfig.fixed_point_alter_mul == "sum":
+            fixed_point = filter.fixedpoint + out_backprop.fixedpoint
+        else:
+            fixed_point = max(filter.fixedpoint, out_backprop.fixedpoint)
     if prf_flag is None:
         prf_flag = StfConfig.prf_flag
     # whether an object is an instance of a class
@@ -108,7 +116,8 @@ def conv2d_backprop_input(input_sizes,
         result = BM_SharedPair_SharedPair(filter, out_backprop, lambda_func, prf_flag=prf_flag)
     else:
         raise Exception("type exception for type(x)={}, type(y)={}".format(type(filter), type(out_backprop)))
-    return result.dup_with_precision(fixed_point)
+    # return result.dup_with_precision(fixed_point)
+    return dup_with_precision(result, fixed_point)
 
 
 def conv2d_backprop_filter(input: Union[PrivateTensorBase, SharedPairBase],
@@ -126,7 +135,10 @@ def conv2d_backprop_filter(input: Union[PrivateTensorBase, SharedPairBase],
     """
     model = StfConfig.conv_module
     if fixed_point is None:
-        fixed_point = max(input.fixedpoint, out_backprop.fixedpoint)
+        if StfConfig.fixed_point_alter_mul == "sum":
+            fixed_point = input.fixedpoint + out_backprop.fixedpoint
+        else:
+            fixed_point = max(input.fixedpoint, out_backprop.fixedpoint)
     if prf_flag is None:
         prf_flag = StfConfig.prf_flag
     # whether an object is an instance of a class
@@ -163,10 +175,11 @@ def conv2d_backprop_filter(input: Union[PrivateTensorBase, SharedPairBase],
         result = BM_SharedPair_SharedPair(input, out_backprop, lambda_func, prf_flag=prf_flag)
     else:
         raise Exception("type exception for type(x)={}, type(y)={}".format(type(input), type(out_backprop)))
-    return result.dup_with_precision(fixed_point)
+    # return result.dup_with_precision(fixed_point)
+    return dup_with_precision(result, fixed_point)
 
 
-class Conv2dTriangle(BiliinearTriangle):
+class Conv2dTriangle(BilinearTriangle):
     def __init__(self, input_sizes, filter_sizes,
                    strides, padding,
                    data_format, dilations):

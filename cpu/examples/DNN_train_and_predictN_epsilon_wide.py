@@ -25,8 +25,9 @@ import time
 random.seed(0)
 
 
+#start_local_server(config_file="../conf/config_ym.json")
 start_local_server(config_file="../conf/config_epsilon.json")
-# start_client(config_file="../conf/config_ym.json", job_name="workerR")
+#start_client(config_file="../conf/config_ym.json", job_name="workerR")
 
 skipColNums = [0, 0, 0]
 featureNums = [1000, 1000, 1000]
@@ -82,7 +83,10 @@ for party_id in range(len(featureNums)):
 # x_train = concat(x_trains, axis=1)
 # x_train = SharedPair.from_SharedPairBase(x_train)
 
+
 # -----------------  load data from files -------------------
+
+
 
 print("StfConfig.parties=", StfConfig.parties)
 

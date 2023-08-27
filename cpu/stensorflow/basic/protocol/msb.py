@@ -14,6 +14,7 @@
 from stensorflow.basic.basic_class.pair import SharedPair, SharedTensorBase
 from stensorflow.basic.basic_class.bitwise import PrivateTensorBitwise, SharedTensorBitwise
 import tensorflow as tf
+from typing import Tuple, Union
 import numpy as np
 import math
 from stensorflow.exception.exception import StfDTypeException
@@ -22,8 +23,8 @@ from stensorflow.exception.exception import StfDTypeException
 def to_bool(x: tf.Tensor) -> tf.Tensor:
     """
 
-    :param x:  tf.Tensor  shape =[s1,..., sn]
-    :return:   tf.Tensor  shape =[s1,..., sn, sizeof(x.dtype)]
+    :param x:  tf.Tensor  shape =[s1,..., sn]  of dtype
+    :return:   tf.Tensor  shape =[s1,..., sn, sizeof(x.dtype)]   of dtype bool
     """
     y = tf.bitcast(x, 'uint8')
     z = tf.bitwise.bitwise_and(tf.expand_dims(y, axis=-1), [1, 2, 4, 8, 16, 32, 64, 128])
@@ -95,8 +96,7 @@ def bool_expansion(x: tf.Tensor):
     # print("list_z[0]=", list_z[0])
     return list_z
 
-
-def msb(x: SharedPair) -> SharedPair:
+def msb(x: SharedPair, out_carry=False) -> Union[SharedPair, Tuple[SharedPair, SharedPair]]:
     with tf.device(x.ownerL):
         list_xL = bool_expansion(x.xL.inner_value)
         list_xL = list(
@@ -108,24 +108,43 @@ def msb(x: SharedPair) -> SharedPair:
         list_xR = list(
             map(lambda xi: PrivateTensorBitwise(owner=x.ownerR, inner_value=SharedTensorBitwise(inner_value=xi)),
                 list_xR))
-
     carry = list_xL[0] * list_xR[0]
     for i in range(1, len(list_xL) - 1):
         carry = (list_xL[i] + carry) * (list_xR[i] + carry) - carry
     msb = list_xL[-1] + list_xR[-1] + carry
+    if out_carry:
+        carry = (list_xL[-1] + carry) * (list_xR[-1] + carry) - carry
+    msb = msb.toSharedPairBase(shape=x.shape)
+    msb = SharedPair.from_SharedPairBase(msb)
+    if out_carry:
+        carry = carry.toSharedPairBase(shape=x.shape)
+        carry = SharedPair.from_SharedPairBase(carry)
+        return msb, carry
+    else:
+        return msb
+
+def get_carry(x: SharedPair, non_negative=False)->SharedPair:
     with tf.device(x.ownerL):
-        xL = to_bool(msb.xL.inner_value)
-        xL = tf.cast(xL, 'int64')
-        xL = SharedTensorBase(inner_value=xL, module=2)
+        list_xL = bool_expansion(x.xL.inner_value)
+        list_xL = list(
+            map(lambda xi: PrivateTensorBitwise(owner=x.ownerL, inner_value=SharedTensorBitwise(inner_value=xi)),
+                list_xL))
+
     with tf.device(x.ownerR):
-        xR = to_bool(msb.xR.inner_value)
-        xR = tf.cast(xR, 'int64')
-        xR = SharedTensorBase(inner_value=xR, module=2)
-    y = SharedPair(ownerL=x.ownerL, ownerR=x.ownerR, xL=xL, xR=xR, fixedpoint=0)
-    y = y.reshape([-1])
-    if y.shape[0] != np.prod(x.shape):
-        y = y[0: np.prod(x.shape)]
-    return y.reshape(x.shape)
+        list_xR = bool_expansion(x.xR.inner_value)
+        list_xR = list(
+            map(lambda xi: PrivateTensorBitwise(owner=x.ownerR, inner_value=SharedTensorBitwise(inner_value=xi)),
+                list_xR))
+    if non_negative:
+        carry = list_xL[-1] + list_xR[-1]     #msb = 0
+        carry = list_xL[-1] * list_xR[-1] + carry
+        carry = carry.toSharedPairBase(shape=x.shape)
+    else:
+        _, carry = msb(x, out_carry=True)
+    carry = SharedPair.from_SharedPairBase(carry)
+    return carry
+
+
 
 
 def special_mul(x, y):
@@ -154,7 +173,7 @@ def reduce_special_mul(list_mat):
         return special_mul(r0, r1)
 
 
-def msb_log_round(x: SharedPair) -> SharedPair:
+def msb_log_round(x: SharedPair, out_carry=False) -> Union[SharedPair, Tuple[SharedPair, SharedPair]]:
     with tf.device(x.ownerL):
         list_xL = bool_expansion(x.xL.inner_value)
         list_xL = list(
@@ -171,16 +190,15 @@ def msb_log_round(x: SharedPair) -> SharedPair:
     matrix_list.reverse()
     carry = reduce_special_mul(matrix_list[1:])[1]
     msb = list_xL[-1] + list_xR[-1] + carry
-    with tf.device(x.ownerL):
-        xL = to_bool(msb.xL.inner_value)
-        xL = tf.cast(xL, 'int64')
-        xL = SharedTensorBase(inner_value=xL, module=2)
-    with tf.device(x.ownerR):
-        xR = to_bool(msb.xR.inner_value)
-        xR = tf.cast(xR, 'int64')
-        xR = SharedTensorBase(inner_value=xR, module=2)
-    y = SharedPair(ownerL=x.ownerL, ownerR=x.ownerR, xL=xL, xR=xR, fixedpoint=0)
-    y = y.reshape([-1])
-    if y.shape[0] != np.prod(x.shape):
-        y = y[0: np.prod(x.shape)]
-    return y.reshape(x.shape)
+    if out_carry:
+        carry = (list_xL[-1] + carry) * (list_xR[-1] + carry) - carry
+    msb = msb.toSharedPairBase(shape=x.shape)
+    msb = SharedPair.from_SharedPairBase(msb)
+    if out_carry:
+        carry = carry.toSharedPairBase(shape=x.shape)
+        carry = SharedPair.from_SharedPairBase(carry)
+        return msb, carry
+    else:
+        return msb
+
+

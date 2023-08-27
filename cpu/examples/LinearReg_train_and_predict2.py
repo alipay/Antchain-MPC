@@ -34,17 +34,17 @@ matchColNum = 1
 featureNumL = 5
 featureNumR = 5
 record_num = 8429
-epoch = 10  # 15
+epoch = 10   # 15
 batch_size = 128
 
 num_features = featureNumL + featureNumR
-dense_dims = [num_features, 1]  # the neural network structure is 32, 1
+dense_dims = [num_features, 1]       # the neural network structure is 32, 1
 l2_regularization = 0.0
 clip_value = 5.0
 
 batch_num_per_epoch = record_num // batch_size
 train_batch_num = epoch * batch_num_per_epoch + 1
-pred_record_num = 12042 * 3 // 10
+pred_record_num = 12042*3//10
 pred_batch_num = pred_record_num // batch_size
 
 learning_rate = 0.01
@@ -57,6 +57,7 @@ xyR_train = PrivateTensor(owner='R')
 format_x = [["a"]] * matchColNum + [[0.2]] * featureNumL
 format_y = [["a"]] * matchColNum + [[0.3]] * featureNumR + [[1.0]]
 
+
 # -----------------  load data from files -------------------
 
 xL_train.load_from_file(path=StfConfig.train_file_onL,
@@ -66,6 +67,7 @@ xL_train.load_from_file(path=StfConfig.train_file_onL,
 xyR_train.load_from_file(path=StfConfig.train_file_onR,
                          record_defaults=format_y, batch_size=batch_size, repeat=epoch + 2, skip_col_num=matchColNum,
                          clip_value=None)
+
 
 # split xyR_train to features xR_train and label y_train
 xR_train, y_train = xyR_train.split(size_splits=[featureNumR, 1], axis=1)
@@ -81,6 +83,7 @@ sess = tf.compat.v1.Session(StfConfig.target)
 init_op = tf.compat.v1.initialize_all_variables()
 sess.run(init_op)
 
+
 # -------------train the model ------------------------
 start_time = time.time()
 
@@ -88,7 +91,7 @@ model.train_sgd(learning_rate=learning_rate, batch_num=train_batch_num, l2_regul
 
 end_time = time.time()
 
-print("train_time=", end_time - start_time)
+print("train_time=", end_time-start_time)
 model.save(sess=sess, path="../output/model")
 model.load(path="../output/model")
 

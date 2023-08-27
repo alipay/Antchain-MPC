@@ -196,8 +196,6 @@ def _pm1_act(t: SharedTensor, x: Union[SharedTensor, SharedTensorInt65]) -> Unio
     # (t, x) -> (-1)^tx
     if t.module != 2:
         raise StfValueException("t.module", 2, t.module)
-    if t.shape != x.shape:
-        raise StfEqualException("t.shape", "x.shape", t.shape, x.shape)
     if isinstance(x, SharedTensorBase):
         inner_value = (x.inner_value - t.inner_value * 2 * x.inner_value)
         return SharedTensor(inner_value=inner_value, module=x.module)

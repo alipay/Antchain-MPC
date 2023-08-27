@@ -12,9 +12,24 @@
 """
 from stensorflow.basic.basic_class.base import PrivateTensorBase, SharedPairBase, SharedTensorBase, get_device
 import tensorflow as tf
+import numpy as np
 from stensorflow.global_var import StfConfig
 from typing import Union
 
+def to_bool(x: tf.Tensor) -> tf.Tensor:
+    """
+
+    :param x:  tf.Tensor  shape =[s1,..., sn]
+    :return:   tf.Tensor  shape =[s1,..., sn, sizeof(x.dtype)]
+    """
+    y = tf.bitcast(x, 'uint8')
+    z = tf.bitwise.bitwise_and(tf.expand_dims(y, axis=-1), [1, 2, 4, 8, 16, 32, 64, 128])
+    w = tf.bitwise.right_shift(z, [0, 1, 2, 3, 4, 5, 6, 7])
+    new_shape = y.shape.as_list()
+    new_shape[-1] = -1
+    u = tf.reshape(w, new_shape)
+    z = tf.cast(u, 'bool')
+    return z
 
 class SharedTensorBitwise:
     def __init__(self, inner_value, shape=None):
@@ -53,6 +68,10 @@ class SharedTensorBitwise:
 
     def __mul__(self, other):
         inner_value = tf.bitwise.bitwise_and(self.inner_value, other.inner_value)
+        return SharedTensorBitwise(inner_value=inner_value)
+
+    def __invert__(self):
+        inner_value = tf.bitwise.invert(self.inner_value)
         return SharedTensorBitwise(inner_value=inner_value)
 
     def random_uniform_adjoint(self, seed=None):
@@ -161,6 +180,10 @@ class PrivateTensorBitwise:
         else:
             raise Exception("must have isinstance(other, PrivateTensorBitwise) or isinstance(other, SharedPairBitwise)")
 
+    def __invert__(self):
+        with tf.device(get_device(self.owner)):
+            inner_value = ~self.inner_value
+            return PrivateTensorBitwise(owner=get_device(self.owner), inner_value=inner_value)
 
 class SharedPairBitwise:
     def __init__(self, ownerL, ownerR, xL: SharedTensorBitwise, xR: SharedTensorBitwise, shape=None):
@@ -256,3 +279,23 @@ class SharedPairBitwise:
 
     def __sub__(self, other):
         return self.__add__(other)
+
+    def __invert__(self):
+        with tf.device(self.ownerL):
+            xL = ~self.xL
+        return SharedPairBitwise(ownerL=self.ownerL, ownerR=self.ownerR, xL=xL, xR=self.xR)
+
+    def toSharedPairBase(self, shape):
+        with tf.device(self.ownerL):
+            xL = to_bool(self.xL.inner_value)
+            xL = tf.cast(xL, 'int64')
+            xL = SharedTensorBase(inner_value=xL, module=2)
+        with tf.device(self.ownerR):
+            xR = to_bool(self.xR.inner_value)
+            xR = tf.cast(xR, 'int64')
+            xR = SharedTensorBase(inner_value=xR, module=2)
+        y = SharedPairBase(ownerL=self.ownerL, ownerR=self.ownerR, xL=xL, xR=xR, fixedpoint=0)
+        y = y.reshape([-1])
+        if y.shape[0] != np.prod(shape):
+            y = y[0: np.prod(shape)]
+        return y.reshape(shape)

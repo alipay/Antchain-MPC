@@ -1,0 +1,1 @@
+source ../stf_venv/bin/activate

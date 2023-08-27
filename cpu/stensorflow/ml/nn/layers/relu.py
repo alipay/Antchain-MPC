@@ -97,6 +97,6 @@ class ReLU_Local(Layer):
         else:
             x = x[0]
         ploss_py = ploss_py.to_private(owner=self.owner)
-        ploss_px = drelu_local(x) * ploss_py
+        ploss_px = drelu_local(x).inner_value * ploss_py
         ploss_px = {self.fathers[0]: ploss_px}
         return [], ploss_px

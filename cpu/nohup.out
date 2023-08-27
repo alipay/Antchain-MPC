@@ -1,0 +1,13 @@
+bash: run_GCN_train_and_predict.sh: No such file or directory
+run test for Table7_ALexNet
+run test for Table7_ALexNet
+run test for Table7_ALexNet
+run test for Table7_ALexNet
+run test for Table7_ALexNet
+run test for Table7_VGG16  (very slowly)
+run test for Table7_VGG16  (very slowly)
+run test for Table7_VGG16  (very slowly)
+run test for Table7_VGG16  (very slowly)
+run.sh: line 155: 28939 Killed                  python3 run_VGG16.py --epoch=5 --pretrain=0 --pooling max --truncation_type=1 > $MAIN_PATH/artifacts/Table7_VGG16_epoch5_pretrain0.log 2>&1
+run.sh: line 156: 28171 Killed                  python3 run_VGG16.py --epoch=10 --pretrain=0 --pooling max --truncation_type=1 > $MAIN_PATH/artifacts/Table7_VGG16_epoch10_pretrain0.log 2>&1
+run test for Table7_VGG16  (very slowly)

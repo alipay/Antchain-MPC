@@ -113,7 +113,7 @@ class NetworkB(NN):
 
     def predict_to_file(self, sess, x, predict_file_name,
                         pred_batch_num, model_file_machine,
-                        with_sigmoid):
+                        out_prob=True):
         """
         Save prediction results to file
         Computation is done in batches.
@@ -125,7 +125,7 @@ class NetworkB(NN):
         :param with_sigmoid:
         :return:
         """
-        y_pred = self.predict(x=x,  out_prob=with_sigmoid)
+        y_pred = self.predict(x=x,  out_prob=out_prob)
         id_y_pred = y_pred.to_tf_str(owner=model_file_machine)
         random.random_init(sess)
         # 分批写入文件

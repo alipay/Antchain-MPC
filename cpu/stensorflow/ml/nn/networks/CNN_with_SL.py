@@ -19,41 +19,43 @@ class LocalCNN(NN):
     """
     只有一层卷积核一层池化的CNN网络
     """
-    def __init__(self, feature: PrivateTensor, label: Union[PrivateTensor, SharedPair],  loss=None):
+    def __init__(self, feature: PrivateTensor, label: Union[PrivateTensor, SharedPair], input_shape=[28, 28, 1], dataset='cifar10', loss=None):
         super(LocalCNN, self).__init__()
         # input layer, init data；
         # 这里将dim设置位输入的wight,后续不使用；仅仅是为了应用原有的模板
-        layer = Input(dim=28, x=feature)
+        layer = Input(dim=input_shape, x=feature)
         local_layer_owner = layer.owner
         self.addLayer(ly=layer)
         # convolutional layer with 1 input channel, 16 output channels and a 5×5 filter
         layer = Conv2dLocal(output_dim=None, fathers=[layer], filters=16,
-                            kernel_size=5, input_shape=[28, 28, 1], owner=local_layer_owner)
+                            kernel_size=5, input_shape=input_shape, owner=local_layer_owner, activate='relu')
         self.addLayer(layer)
-        # Relu Layer
-        layer = ReLU_Local(output_dim=layer.output_dim, fathers=[layer], owner=local_layer_owner)
-        self.addLayer(layer)
+
         # Average pool
         layer = AveragePooling2DLocal(output_dim=None, fathers=[layer], pool_size=(2, 2), owner=local_layer_owner)
         self.addLayer(layer)
-        # flatten data, only consider data_format = "NWHC"
-        # 这里需要给出正确的output_dim，方便后续的全连接层
+
         layer = FlattenLocal(output_dim=None, fathers=[layer], owner=local_layer_owner)
         self.addLayer(layer)
-        # 全连接层
-        # 这里添加一层，a 2304 × 100 linear layer
-        # Dlayer = Dense_Local(output_dim=100, fathers=[layer], owner=local_layer_owner)
-        # self.addLayer(Dlayer)
-        # 添加一层Relu
-        # Relu Layer
-        # layer = ReLU_Local(output_dim=100, fathers=[Dlayer], owner=local_layer_owner)
-        # self.addLayer(layer)
-        # a 2304 × 10 linear layer； a 100* 10 line layer
-        layer = Dense_Local(output_dim=10, fathers=[layer], owner=local_layer_owner)
-        self.addLayer(layer)
-        # 输出层
-        layer_label = Input(dim=10, x=label)
-        self.addLayer(ly=layer_label)
+
+        if dataset == 'cifar10':
+            # a 2304 × 10 linear layer； a 100* 10 line layer
+            layer = Dense_Local(output_dim=10, fathers=[layer], owner=local_layer_owner)
+            self.addLayer(layer)
+            # 输出层
+            layer_label = Input(dim=10, x=label)
+            self.addLayer(ly=layer_label)
+        elif dataset == 'TinyImageNet':
+            # a 2304 × 10 linear layer； a 100* 10 line layer
+            layer = Dense_Local(output_dim=200, fathers=[layer], owner=local_layer_owner)
+            self.addLayer(layer)
+            # 输出层
+            layer_label = Input(dim=200, x=label)
+            self.addLayer(ly=layer_label)
+        else:
+            raise Exception("unknown dataset")
+
+
         # 损失计算
         layer_loss = CrossEntropyLossWithSoftmaxLocal(layer_score=layer, layer_label=layer_label, owner=local_layer_owner)
         self.addLayer(ly=layer_loss)
@@ -80,8 +82,8 @@ class LocalCNN(NN):
     def predict_to_file(self, sess, x, predict_file_name,
                         pred_batch_num, model_file_machine,
                         record_num_ceil_mod_batch_size,
-                        with_sigmoid):
-        y_pred = self.predict(x=x,  out_prob=with_sigmoid)
+                        out_prob):
+        y_pred = self.predict(x=x,  out_prob=out_prob)
         id_y_pred = y_pred.to_tf_str(owner=model_file_machine)
         random.random_init(sess)
         # 分批写入文件
@@ -260,15 +262,15 @@ class LocalNetworkC(NN):
     """
     两层卷积和两层池化的复杂网络
     """
-    def __init__(self, feature: PrivateTensor, label: Union[PrivateTensor, SharedPair], loss=None):
+    def __init__(self, feature: PrivateTensor, label: Union[PrivateTensor, SharedPair], input_shape=[28,28,1], output_dim=10, loss=None):
         super(LocalNetworkC, self).__init__()
         # 这里将dim设置位输入的wight,后续不使用；仅仅是为了应用原有的模板
-        layer = Input(dim=28, x=feature)
+        layer = Input(dim=input_shape, x=feature)
         local_layer_owner = layer.owner
         self.addLayer(layer)
         # convolutional layer with 1 input channel, 16 output channels and a 5×5 filter
         layer = Conv2dLocal(output_dim=None, fathers=[layer], filters=20,
-                            kernel_size=5, input_shape=[28, 28, 1], owner=local_layer_owner)
+                            kernel_size=5, input_shape=input_shape, owner=local_layer_owner)
         self.addLayer(layer)
         # Relu Layer
         layer = ReLU_Local(output_dim=layer.output_dim, fathers=[layer], owner=local_layer_owner)
@@ -298,10 +300,10 @@ class LocalNetworkC(NN):
         layer = Dense_Local(output_dim=500, fathers=[layer], owner=local_layer_owner)
         self.addLayer(layer)
         # a 500 × 10 linear layer
-        layer = Dense_Local(output_dim=10, fathers=[layer], owner=local_layer_owner)
+        layer = Dense_Local(output_dim=output_dim, fathers=[layer], owner=local_layer_owner)
         self.addLayer(layer)
         # 输出层
-        layer_label = Input(dim=10, x=label)
+        layer_label = Input(dim=output_dim, x=label)
         self.addLayer(ly=layer_label)
         # 损失计算
         layer_loss = CrossEntropyLossWithSoftmaxLocal(layer_score=layer, layer_label=layer_label,
@@ -329,8 +331,8 @@ class LocalNetworkC(NN):
 
     def predict_to_file(self, sess, x, predict_file_name,
                         pred_batch_num, model_file_machine,
-                        with_sigmoid):
-        y_pred = self.predict(x=x,  out_prob=with_sigmoid)
+                        out_prob=True):
+        y_pred = self.predict(x=x,  out_prob=out_prob)
         id_y_pred = y_pred.to_tf_str(owner=model_file_machine)
         random.random_init(sess)
         with open(predict_file_name, "w") as f:
@@ -377,4 +379,8 @@ class LocalNetworkC(NN):
                 kernel1.load_from_numpy(keras_weight[i])
                 kernel2.load_from_numpy(keras_weight[i+1])
                 i += 2
+
+
+
+
 

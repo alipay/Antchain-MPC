@@ -8,7 +8,7 @@ import tensorflow as tf
 start_local_server(os.path.join(os.environ.get("stf_home", ".."), "conf", "config.json"))
 from stensorflow.ml.nn.networks.SIMPLE_CNN import SIMPLE_CNN
 from stensorflow.global_var import StfConfig
-from cnn_utils import convert_datasets, load_data, calculate_score
+from cnn_utils import convert_datasets, load_data_mnist, calculate_score_mnist
 
 
 def average_cnn_baseline(train_x, train_y, test_x, test_y):
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     #                "../output/STF_CNN.npz")
     # exit()
 
-    train_x, train_y, test_x, test_y = load_data(normal=True, small=True)
+    train_x, train_y, test_x, test_y = load_data_mnist(normal=True, small=True)
     # compare_forward("../output/simple_normal_mnist_model.h5",
     #                 stf_predict_path="../output/simple_mnist_predict.txt",
     #                 test_x=test_x)
@@ -104,4 +104,4 @@ if __name__ == "__main__":
 
     # exit()
     stf_cnn_test(train_x, train_y, test_x, test_y, keras_weight=None)
-    calculate_score("../output/simple_mnist_predict.txt")
+    calculate_score_mnist("../output/simple_mnist_predict.txt")

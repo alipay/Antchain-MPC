@@ -18,6 +18,7 @@ from typing import Union
 from stensorflow.basic.protocol.module_transform import module_transform
 from stensorflow.basic.protocol.pm1_act import pm1_act, SharedTensorInt65, SharedPairInt65, pm1_pair_act_pair, \
     pm1_pair_act
+from stensorflow.basic.protocol.bmulta import bmulta, bpair_multa, bmulta_pair_pair
 from stensorflow.global_var import StfConfig
 from stensorflow.exception.exception import StfCondException, StfEqualException, StfTypeException, StfValueException
 import tensorflow as tf
@@ -113,11 +114,12 @@ def _select_sharedpair_sharedpair(s: SharedPairBase, x: SharedPairBase, y: Share
             two_sx = x - pm1_pair_act_pair(s, x, StfConfig.RS[0])
             sx = inv_2 * two_sx
         else:
-            lift_x = SharedPairInt65.from_SharedPair(x)
-            s_act_lift_x = pm1_pair_act_pair(s, lift_x, StfConfig.RS[0], prf_flag, compress_flag)
-            two_sx = lift_x - s_act_lift_x
-            sx = two_sx.half_of_even()
-            sx = SharedPair.from_SharedPairBase(sx)
+            # lift_x = SharedPairInt65.from_SharedPair(x)
+            # s_act_lift_x = pm1_pair_act_pair(s, lift_x, StfConfig.RS[0], prf_flag, compress_flag)
+            # two_sx = lift_x - s_act_lift_x
+            # sx = two_sx.half_of_even()
+            # sx = SharedPair.from_SharedPairBase(sx)
+            sx = bmulta_pair_pair(s, x, StfConfig.RS[0], prf_flag, compress_flag)
         return sx
 
     else:
@@ -152,13 +154,15 @@ def _select_private_private(s: PrivateTensor, x: PrivateTensor, y: PrivateTensor
                 s_mt.module = x.module
             return x * s_mt
         else:
-            with tf.device(x.owner):
-                lift_x = SharedTensorInt65.load_from_PrivateTensor(x)
-            s_act_list_x = pm1_act(s.to_SharedTensor(), lift_x, s.owner, x.owner, RS_owner=StfConfig.RS[0],
+            # with tf.device(x.owner):
+            #     lift_x = SharedTensorInt65.load_from_PrivateTensor(x)
+            # s_act_list_x = pm1_act(s.to_SharedTensor(), lift_x, s.owner, x.owner, RS_owner=StfConfig.RS[0],
+            #                        prf_flag=prf_flag, compress_flag=compress_flag)
+            # two_sx = SharedPairInt65.load_from_SharedTensorInt65(lift_x, owner=x.owner,
+            #                                                      other_owner=s.owner) - s_act_list_x
+            # sx = two_sx.half_of_even()
+            sx = bmulta(s.to_SharedTensor(), x.to_SharedTensor(), s.owner, x.owner, RS_owner=StfConfig.RS[0],
                                    prf_flag=prf_flag, compress_flag=compress_flag)
-            two_sx = SharedPairInt65.load_from_SharedTensorInt65(lift_x, owner=x.owner,
-                                                                 other_owner=s.owner) - s_act_list_x
-            sx = two_sx.half_of_even()
             sx.fixedpoint = x.fixedpoint
             return sx
     else:
@@ -182,8 +186,6 @@ def _select_private_sharedpair(s: PrivateTensor, x: SharedPair, y: SharedPair = 
 
     if s.module != 2:
         raise StfValueException("s.module", 2, s.module)
-    if s.shape != x.shape:
-        raise StfEqualException("s.shape", "x.shape", s.shape, x.shape)
     if x.xL.module is not None:
         raise StfCondException("x.xL.module is None", "x.xL.module={}".format(x.xL.module))
     if y is None:
@@ -219,21 +221,23 @@ def _select_sharedpair_private(s: SharedPairBase, x: PrivateTensorBase, y: Priva
     if s.shape != x.shape:
         raise StfEqualException("s.shape", "x.shape", s.shape, x.shape)
     if y is None:
-        with tf.device(x.owner):
-            lift_x = SharedTensorInt65.load_from_PrivateTensor(x)
-        s_act_lift_x = pm1_pair_act(s, lift_x, x_owner=x.owner, RS_owner=StfConfig.RS[0],
-                                    prf_flag=prf_flag, compress_flag=compress_flag)
-        if s.ownerL == x.owner:
-            other_owner = s.ownerR
-        elif s.ownerR == x.owner:
-            other_owner = s.ownerL
-        else:
-            raise StfCondException("x.owner==s.ownerL or x.owner==s.ownerR",
-                                   "x.owner={}, s.ownerL={}, s.ownerR={}".format(x.owner, s.ownerL, s.ownerR))
+        # with tf.device(x.owner):
+        #     lift_x = SharedTensorInt65.load_from_PrivateTensor(x)
+        # s_act_lift_x = pm1_pair_act(s, lift_x, x_owner=x.owner, RS_owner=StfConfig.RS[0],
+        #                             prf_flag=prf_flag, compress_flag=compress_flag)
+        # if s.ownerL == x.owner:
+        #     other_owner = s.ownerR
+        # elif s.ownerR == x.owner:
+        #     other_owner = s.ownerL
+        # else:
+        #     raise StfCondException("x.owner==s.ownerL or x.owner==s.ownerR",
+        #                            "x.owner={}, s.ownerL={}, s.ownerR={}".format(x.owner, s.ownerL, s.ownerR))
 
-        two_sx = SharedPairInt65.load_from_SharedTensorInt65(lift_x, owner=x.owner,
-                                                             other_owner=other_owner) - s_act_lift_x
-        sx = two_sx.half_of_even()
+        # two_sx = SharedPairInt65.load_from_SharedTensorInt65(lift_x, owner=x.owner,
+        #                                                      other_owner=other_owner) - s_act_lift_x
+        # sx = two_sx.half_of_even()
+        sx = bpair_multa(s, x.to_SharedTensor(), x_owner=x.owner, RS_owner=StfConfig.RS[0],
+                                     prf_flag=prf_flag, compress_flag=compress_flag)
         sx.fixedpoint = x.fixedpoint
         return sx
     else:

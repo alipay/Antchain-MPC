@@ -10,6 +10,8 @@
    Create Time : 2020-09-14 14:57
    Description : description what the main function of this file
 """
+import sys
+sys.path.append("/Users/qizhi.zqz/projects/morse-stf")
 
 from stensorflow.ml.nn.networks.DNN import DNN
 import tensorflow as tf
@@ -33,7 +35,7 @@ matchColNum = 1
 featureNumL = 5
 featureNumR = 5
 record_num = 8429
-epoch = 10  # 15
+epoch = 100   # 15
 batch_size = 128
 
 num_features = featureNumL + featureNumR
@@ -45,6 +47,7 @@ clip_value = 5.0
 batch_num_per_epoch = record_num // batch_size
 train_batch_num = epoch * batch_num_per_epoch + 1
 
+
 learning_rate = 0.01
 
 # -------------define a private tensor x_train of party L and a private tensor xyR_train on the party R
@@ -54,6 +57,7 @@ xyR_train = PrivateTensor(owner='R')
 
 format_x = [["a"]] * matchColNum + [[0.2]] * featureNumL
 format_y = [["a"]] * matchColNum + [[0.3]] * featureNumR + [[1.0]]
+
 
 # -----------------  load data from files -------------------
 
@@ -83,18 +87,16 @@ sess = tf.compat.v1.Session(StfConfig.target)
 
 init_op = tf.compat.v1.initialize_all_variables()
 sess.run(init_op)
-
 # -------------train the model ------------------------
 start_time = time.time()
-
 model.train_sgd(learning_rate=learning_rate, batch_num=train_batch_num, l2_regularization=l2_regularization, sess=sess)
 # model.train_adam(sess=sess, batch_num=train_batch_num, learningRate=1E-3)
 end_time = time.time()
 
-print("train_time=", end_time - start_time)
+print("train_time=", end_time-start_time)
 
 # ------------define the private tensors for test dataset ----------------
-pred_record_num = 12042 * 3 // 10
+pred_record_num = 12042*3//10
 pred_batch_num = pred_record_num // batch_size
 
 xL_test = PrivateTensor(owner='L')
@@ -109,6 +111,7 @@ id = xRy_test.load_from_file_withid(path=StfConfig.pred_file_onR,
                                     id_col_num=matchColNum, clip_value=clip_value)
 
 xR_test, y_test = xRy_test.split(size_splits=[-1, 1], axis=1)
+
 
 # --------------predict --------------
 model.predict_to_file(sess=sess, x=xL_test, x_another=xR_test,

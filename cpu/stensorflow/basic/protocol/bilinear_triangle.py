@@ -99,12 +99,14 @@ def BT_forward_SharedPair_SharedPair(x: SharedPairBase, y: SharedPairBase, f_xy,
              seed_v, vR, seed_w, wR, x.fixedpoint, y.fixedpoint)
     else:
         s = (delta_x_onL, delta_x_onR, delta_y_onL, delta_y_onR,
-            xL_adjoint, xR_adjoint, yL_adjoint, yR_adjoint, zL_adjoint, zR_adjoint,
-            vL, vR, wL, wR, x.fixedpoint, y.fixedpoint)
+             xL_adjoint, xR_adjoint, yL_adjoint, yR_adjoint, zL_adjoint, zR_adjoint,
+             vL, vR, wL, wR, x.fixedpoint, y.fixedpoint)
     return r, s
 
 
-def BT_backward_SharedPair_SharedPair(s, z: SharedPairBase, f_yz, f_zx, prf_flag):
+def BT_backward_SharedPair_SharedPair(s, z: SharedPairBase, f_yz, f_zx, prf_flag=None):
+    if prf_flag is None:
+        prf_flag = StfConfig.prf_flag
     if prf_flag:
         delta_x_onL, delta_x_onR, delta_y_onL, delta_y_onR, \
         seed_xL, seed_xR, seed_yL, seed_yR, seed_zL, seed_zR, \
@@ -128,17 +130,16 @@ def BT_backward_SharedPair_SharedPair(s, z: SharedPairBase, f_yz, f_zx, prf_flag
     with tf.device(z.ownerR):
         delta_zR = z.xR - zR_adjoint
     with tf.device(z.ownerL):
-        delta_z_onL = delta_zL+delta_zR
+        delta_z_onL = delta_zL + delta_zR
         vL = f_yz(delta_y_onL, z.xL) + f_yz(yL_adjoint, delta_z_onL) + vL
         wL = f_zx(z.xL, delta_x_onL) + f_zx(delta_z_onL, xL_adjoint) + wL
     with tf.device(z.ownerR):
-        delta_z_onR = delta_zL+delta_zR
+        delta_z_onR = delta_zL + delta_zR
         vR = f_yz(delta_y_onR, z.xR) + f_yz(yR_adjoint, delta_z_onR) + vR
         wR = f_zx(z.xR, delta_x_onR) + f_zx(delta_z_onR, xR_adjoint) + wR
     v = SharedPairBase(xL=vL, xR=vR, ownerL=z.ownerL, ownerR=z.ownerR, fixedpoint=y_fixedpoint + z.fixedpoint)
     w = SharedPairBase(xL=wL, xR=wR, ownerL=z.ownerL, ownerR=z.ownerR, fixedpoint=z.fixedpoint + x_fixedpoint)
     return v, w
-
 
 
 def BT_forward_PrivateTensor_SharedPair(x: PrivateTensorBase, y: SharedPairBase, f_xy, f_yz, f_zx, prf_flag=None):
@@ -209,8 +210,8 @@ def BT_forward_PrivateTensor_SharedPair(x: PrivateTensorBase, y: SharedPairBase,
                  seed_v, vR, seed_w, wR, x.fixedpoint, y.fixedpoint)
         else:
             s = (delta_x, delta_y_onL, delta_y_onR,
-                x_adjoint, yL_adjoint, yR_adjoint, zL_adjoint, zR_adjoint,
-                vL, vR, wL, wR, x.fixedpoint, y.fixedpoint)
+                 x_adjoint, yL_adjoint, yR_adjoint, zL_adjoint, zR_adjoint,
+                 vL, vR, wL, wR, x.fixedpoint, y.fixedpoint)
     elif x.owner == y.ownerR:
         y = y.mirror()
         r, s = BT_forward_PrivateTensor_SharedPair(x, y, f_xy, f_yz, f_zx, prf_flag=prf_flag)
@@ -219,14 +220,13 @@ def BT_forward_PrivateTensor_SharedPair(x: PrivateTensorBase, y: SharedPairBase,
     return r, s
 
 
-
-
 def BT_backward_PrivateTensor_SharedPair(s, z: SharedPairBase, f_yz, f_zx, x: PrivateTensorBase, prf_flag=None):
-
+    if prf_flag is None:
+        prf_flag = StfConfig.prf_flag
     if prf_flag:
         delta_x, delta_y_onL, delta_y_onR, \
-         seed_x, seed_yL, seed_yR, seed_zL, seed_zR, \
-         seed_v, vR, seed_w, wR, x_fixedpoint, y_fixedpoint = s
+        seed_x, seed_yL, seed_yR, seed_zL, seed_zR, \
+        seed_v, vR, seed_w, wR, x_fixedpoint, y_fixedpoint = s
         with tf.device(z.ownerL):
             x_adjoint = x.to_SharedTensor_like().random_uniform_adjoint(seed_x)
             yL_adjoint = delta_y_onL.random_uniform_adjoint(seed_yL)
@@ -245,7 +245,7 @@ def BT_backward_PrivateTensor_SharedPair(s, z: SharedPairBase, f_yz, f_zx, x: Pr
     with tf.device(z.ownerR):
         delta_zR = z.xR - zR_adjoint
     with tf.device(z.ownerL):
-        delta_z_onL = delta_zL+delta_zR
+        delta_z_onL = delta_zL + delta_zR
         vL = f_yz(delta_y_onL, z.xL) + f_yz(yL_adjoint, delta_z_onL) + vL
         if x.owner == z.ownerL:
             wL = f_zx(z.xL, delta_x) + f_zx(delta_z_onL, x_adjoint) + wL
@@ -254,7 +254,7 @@ def BT_backward_PrivateTensor_SharedPair(s, z: SharedPairBase, f_yz, f_zx, x: Pr
         else:
             raise Exception("must have x.owner == z.ownerL or x.owner == z.ownerR")
     with tf.device(z.ownerR):
-        delta_z_onR = delta_zL+delta_zR
+        delta_z_onR = delta_zL + delta_zR
         vR = f_yz(delta_y_onR, z.xR) + f_yz(yR_adjoint, delta_z_onR) + vR
         if x.owner == z.ownerL:
             wR = f_zx(z.xR, delta_x) + wR
@@ -265,7 +265,6 @@ def BT_backward_PrivateTensor_SharedPair(s, z: SharedPairBase, f_yz, f_zx, x: Pr
     v = SharedPairBase(xL=vL, xR=vR, ownerL=z.ownerL, ownerR=z.ownerR, fixedpoint=y_fixedpoint + z.fixedpoint)
     w = SharedPairBase(xL=wL, xR=wR, ownerL=z.ownerL, ownerR=z.ownerR, fixedpoint=z.fixedpoint + x_fixedpoint)
     return v, w
-
 
 
 def BT_forward_SharedPair_PrivateTensor(x: SharedPairBase, y: PrivateTensorBase, f_xy, f_yz, f_zx, prf_flag=None):
@@ -284,12 +283,14 @@ def BT_backward_SharedPair_PrivateTensor(s, z: SharedPairBase, f_yz, f_zx, y: Pr
     u, v = BT_backward_PrivateTensor_SharedPair(s, z, g_Y1Z, g_ZX1, x1, prf_flag)
     return v, u
 
-class BiliinearTriangle():
+
+class BilinearTriangle:
     """
     (x,y)->u
     (y,z)->v
     (z,x)->w
     """
+
     def __init__(self, f_xy, f_yz, f_zx):
         self.f_xy = f_xy
         self.f_yz = f_yz
@@ -300,6 +301,11 @@ class BiliinearTriangle():
         self.prf_flag = StfConfig.prf_flag
 
     def compute_u(self, x: Union[PrivateTensorBase, SharedPairBase], y: Union[PrivateTensorBase, SharedPairBase]):
+        """
+        :param x:  Union[PrivateTensorBase, SharedPairBase]
+        :param y: Union[PrivateTensorBase, SharedPairBase]
+        :return:  u=f_xy(x, y)
+        """
         self.x = x
         self.y = y
         is_private_x = isinstance(x, PrivateTensorBase)
@@ -322,10 +328,9 @@ class BiliinearTriangle():
         if is_private_x and is_private_y:
             raise NotImplementedError
         elif is_private_x and not is_private_y:
-            u, v = BT_backward_PrivateTensor_SharedPair(self.s, z, self.f_yz, self.f_zx, self.x,self.prf_flag)
+            u, v = BT_backward_PrivateTensor_SharedPair(self.s, z, self.f_yz, self.f_zx, self.x, self.prf_flag)
         elif not is_private_x and is_private_y:
             u, v = BT_backward_SharedPair_PrivateTensor(self.s, z, self.f_yz, self.f_zx, self.y, self.prf_flag)
         else:
             u, v = BT_backward_SharedPair_SharedPair(self.s, z, self.f_yz, self.f_zx, self.prf_flag)
         return SharedPair.from_SharedPairBase(u), SharedPair.from_SharedPairBase(v)
-

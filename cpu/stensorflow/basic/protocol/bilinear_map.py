@@ -145,7 +145,7 @@ def BM_SharedPair_SharedPair(x: SharedPairBase, y: SharedPairBase, f, prf_flag=N
         prf_flag = StfConfig.prf_flag
 
     if x.xL.module != y.xL.module:
-        raise Exception("must have x.xL.module==y.xL.module")
+        raise Exception("must have x.xL.module==y.xL.module, but x.xl.module={}, y.xL.module={}".format(x.xL.module, y.xL.module))
     if x.ownerL != y.ownerL or x.ownerR != y.ownerR:
         y = y.mirror()
     if x.ownerL != y.ownerL or x.ownerR != y.ownerR:

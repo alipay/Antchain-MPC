@@ -54,6 +54,6 @@ class Input(Layer):
         # self.ploss_px = {None: x.zeros_like().transpose()}
 
     def replace(self, x: Union[SharedPair, PrivateTensor]):
-        if x.shape[1] != self.output_dim:
-            raise Exception("must have x.shape[1] == self.output_dim")
+        # if x.shape[1] != self.output_dim:
+        #     raise Exception("must have x.shape[1] == self.output_dim")
         self.y = x
