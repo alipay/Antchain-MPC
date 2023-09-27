@@ -12,7 +12,7 @@ git submodule update --init --recursive
 ```
 2. Prepare datasets
 ```shell
-cd /{{path_to_piranha}}//scripts/
+cd /{{path_to_piranha}}/scripts/
 mkdir -p ../files/MNIST/
 mkdir -p ../files/CIFAR10/
 python3 download_mnist.py
