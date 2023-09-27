@@ -38,7 +38,7 @@ docker run -it --gpus all -v /{{path_to_gpu}}/gpu:/piranha piranha:1.0
 5. Run our scripts for experiments in the container
 
 ```shell
-cd /gpu
+cd /piranha
 nohup bash run.sh > log 2>&1 &
 ```
 * The test logs are written into the file 'log'.
