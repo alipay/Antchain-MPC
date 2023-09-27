@@ -12,7 +12,7 @@ git submodule update --init --recursive
 ```
 2. Prepare datasets
 ```shell
-cd /{{path_to_gpu}}/gpu/scripts/
+cd /{{path_to_piranha}}//scripts/
 mkdir -p ../files/MNIST/
 mkdir -p ../files/CIFAR10/
 python3 download_mnist.py
@@ -23,7 +23,7 @@ python3 download_cifar.py
 3. Build a docker image
 
 ```shell
-cd /{{path_to_gpu}}/gpu
+cd /{{path_to_piranha}}/piranha
 docker build . -t piranha:1.0
 ```
 * Dockerfile is provided in our codes.
@@ -32,7 +32,7 @@ docker build . -t piranha:1.0
 4. Run a container and build Piranha
 
 ```shell
-docker run -it --gpus all -v /{{path_to_gpu}}/gpu:/piranha piranha:1.0 
+docker run -it --gpus all -v /{{path_to_piranha}}/piranha:/piranha piranha:1.0 
 ```
 
 5. Run our scripts for experiments in the container
