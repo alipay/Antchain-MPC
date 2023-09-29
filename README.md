@@ -14,6 +14,8 @@ The Python implementation (Apache license) follows the TenorFlow programming sty
 
 `git checkout -b sec_softmoid origin/sec_softmoid`
 
+`mv gpu piranha`
+
 `cd cpu`
 
 # The repo is under construction due to anonymity reasons. We will upload all info/description for AE later。
