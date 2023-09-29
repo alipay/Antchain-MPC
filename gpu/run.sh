@@ -56,19 +56,19 @@ build
 kill_piranha
 
 echo "==== ==== AlexNet (CIFAR10) ==== ===="
-sed -i 's/"network":.*$/\"network":\ "files\/models\/alexnet-cifar10.json",/' files/samples/localhost_config.json
+sed -i 's/"network":.*$/\"network":\ "files\/models\/alexnet-cifar10-norelu.json",/' files/samples/localhost_config.json
 build
 ./files/samples/localhost_runner.sh 2>&1
 kill_piranha
 
 echo "==== ==== VGG16 (CIFAR10) ==== ===="
-sed -i 's/"network".*$/\"network":\ "files\/models\/vgg16-cifar10.json",/' files/samples/localhost_config.json
+sed -i 's/"network".*$/\"network":\ "files\/models\/vgg16-cifar10-norelu.json",/' files/samples/localhost_config.json
 build
 ./files/samples/localhost_runner.sh 2>&1
 kill_piranha
 
 echo "==== ==== ResNet18 (CIFAR10) ==== ===="
-sed -i 's/"network":.*$/\"network":\ "files\/models\/resnet18-cifar10.json",/' files/samples/localhost_config.json
+sed -i 's/"network":.*$/\"network":\ "files\/models\/resnet18-cifar10-norelu.json",/' files/samples/localhost_config.json
 build
 ./files/samples/localhost_runner.sh 2>&1
 kill_piranha
