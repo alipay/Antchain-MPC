@@ -86,15 +86,15 @@ python3 run_networkD.py --epoch=0.1  --predict_flag=0 --config_file="../conf/con
 
 
 echo "----------------run test for  Table12-------------------------------"
-tc qdisc del dev lo root
+sudo tc qdisc del dev lo root
 DELAY_MS=30
 RATE_MBIT=320
-tc qdisc replace dev lo root netem delay ${DELAY_MS}ms rate ${RATE_MBIT}Mbit
+sudo tc qdisc replace dev lo root netem delay ${DELAY_MS}ms rate ${RATE_MBIT}Mbit
 python3 run_networkC.py --epoch=0.1  --predict_flag=0  >$MAIN_PATH/artifacts/Table12_LeNet_T.log 2>&1
 python3 run_networkC.py --epoch=0.1  --predict_flag=0 --config_file="../conf/config_linear.json"  >$MAIN_PATH/artifacts/Table12_LeNet_B.log 2>&1
 python3 run_AlexNet.py --epoch=0.01  --predict_flag=0 --batch_size=128 >$MAIN_PATH/artifacts/Table12_AlexNet_T.log 2>&1
 python3 run_AlexNet.py --epoch=0.01  --predict_flag=0 --batch_size=128 --config_file="../conf/config_linear.json" >$MAIN_PATH/artifacts/Table12_AlexNet_B.log 2>&1
-tc qdisc del dev lo root
+sudo tc qdisc del dev lo root
 
 
 
