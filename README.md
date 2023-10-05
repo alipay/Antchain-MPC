@@ -1,23 +1,23 @@
 # Antchain-MPC
 
-Antchain-MPC is a open-source library for providing multiparty computation (MPC) algorithms/protocols. It includes Morse-STF, ...
+Antchain-MPC is a open-source library for providing multiparty computation (MPC) algorithms/protocols. It includes `sec_softmoid` (ACSAC'23), ...
 
 
 ## Key Branches
-`sec_softmoid`: XXXXXXX. [GitHub Link](https://github.com/alipay/Antchain-MPC/tree/sec_softmoid)
+`sec_softmoid`: Secure Softmax/Sigmoid for Machine-Learning Computation (ACSAC'23). [GitHub Link](https://github.com/alipay/Antchain-MPC/tree/sec_softmoid)
 
 Others: Coming later.
 
 ## News
 
+**Sep 29, 2023**
+
+"Secure Softmax/Sigmoid for Machine-Learning Computation" has been accepted to ACSAC'23. 
+
 **Sep 3, 2022**
 
-🎉🎉🎉  <font color=#DC143C> [MPC-Secure KMeans](https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/secure_k_means.py), [Partially-Secure PCA](https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/partially_secure_pca.py), [Fully-Secure PCA](https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/fully_secure_pca.py) have been updated. Running examples can be seen [here](https://github.com/alipay/Antchain-MPC/tree/main/morse-stf/examples).
+[MPC-Secure KMeans](https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/secure_k_means.py), [Partially-Secure PCA](https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/partially_secure_pca.py), [Fully-Secure PCA](https://github.com/alipay/Antchain-MPC/blob/main/morse-stf/stensorflow/ml/fully_secure_pca.py) have been updated. Running examples can be seen [here](https://github.com/alipay/Antchain-MPC/tree/main/morse-stf/examples).
  Please note that fake inverse_sqrt (used in Fully-Secure PCA) is NOT secure. We will release the real code later due to business reasons. </font>
-
-**June 13, 2022** 
-
-<font> [User Guide](morse-stf/documents/user_guide.md) for Morse-STF has been updated. </font>
 
 ## Morse-STF
 
