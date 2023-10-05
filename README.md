@@ -44,7 +44,8 @@ The Python implementation (Apache license) follows the TensorFlow programming st
 
 ### Preparation and Description
 - Program: Python and C++ languages, Docker, TensorFlow 2, and CUDA 11.6.
-- Metric: communication, training time, and model accuracy. Datasets: MNIST, CIFAR-10.
+- Metric: communication, training time, and model accuracy.
+- Datasets: MNIST, CIFAR-10.
 - Outputs: Results replicate Tables 3-12. Running time would be different on different servers.
 - Hardware dependence: NVIDIA GPUs are required for microbenchmarks and macro-benchmarks in Piranha.
 - Time: It roughly takes 1~2 hours to set up and 2 hours to run most experiments (except for model accuracy). The time may vary depending on the power of the server.
