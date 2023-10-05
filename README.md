@@ -71,7 +71,7 @@ To be added ...
 To be added ...
 
 ## Acknowledgement
-Yuxiang Peng contributed the partial code. Since he has never worked in Ant Group, he can not access this repository as a contributor.
+Yuxiang Peng contributed the partial code. Since Yuxiang has never worked in Ant Group, he can not access this repository as a contributor.
 
 The authors wholeheartedly appreciate the invaluable feedback from the anonymous shepherd, reviewers, and artifacts evaluation committee. We thank Yuan Zhao, Yashun Zhou, Dong Yin, and Jiaofu Zhang at Ant Group for their insightful discussions and endeavors on coding, and Jiafan Wang for his help and guidance to Yu. Special thanks go to David Wu, Florian Kerschbaum, and Jean-Pierre Hubaux for their constructive suggestions for Yu’s poster at EPFL Summer Research Institute.  
 
