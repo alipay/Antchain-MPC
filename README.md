@@ -7,7 +7,7 @@ The branch of `sec_softmoid` contains Python and C++ implementations of the pape
 
 This artifact has been awarded  **Artifact Functional Badge**, **Artifact Reusable Badge**, and **Results Reproduced Badge**.
 
-Softmax and sigmoid, composing exponential functions $e^x$ with division $(1/𝑥)$, are activation functions often required in training. Secure computation on non-linear, unbounded $1/𝑥$ and $𝑒^𝑥$ is already challenging, let alone their composition. Prior works aim to compute softmax by its exact formula via iteration (CrypTen, NeurIPS ’21) or with ASM approximation (Falcon, PoPETS ’21). They fall short in efficiency and/or accuracy. For sigmoid, existing solutions such as ABY 2.0 (Usenix Security ’21) compute it via piecewise functions, incurring logarithmic communication rounds.
+Softmax and sigmoid, composing exponential functions $e^x$ with division $(1/𝑥)$, are activation functions often required in training. Secure computation on non-linear, unbounded $1/𝑥$ and $𝑒^𝑥$ is already challenging, let alone their composition. Prior works aim to compute softmax by its exact formula via iteration (CrypTen, NeurIPS ’21) or with ASM approximation (Falcon, PoPETS ’21). They fall short in efficiency and/or accuracy. For sigmoid, existing solutions such as ABY2.0 (Usenix Security ’21) compute it via piecewise functions, incurring logarithmic communication rounds.
 
 We study a rarely-explored approach to secure computation using ordinary differential equations and Fourier series for numerical approximation of rational/trigonometric polynomials over composition rings. Our results include 
  1) the first constant-round protocol for softmax;
@@ -71,6 +71,8 @@ To be added ...
 To be added ...
 
 ## Acknowledgement
+Yuxiang Peng contributed the partial code. Since he has never worked in Ant Group, he can not access this repository as a contributor.
+
 The authors wholeheartedly appreciate the invaluable feedback from the anonymous shepherd, reviewers, and artifacts evaluation committee. We thank Yuan Zhao, Yashun Zhou, Dong Yin, and Jiaofu Zhang at Ant Group for their insightful discussions and endeavors on coding, and Jiafan Wang for his help and guidance to Yu. Special thanks go to David Wu, Florian Kerschbaum, and Jean-Pierre Hubaux for their constructive suggestions for Yu’s poster at EPFL Summer Research Institute.  
 
 ## Disclaimer & Citation
