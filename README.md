@@ -66,11 +66,6 @@ Follow the `README.md` instruction in `cpu` folder for installation. Then, run t
 ### GPU-based Experiments 
 Follow the `README.md` instruction in `piranha` folder to install the C++ implementation. Then, download the `MNIST` and `CIFAR-10` datasets. At last, execute the script `run.sh` in the Docker container to get results of Tables 5,6,10.
 
-## Implementation Details
-### Python Implementation
-To be added ...
-### C++ Implementation 
-To be added ...
 
 ## Acknowledgement
 Yuxiang Peng contributed to the partial code of GPU implementation.  
