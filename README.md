@@ -3,7 +3,7 @@ The branch of `sec_softmoid` contains Python and C++ implementations of the pape
 
 **Secure Softmax/Sigmoid for Machine-learning Computation. (ACSAC'23)**
 
-**by Yu Zheng#, Qizhi Zhang#, Sherman S.M. Chow, Yuxiang Peng, Sijun Tan, Lichun Li, and Shan Yin**. (# denotes equal contribution)
+**by [Yu Zheng#](https://github.com/yuzhengcuhk), [Qizhi Zhang#](https://github.com/qizhi-zhang), [Sherman S.M. Chow](https://staff.ie.cuhk.edu.hk/~smchow/), [Yuxiang Peng](https://github.com/crosscrossing), [Sijun Tan](https://jeffreysijuntan.github.io), Lichun Li, and Shan Yin**. (# denotes equal contribution)
 
 This artifact has been awarded  **Artifact Functional Badge**, **Artifact Reusable Badge**, and **Results Reproduced Badge**.
 
@@ -72,7 +72,7 @@ To be added ...
 To be added ...
 
 ## Acknowledgement
-[Yuxiang Peng](https://github.com/crosscrossing) contributed to the partial code of GPU implementation.  
+Yuxiang Peng contributed to the partial code of GPU implementation.  
 
 The authors wholeheartedly appreciate the invaluable feedback from the anonymous shepherd, reviewers, and artifacts evaluation committee. We thank Yuan Zhao, Yashun Zhou, Dong Yin, and Jiaofu Zhang at Ant Group for their insightful discussions and endeavors on coding, and Jiafan Wang for his help and guidance to Yu. Special thanks go to David Wu, Florian Kerschbaum, and Jean-Pierre Hubaux for their constructive suggestions for Yu’s poster at EPFL Summer Research Institute.  
 
