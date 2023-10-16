@@ -61,7 +61,7 @@ The Python implementation (Apache license) follows the TensorFlow programming st
 In the `cpu` folder, run the script of `experiment_table_3&4.py` to obtain the experimental results of Tables 3,4.
 
 ### CPU-based Experiments 
-Follow the `README.md` instruction in `cpu` folder for installation. Then, run the script `run.sh` to obtain the results of Tables 7,8,9,11,12. Since training for model accuracy costs a relatively long time (i.e., several hours), we put the relevant experiments at last. For user convenience, we attach the record of parameter tuning in the file ./cpu/artifacts/record.csv.
+Follow the `README.md` instruction in `cpu` folder for installation. Then, run the script `run.sh` to obtain the results of Tables 7,8,9,11,12. Since training for model accuracy costs a relatively long time (i.e., several hours), we put the relevant experiments at last. The results are recorded in the `artifacts/` folder. For user convenience, we attach the record of parameter tuning in the file ./cpu/artifacts/record.csv. 
 
 ### GPU-based Experiments 
 Follow the `README.md` instruction in `piranha` folder to install the C++ implementation. Then, download the `MNIST` and `CIFAR-10` datasets. At last, execute the script `run.sh` in the Docker container to get results of Tables 5,6,10.
