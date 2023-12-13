@@ -4,7 +4,7 @@ Antchain-MPC is an open-source library for providing multiparty computation (MPC
 
 
 ## Key Branches
-`sec_softmoid`: Secure Softmax/Sigmoid for Machine-Learning Computation (ACSAC'23). [Paper](https://dl.acm.org/doi/pdf/10.1145/3627106.3627175) [Code](https://github.com/alipay/Antchain-MPC/tree/sec_softmoid) [Conference Slides](https://github.com/yuzhengcuhk/slides_collection/blob/main/23-ACSAC-Softmoid.pdf)
+`sec_softmoid`: Secure Softmax/Sigmoid for Machine-Learning Computation (ACSAC'23). [\[Paper\]](https://dl.acm.org/doi/pdf/10.1145/3627106.3627175) [\[Code\]](https://github.com/alipay/Antchain-MPC/tree/sec_softmoid) [\[Conference Slides\]](https://github.com/yuzhengcuhk/slides_collection/blob/main/23-ACSAC-Softmoid.pdf)
 
 Others: Coming later.
 
