@@ -1,12 +1,12 @@
 # Secure Softmax and Sigmoid
-The branch of `sec_softmoid` contains Python and C++ implementations of the paper 
+The branch of `sec_softmoid` contains Python and C++ implementations of the paper. 
 
-**Secure Softmax/Sigmoid for Machine-learning Computation. (ACSAC'23) [\[Paper\]](https://dl.acm.org/doi/pdf/10.1145/3627106.3627175) [\[Code\]](https://github.com/alipay/Antchain-MPC/tree/sec_softmoid) 
-
-[\[Conference Slides\]](https://github.com/yuzhengcuhk/slides_collection/blob/main/23-ACSAC-Softmoid.pdf)**
+**Secure Softmax/Sigmoid for Machine-learning Computation. (ACSAC'23)**
 
 **by [Yu Zheng#](https://github.com/yuzhengcuhk), [Qizhi Zhang#](https://github.com/qizhi-zhang), [Sherman S.M. Chow](https://staff.ie.cuhk.edu.hk/~smchow/), [Yuxiang Peng](https://github.com/crosscrossing), [Sijun Tan](https://jeffreysijuntan.github.io), Lichun Li, and Shan Yin**. 
 (# denotes equal contribution)
+
+[\[Paper\]](https://dl.acm.org/doi/pdf/10.1145/3627106.3627175) [\[Code\]](https://github.com/alipay/Antchain-MPC/tree/sec_softmoid) [\[Conference Slides\]](https://github.com/yuzhengcuhk/slides_collection/blob/main/23-ACSAC-Softmoid.pdf)
 
 This artifact has been awarded  **Artifact Functional Badge**, **Artifact Reusable Badge**, and **Results Reproduced Badge**.
 
