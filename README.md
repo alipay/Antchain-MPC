@@ -1,10 +1,10 @@
 # Antchain-MPC
 
-Antchain-MPC is a open-source library for providing multiparty computation (MPC) algorithms/protocols. It includes `sec_softmoid` (ACSAC'23), ...
+Antchain-MPC is an open-source library for providing multiparty computation (MPC) algorithms/protocols. It includes `sec_softmoid` (ACSAC'23), ...
 
 
 ## Key Branches
-`sec_softmoid`: Secure Softmax/Sigmoid for Machine-Learning Computation (ACSAC'23). [GitHub Link](https://github.com/alipay/Antchain-MPC/tree/sec_softmoid)
+`sec_softmoid`: Secure Softmax/Sigmoid for Machine-Learning Computation (ACSAC'23). [Paper](https://dl.acm.org/doi/pdf/10.1145/3627106.3627175) [Code](https://github.com/alipay/Antchain-MPC/tree/sec_softmoid) [Conference Slides](https://github.com/yuzhengcuhk/slides_collection/blob/main/23-ACSAC-Softmoid.pdf)
 
 Others: Coming later.
 
@@ -26,7 +26,7 @@ Morse-STF is a tool for privacy-preserving machine learning using MPC. We outlin
 | -----------  | ----------- |
 | conf        | configuration files   |
 | ducuments   |  descriptive files (keep updating)   |
-| examples    | runnning examples for stensorflow |
+| examples    | running examples for stensorflow |
 | stensorflow | importing folder for all functionality |
 | unitest| testing files for different units used in stensorflow |
 | output| store output files |
